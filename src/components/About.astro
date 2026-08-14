@@ -1,0 +1,134 @@
+---
+import { Picture } from 'astro:assets';
+import pavel2 from '../assets/pavel2.jpeg';
+import { contacts } from '../data/site';
+---
+
+<section class="section section-gap" id="about">
+  <div class="about-grid">
+    <div class="about-photo">
+      <Picture
+        src={pavel2}
+        formats={['webp']}
+        fallbackFormat="jpeg"
+        alt="Ярополов Павел Алексеевич, интернет-маркетолог"
+        width={640}
+        height={800}
+        class="about-photo-img about-photo-sharp"
+        loading="lazy"
+      />
+      <Picture
+        src={pavel2}
+        formats={['webp']}
+        fallbackFormat="jpeg"
+        alt=""
+        aria-hidden="true"
+        width={640}
+        height={800}
+        class="about-photo-img about-photo-blur"
+        loading="lazy"
+      />
+    </div>
+
+    <div class="about-copy">
+      <p class="mono-label">Обо мне</p>
+      <h2 class="about-title">{contacts.shortName}</h2>
+
+      <div class="about-text">
+        <p>В маркетинге больше 5 лет.</p>
+        <p>
+          Начинал с SMM, SEO и PR,<br />
+          сейчас основная специализация — интернет-продвижение:<br />
+          Яндекс.Директ и создание сайтов. Для клиентов, с которыми уже есть деловые отношения,<br />
+          веду консультации по продвижению Бренда, SMM и PR деятельности.
+        </p>
+        <p>
+          Работаю самостоятельно, без агентства.<br />
+          Это значит, что с кампанией и с сайтом я работаю индивидуально,<br />
+          без сторонних помощников, специалистов и лишних наценок.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  @media (min-width: 900px) {
+    .about-grid {
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: 64px;
+      align-items: start;
+    }
+  }
+
+  .about-photo {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    max-width: 380px;
+  }
+
+  .about-photo-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.08) sepia(0.12) hue-rotate(5deg);
+  }
+
+  .about-photo-sharp {
+    -webkit-mask-image: radial-gradient(ellipse 66% 70% at center, black 0%, black 58%, transparent 82%);
+    mask-image: radial-gradient(ellipse 66% 70% at center, black 0%, black 58%, transparent 82%);
+  }
+
+  .about-photo-blur {
+    filter: grayscale(1) contrast(1.08) sepia(0.12) hue-rotate(5deg) blur(14px);
+    -webkit-mask-image: radial-gradient(
+      ellipse 66% 70% at center,
+      transparent 0%,
+      transparent 46%,
+      black 62%,
+      black 78%,
+      transparent 96%
+    );
+    mask-image: radial-gradient(
+      ellipse 66% 70% at center,
+      transparent 0%,
+      transparent 46%,
+      black 62%,
+      black 78%,
+      transparent 96%
+    );
+  }
+
+  .about-title {
+    font-size: 32px;
+    margin-top: 12px;
+  }
+
+  @media (min-width: 640px) {
+    .about-title {
+      font-size: 40px;
+    }
+  }
+
+  .about-text {
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .about-text p {
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+    max-width: 620px;
+  }
+</style>

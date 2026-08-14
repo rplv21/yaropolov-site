@@ -1,0 +1,388 @@
+<section class="section section-gap" id="form">
+  <div class="form-wrap">
+    <p class="mono-label">Заявка</p>
+    <h2 class="form-title">Оставить заявку</h2>
+    <p class="form-subtitle">Отвечаю лично в течение дня.</p>
+
+    <div class="form-panel glass">
+    <form id="lead-form" novalidate>
+      <div class="form-row">
+        <label class="form-label" for="lf-name">Имя *</label>
+        <input class="form-input" type="text" id="lf-name" name="name" required autocomplete="name" />
+      </div>
+
+      <div class="form-row">
+        <label class="form-label" for="lf-method">Удобный метод связи *</label>
+        <select class="form-input" id="lf-method" name="method" required>
+          <option value="">Выбрать...</option>
+          <option value="vk">ВКонтакте</option>
+          <option value="max">Max</option>
+          <option value="email">Электронная почта</option>
+          <option value="telegram">Telegram</option>
+          <option value="phone">Мобильный телефон</option>
+        </select>
+      </div>
+
+      <div class="form-row" data-method-field="vk" hidden>
+        <label class="form-label" for="lf-vk">Ссылка на профиль ВКонтакте *</label>
+        <input class="form-input" type="url" id="lf-vk" name="vk" placeholder="https://vk.com/username" autocomplete="off" />
+      </div>
+
+      <div class="form-row" data-method-field="max" hidden>
+        <label class="form-label" for="lf-max">Номер телефона Max *</label>
+        <input class="form-input" type="tel" id="lf-max" name="max" placeholder="+7 (___) ___-__-__" inputmode="numeric" autocomplete="off" />
+      </div>
+
+      <div class="form-row" data-method-field="email" hidden>
+        <label class="form-label" for="lf-email">Электронная почта *</label>
+        <input class="form-input" type="email" id="lf-email" name="email" placeholder="you@example.com" autocomplete="off" />
+      </div>
+
+      <div class="form-row" data-method-field="email" hidden>
+        <label class="form-label" for="lf-email-phone">Телефон (необязательно)</label>
+        <input class="form-input" type="tel" id="lf-email-phone" name="emailPhone" placeholder="+7 (___) ___-__-__" inputmode="numeric" autocomplete="off" />
+      </div>
+
+      <div class="form-row" data-method-field="telegram" hidden>
+        <label class="form-label" for="lf-telegram">Telegram *</label>
+        <input class="form-input" type="text" id="lf-telegram" name="telegram" placeholder="@username" autocomplete="off" />
+      </div>
+
+      <div class="form-row" data-method-field="telegram" hidden>
+        <label class="form-label" for="lf-telegram-phone">Телефон (необязательно)</label>
+        <input class="form-input" type="tel" id="lf-telegram-phone" name="telegramPhone" placeholder="+7 (___) ___-__-__" inputmode="numeric" autocomplete="off" />
+      </div>
+
+      <div class="form-row" data-method-field="phone" hidden>
+        <label class="form-label" for="lf-phone">Мобильный телефон *</label>
+        <input class="form-input" type="tel" id="lf-phone" name="phone" placeholder="+7 (___) ___-__-__" inputmode="numeric" autocomplete="off" />
+      </div>
+
+      <div class="form-row">
+        <label class="form-label" for="lf-site">Сайт компании (если есть)</label>
+        <input class="form-input" type="text" id="lf-site" name="site" autocomplete="url" />
+      </div>
+
+      <div class="form-row">
+        <label class="form-label" for="lf-niche">Ниша</label>
+        <select class="form-input" id="lf-niche" name="niche">
+          <option value="">Выбрать...</option>
+          <option>Розничная торговля</option>
+          <option>Услуги для бизнеса</option>
+          <option>Производство</option>
+          <option>Строительство и ремонт</option>
+          <option>Культура и события</option>
+          <option>Медицина и красота</option>
+          <option>Другое</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label" for="lf-comment">Комментарий (необязательно)</label>
+        <textarea class="form-input" id="lf-comment" name="comment" rows="3"></textarea>
+      </div>
+
+      <!-- honeypot: скрытое поле-ловушка для ботов -->
+      <div class="form-honeypot" aria-hidden="true">
+        <label for="lf-hp">Оставьте пустым</label>
+        <input type="text" id="lf-hp" name="hp" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <label class="form-consent">
+        <input type="checkbox" id="lf-consent" name="consent" required />
+        <span>
+          Согласен на обработку персональных данных<br />
+          согласно <a href="/privacy">политике конфиденциальности</a>
+        </span>
+      </label>
+
+      <button type="submit" class="btn btn-primary form-submit" id="lf-submit" disabled>
+        Отправить заявку
+      </button>
+    </form>
+    <p class="form-status" id="lf-status" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .form-wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .form-title {
+    font-size: 32px;
+    margin-top: 12px;
+  }
+
+  @media (min-width: 640px) {
+    .form-title {
+      font-size: 44px;
+    }
+  }
+
+  .form-subtitle {
+    margin-top: 16px;
+    color: var(--color-text-muted);
+  }
+
+  .form-panel {
+    margin-top: 40px;
+    padding: var(--card-padding);
+    text-align: left;
+  }
+
+  .form-panel form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .form-label {
+    font-size: 14px;
+    color: var(--color-text-muted);
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-input);
+    color: var(--color-text);
+    resize: vertical;
+  }
+
+  .form-input:focus-visible {
+    border-color: var(--color-accent);
+  }
+
+  .form-honeypot {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .form-consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  .form-consent input {
+    margin-top: 3px;
+    accent-color: var(--color-accent);
+  }
+
+  .form-consent a {
+    color: var(--color-text);
+    text-decoration: underline;
+  }
+
+  .form-consent a:hover {
+    color: var(--color-accent);
+  }
+
+  .form-submit {
+    margin-top: 4px;
+  }
+
+  .form-submit:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .form-submit:disabled:hover {
+    box-shadow: none;
+  }
+
+  .form-status {
+    margin-top: 16px;
+    font-size: 14px;
+    min-height: 20px;
+  }
+
+  .form-status:empty {
+    margin-top: 0;
+  }
+
+  .form-status[data-state='success'] {
+    color: var(--color-accent);
+  }
+
+  .form-status[data-state='error'] {
+    color: #e0715a;
+  }
+</style>
+
+<script>
+  const form = document.getElementById('lead-form') as HTMLFormElement | null;
+  const consent = document.getElementById('lf-consent') as HTMLInputElement | null;
+  const submitBtn = document.getElementById('lf-submit') as HTMLButtonElement | null;
+  const statusEl = document.getElementById('lf-status');
+  const commentField = document.getElementById('lf-comment') as HTMLTextAreaElement | null;
+
+  consent?.addEventListener('change', () => {
+    if (submitBtn) submitBtn.disabled = !consent.checked;
+  });
+
+  window.addEventListener('prefill-lead-form', ((e: CustomEvent<string>) => {
+    if (commentField) {
+      commentField.value = e.detail;
+    }
+  }) as EventListener);
+
+  // Маска номера телефона: +7 (XXX) XXX-XX-XX
+  function formatPhone(raw: string) {
+    let digits = raw.replace(/\D/g, '');
+    if (digits.startsWith('7') || digits.startsWith('8')) digits = digits.slice(1);
+    digits = digits.slice(0, 10);
+
+    let out = '+7';
+    if (digits.length > 0) out += ' (' + digits.slice(0, 3);
+    if (digits.length >= 3) out += ')';
+    if (digits.length > 3) out += ' ' + digits.slice(3, 6);
+    if (digits.length > 6) out += '-' + digits.slice(6, 8);
+    if (digits.length > 8) out += '-' + digits.slice(8, 10);
+    return out;
+  }
+
+  function attachPhoneMask(input: HTMLInputElement | null) {
+    if (!input) return;
+    input.addEventListener('input', () => {
+      input.value = formatPhone(input.value);
+    });
+    input.addEventListener('focus', () => {
+      if (!input.value) input.value = '+7 (';
+    });
+  }
+
+  attachPhoneMask(document.getElementById('lf-max') as HTMLInputElement | null);
+  attachPhoneMask(document.getElementById('lf-phone') as HTMLInputElement | null);
+  attachPhoneMask(document.getElementById('lf-email-phone') as HTMLInputElement | null);
+  attachPhoneMask(document.getElementById('lf-telegram-phone') as HTMLInputElement | null);
+
+  // Telegram: значение всегда начинается с "@"
+  const telegramInput = document.getElementById('lf-telegram') as HTMLInputElement | null;
+  if (telegramInput) {
+    telegramInput.addEventListener('input', () => {
+      const stripped = telegramInput.value.replace(/^@+/, '');
+      telegramInput.value = '@' + stripped;
+    });
+    telegramInput.addEventListener('focus', () => {
+      if (!telegramInput.value) telegramInput.value = '@';
+    });
+  }
+
+  // Переключение полей в зависимости от выбранного метода связи
+  const methodSelect = document.getElementById('lf-method') as HTMLSelectElement | null;
+  const methodFieldGroups = document.querySelectorAll<HTMLElement>('[data-method-field]');
+  const primaryFieldByMethod: Record<string, string> = {
+    vk: 'lf-vk',
+    max: 'lf-max',
+    email: 'lf-email',
+    telegram: 'lf-telegram',
+    phone: 'lf-phone',
+  };
+
+  methodSelect?.addEventListener('change', () => {
+    const method = methodSelect.value;
+
+    methodFieldGroups.forEach((group) => {
+      const isActive = group.dataset.methodField === method;
+      group.hidden = !isActive;
+      const input = group.querySelector('input');
+      if (input) {
+        // Обязательно только основное поле метода — необязательные телефоны
+        // (у email и Telegram) required быть не должны.
+        input.required = isActive && input.id === primaryFieldByMethod[method];
+      }
+    });
+
+    if (method === 'telegram' && telegramInput && !telegramInput.value) {
+      telegramInput.value = '@';
+    }
+    const primaryId = primaryFieldByMethod[method];
+    const primaryInput = primaryId ? (document.getElementById(primaryId) as HTMLInputElement | null) : null;
+    if (primaryInput && (method === 'max' || method === 'phone') && !primaryInput.value) {
+      primaryInput.value = '+7 (';
+    }
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const formData = new FormData(form);
+    const method = String(formData.get('method') || '');
+
+    const payload: Record<string, string> = {
+      name: String(formData.get('name') || ''),
+      site: String(formData.get('site') || ''),
+      niche: String(formData.get('niche') || ''),
+      comment: String(formData.get('comment') || ''),
+      consent: consent?.checked ? 'true' : 'false',
+      hp: String(formData.get('hp') || ''),
+      method,
+    };
+
+    if (method === 'vk') payload.contact = String(formData.get('vk') || '');
+    if (method === 'max') payload.contact = String(formData.get('max') || '');
+    if (method === 'phone') payload.contact = String(formData.get('phone') || '');
+    if (method === 'email') {
+      payload.contact = String(formData.get('email') || '');
+      const emailPhone = String(formData.get('emailPhone') || '');
+      if (emailPhone && emailPhone !== '+7 (') payload.extraPhone = emailPhone;
+    }
+    if (method === 'telegram') {
+      payload.contact = String(formData.get('telegram') || '');
+      const telegramPhone = String(formData.get('telegramPhone') || '');
+      if (telegramPhone && telegramPhone !== '+7 (') payload.extraPhone = telegramPhone;
+    }
+
+    if (submitBtn) submitBtn.disabled = true;
+    if (statusEl) {
+      statusEl.textContent = 'Отправляю...';
+      statusEl.removeAttribute('data-state');
+    }
+
+    try {
+      const res = await fetch('/api/send-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error('request failed');
+
+      form.hidden = true;
+      if (statusEl) {
+        statusEl.textContent = 'Заявка отправлена. Отвечу в ближайшее время.';
+        statusEl.dataset.state = 'success';
+      }
+    } catch (err) {
+      if (statusEl) {
+        statusEl.textContent = 'Не получилось отправить. Попробуйте написать в Telegram напрямую.';
+        statusEl.dataset.state = 'error';
+      }
+      if (submitBtn) submitBtn.disabled = !consent?.checked;
+    }
+  });
+</script>

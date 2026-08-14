@@ -1,0 +1,95 @@
+---
+import { faq } from '../data/site';
+---
+
+<section class="section section-gap" id="faq">
+  <p class="mono-label">Вопросы</p>
+  <h2 class="faq-title">Отвечаю честно</h2>
+
+  <div class="faq-list">
+    {faq.map((item) => (
+      <details class="faq-item" name="faq-accordion">
+        <summary class="faq-summary">
+          <span class="mono-label faq-number">{item.number}</span>
+          <span class="faq-question">{item.question}</span>
+        </summary>
+        <p class="faq-answer">{item.answer}</p>
+      </details>
+    ))}
+  </div>
+</section>
+
+<style>
+  .faq-title {
+    font-size: 32px;
+    margin-top: 12px;
+    max-width: 640px;
+  }
+
+  @media (min-width: 640px) {
+    .faq-title {
+      font-size: 44px;
+    }
+  }
+
+  .faq-list {
+    margin-top: 48px;
+    max-width: 820px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .faq-item {
+    border-bottom: 1px solid var(--color-border);
+    border-left: 3px solid transparent;
+    padding: 24px 24px 24px 20px;
+    transition: border-left-color 0.2s ease;
+  }
+
+  .faq-item[open] {
+    border-left-color: var(--color-accent);
+  }
+
+  .faq-summary {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .faq-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-summary::after {
+    content: '+';
+    margin-left: auto;
+    font-family: var(--font-mono);
+    color: var(--color-text-dim);
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .faq-item[open] .faq-summary::after {
+    content: '−';
+    color: var(--color-accent);
+  }
+
+  .faq-number {
+    flex-shrink: 0;
+  }
+
+  .faq-question {
+    font-size: 17px;
+    color: var(--color-text);
+  }
+
+  .faq-answer {
+    margin-top: 16px;
+    padding-left: 40px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+    max-width: 680px;
+  }
+</style>

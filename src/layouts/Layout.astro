@@ -1,0 +1,113 @@
+---
+import '../styles/global.css';
+import Ticker from '../components/Ticker.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import EasterEgg from '../components/EasterEgg.astro';
+import SoundWaves from '../components/SoundWaves.astro';
+import { contacts } from '../data/site';
+
+interface Props {
+  title: string;
+  description: string;
+  noindex?: boolean;
+}
+
+const { title, description, noindex = false } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL('/og-cover.png', Astro.site);
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: contacts.name,
+  jobTitle: 'Интернет-маркетолог',
+  url: 'https://yaropolov.ru',
+  telephone: contacts.phone,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Ярославль',
+    addressCountry: 'RU',
+  },
+};
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Настройка и ведение контекстной рекламы, создание сайтов',
+  provider: {
+    '@type': 'Person',
+    name: contacts.name,
+  },
+  areaServed: ['Ярославль', 'Иваново', 'Владимир', 'Кострома', 'Тверь', 'Вологда'],
+};
+
+const localBusinessSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  name: 'Ярополов Павел — интернет-маркетолог',
+  image: ogImage.toString(),
+  telephone: contacts.phone,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Ярославль',
+    addressRegion: 'Ярославская область',
+    addressCountry: 'RU',
+  },
+  areaServed: 'Ярославль и область',
+};
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonicalURL} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="ru_RU" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(serviceSchema)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(localBusinessSchema)} />
+
+    <!-- Яндекс.Метрика: ID появится после публикации -->
+    <!--
+    <script type="text/javascript">
+      (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+      m[i].l=1*new Date();
+      k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+      (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+      ym(REPLACE_WITH_METRIKA_ID, "init", { clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true });
+    </script>
+    -->
+  </head>
+  <body>
+    <SoundWaves />
+    <EasterEgg />
+    <div class="page-content">
+      <a href="#main" class="sr-only">Перейти к содержимому</a>
+      <Ticker />
+      <Header />
+      <main id="main">
+        <slot />
+      </main>
+      <Footer />
+    </div>
+  </body>
+</html>

@@ -1,0 +1,181 @@
+---
+import { nav, contacts } from '../data/site';
+import tgSvg from '../assets/icons/tg.svg?raw';
+import vkSvg from '../assets/icons/vk.svg?raw';
+import maxSvg from '../assets/icons/max.svg?raw';
+
+const iconLinks = [
+  { href: contacts.telegramHref, text: 'Telegram', icon: tgSvg },
+  { href: contacts.vkHref, text: 'ВКонтакте', icon: vkSvg },
+  { href: contacts.maxHref, text: 'Макс', icon: maxSvg },
+];
+---
+
+<footer class="footer" id="contact">
+  <div class="footer-inner section">
+    <div class="footer-col">
+      <p class="footer-logo">YAROPOLOV.RU</p>
+      <p class="footer-desc">
+        Интернет-маркетолог.<br />
+        Настраиваю Яндекс.Директ<br />
+        и создаю сайты для Вашего бизнеса.
+      </p>
+    </div>
+
+    <nav class="footer-col" aria-label="Навигация в футере">
+      <p class="mono-label">Навигация</p>
+      <ul>
+        {nav.map((item) => (
+          <li><a href={item.href}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="footer-col">
+      <p class="mono-label">Контакты</p>
+      <ul class="footer-contacts">
+        {iconLinks.map((link) => (
+          <li>
+            <a href={link.href} target="_blank" rel="noopener noreferrer" class="footer-contact-link">
+              <span class="footer-icon" set:html={link.icon} />
+              <span>{link.text}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom section">
+    <p>{contacts.name} · ИНН {contacts.inn}</p>
+    <p><a href="/privacy">Политика конфиденциальности</a> · © 2026 {contacts.domain}</p>
+  </div>
+
+  <div class="footer-accent" aria-hidden="true"></div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--color-abyss);
+    margin-top: var(--section-gap-m);
+  }
+
+  @media (min-width: 900px) {
+    .footer {
+      margin-top: var(--section-gap);
+    }
+  }
+
+  .footer-inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding-block: 64px;
+  }
+
+  @media (min-width: 720px) {
+    .footer-inner {
+      grid-template-columns: 1.4fr 1fr 1fr;
+    }
+  }
+
+  .footer-logo {
+    font-family: var(--font-display);
+    font-size: 20px;
+    text-transform: uppercase;
+    color: var(--color-text);
+    margin-bottom: 12px;
+  }
+
+  .footer-desc {
+    color: var(--color-text-muted);
+    font-size: 15px;
+    max-width: 320px;
+  }
+
+  .footer-col .mono-label {
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .footer-col ul {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .footer-col a {
+    color: var(--color-text-muted);
+    font-size: 15px;
+    transition: color 0.2s ease;
+  }
+
+  .footer-col a:hover {
+    color: var(--color-accent);
+  }
+
+  .footer-contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--color-text-muted);
+    font-size: 15px;
+    transition: color 0.2s ease;
+  }
+
+  .footer-contact-link:hover {
+    color: var(--color-accent);
+  }
+
+  .footer-icon {
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .footer-icon :global(svg) {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .footer-contact-link:hover .footer-icon {
+    opacity: 0.8;
+    transform: translateY(-2px);
+  }
+
+  .footer-bottom {
+    border-top: 1px solid var(--color-border);
+    padding-block: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-text-dim);
+  }
+
+  .footer-bottom a {
+    color: var(--color-text-dim);
+    text-decoration: underline;
+  }
+
+  .footer-bottom a:hover {
+    color: var(--color-accent);
+  }
+
+  @media (min-width: 720px) {
+    .footer-bottom {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  .footer-accent {
+    height: 6px;
+    width: 100%;
+    background: var(--color-accent);
+  }
+</style>

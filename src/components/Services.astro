@@ -1,0 +1,131 @@
+---
+import { services, contacts } from '../data/site';
+---
+
+<section class="section section-gap" id="services">
+  <p class="mono-label">Услуги</p>
+  <h2 class="services-title">
+    Что я предлагаю<br />
+    и сколько это стоит
+  </h2>
+
+  <div class="services-grid">
+    {services.map((s) => (
+      <div class:list={['service-card glass', s.featured && 'service-card-featured']}>
+        {s.featured && <span class="service-badge mono-label">Выгоднее</span>}
+        <p class="mono-label">{s.category}</p>
+        <h3 class="service-name">{s.name}</h3>
+        <ul class="service-items">
+          {s.items.map((item) => <li>{item}</li>)}
+        </ul>
+        <p class="service-price">{s.price}</p>
+
+        <a href={contacts.telegramHref} target="_blank" rel="noopener noreferrer" class="btn btn-ghost service-cta">
+          Обсудить
+        </a>
+      </div>
+    ))}
+  </div>
+
+  <p class="services-note">
+    Рекламный бюджет всегда оплачивается отдельно,<br />
+    напрямую в рекламный кабинет Яндекс или ВКонтакте — в стоимость услуг не входит.
+  </p>
+</section>
+
+<style>
+  .services-title {
+    font-size: 32px;
+    margin-top: 12px;
+    max-width: 640px;
+  }
+
+  @media (min-width: 640px) {
+    .services-title {
+      font-size: 44px;
+    }
+  }
+
+  .services-grid {
+    margin-top: 48px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  @media (min-width: 720px) {
+    .services-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .service-card {
+    padding: var(--card-padding);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .service-card-featured {
+    border-color: var(--color-accent);
+  }
+
+  .service-badge {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    background: var(--color-accent-glass);
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+  }
+
+  .service-name {
+    font-size: 26px;
+    margin-top: 12px;
+  }
+
+  .service-items {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-grow: 1;
+  }
+
+  .service-items li {
+    position: relative;
+    padding-left: 18px;
+    font-size: 15px;
+    color: var(--color-text-muted);
+  }
+
+  .service-items li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 5px;
+    height: 5px;
+    background: var(--color-accent);
+    border-radius: 50%;
+  }
+
+  .service-price {
+    margin-top: 24px;
+    font-family: var(--font-mono);
+    font-size: 22px;
+    color: var(--color-accent);
+  }
+
+  .service-cta {
+    margin-top: 24px;
+    align-self: flex-start;
+  }
+
+  .services-note {
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--color-text-dim);
+    max-width: 640px;
+  }
+</style>

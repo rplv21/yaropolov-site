@@ -1,0 +1,523 @@
+---
+const ICON_SITE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9.5h18"/><circle cx="6" cy="7.2" r="0.6" fill="currentColor" stroke="none"/><circle cx="8.2" cy="7.2" r="0.6" fill="currentColor" stroke="none"/></svg>`;
+const ICON_ADS = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4a1 1 0 0 0 1 1h2l4 4V5L6 9H4a1 1 0 0 0-1 1Z"/><path d="M14 8a4 4 0 0 1 0 8"/><path d="M17 5a8 8 0 0 1 0 14"/></svg>`;
+const ICON_PACKAGE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.5 5.2 5.7.6-4.3 3.9 1.2 5.6-5.1-2.9-5.1 2.9 1.2-5.6-4.3-3.9 5.7-.6L12 3.5Z"/></svg>`;
+---
+
+<section class="section section-gap">
+  <div class="calc-wrap">
+    <p class="mono-label">Калькулятор</p>
+    <h2 class="calc-title">Порядок цифр за 3 шага</h2>
+    <p class="calc-subtitle">
+      Показывает диапазон, а не точную сумму.<br />
+      Точная стоимость обсуждается отдельно.
+    </p>
+
+    <div class="calc-indicator" aria-hidden="true" id="calc-indicator">
+      <div class="calc-indicator-node" data-indicator="1">
+        <span class="calc-indicator-circle">1</span>
+        <span class="calc-indicator-label">Что нужно</span>
+      </div>
+      <div class="calc-indicator-line"></div>
+      <div class="calc-indicator-node" data-indicator="2">
+        <span class="calc-indicator-circle">2</span>
+        <span class="calc-indicator-label">Параметры</span>
+      </div>
+      <div class="calc-indicator-line"></div>
+      <div class="calc-indicator-node" data-indicator="3">
+        <span class="calc-indicator-circle">3</span>
+        <span class="calc-indicator-label">Результат</span>
+      </div>
+    </div>
+
+    <div class="calc-panel glass" id="calculator">
+      <div class="calc-step" data-step="1">
+        <p class="calc-step-heading">Шаг 1 — Что нужно</p>
+        <div class="calc-cards">
+          <button type="button" class="calc-card" data-need="site" aria-pressed="false">
+            <span class="calc-card-icon" set:html={ICON_SITE} />
+            <span class="calc-card-title">Сайт</span>
+          </button>
+          <button type="button" class="calc-card" data-need="ads" aria-pressed="false">
+            <span class="calc-card-icon" set:html={ICON_ADS} />
+            <span class="calc-card-title">Реклама</span>
+          </button>
+          <button type="button" class="calc-card" data-need="package" aria-pressed="false">
+            <span class="calc-card-icon" set:html={ICON_PACKAGE} />
+            <span class="calc-card-title">Тариф «Абсолют»</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="calc-step" data-step="2" hidden>
+        <p class="calc-step-heading">Шаг 2 — Параметры</p>
+
+        <div class="calc-field" data-field="site-type" hidden>
+          <span class="calc-field-label">Тип сайта</span>
+          <div class="calc-options">
+            <button type="button" class="calc-option" data-site-type="landing" aria-pressed="false">Лендинг</button>
+            <button type="button" class="calc-option" data-site-type="multi" aria-pressed="false">Многостраничный</button>
+            <button type="button" class="calc-option" data-site-type="store" aria-pressed="false">Интернет-магазин</button>
+          </div>
+        </div>
+
+        <div class="calc-field" data-field="ads-channel" hidden>
+          <span class="calc-field-label">Каналы рекламы</span>
+          <div class="calc-options">
+            <button type="button" class="calc-option" data-channel="direct" aria-pressed="false">Яндекс.Директ</button>
+            <button type="button" class="calc-option" data-channel="vk" aria-pressed="false">Таргет ВКонтакте</button>
+          </div>
+        </div>
+
+        <div class="calc-field" data-field="niche">
+          <label class="calc-field-label" for="calc-niche">Ниша (необязательно)</label>
+          <input type="text" id="calc-niche" class="calc-input" placeholder="Например, розница, услуги, производство" />
+        </div>
+
+        <div class="calc-actions">
+          <button type="button" class="btn btn-ghost" data-calc-back>← Назад</button>
+          <button type="button" class="btn btn-primary" data-calc-next>Далее →</button>
+        </div>
+      </div>
+
+      <div class="calc-step" data-step="3" hidden>
+        <p class="calc-step-heading">Шаг 3 — Результат</p>
+
+        <div class="calc-result-box">
+          <p class="calc-result-label mono-label">Итоговая стоимость</p>
+          <p class="calc-result" id="calc-result">от 0 ₽</p>
+          <p class="calc-result-note" id="calc-result-note"></p>
+        </div>
+
+        <p class="calc-disclaimer" id="calc-disclaimer">* Точная стоимость — после обсуждения задачи.</p>
+
+        <div class="calc-actions">
+          <button type="button" class="btn btn-ghost" data-calc-back>← Назад</button>
+          <button type="button" class="btn btn-primary" id="calc-cta">Обсудить в заявке →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .calc-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .calc-title {
+    font-size: 32px;
+    margin-top: 12px;
+  }
+
+  @media (min-width: 640px) {
+    .calc-title {
+      font-size: 44px;
+    }
+  }
+
+  .calc-subtitle {
+    margin-top: 16px;
+    color: var(--color-text-muted);
+  }
+
+  .calc-indicator {
+    margin-top: 40px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .calc-indicator-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 96px;
+  }
+
+  .calc-indicator-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--color-text-muted);
+    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+  }
+
+  .calc-indicator-label {
+    font-size: 12px;
+    color: var(--color-text-dim);
+    text-align: center;
+  }
+
+  .calc-indicator-node.is-active .calc-indicator-circle {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-invert-text);
+  }
+
+  .calc-indicator-node.is-active .calc-indicator-label {
+    color: var(--color-text);
+  }
+
+  .calc-indicator-node.is-done .calc-indicator-circle {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .calc-indicator-line {
+    height: 1px;
+    background: var(--color-border-strong);
+    flex: 1;
+    margin-top: 16px;
+    max-width: 80px;
+    transition: background 0.2s ease;
+  }
+
+  .calc-indicator-line.is-done {
+    background: var(--color-accent);
+  }
+
+  .calc-panel {
+    margin-top: 32px;
+    padding: var(--card-padding);
+    text-align: left;
+  }
+
+  .calc-step-heading {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-dim);
+    margin-bottom: 20px;
+  }
+
+  .calc-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  @media (min-width: 560px) {
+    .calc-cards {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .calc-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 24px 16px;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--color-border-strong);
+    background: transparent;
+    color: var(--color-text);
+    text-align: center;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+
+  .calc-card-icon {
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+    color: var(--color-text-muted);
+    transition: color 0.2s ease;
+  }
+
+  .calc-card-icon :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .calc-card-title {
+    font-size: 15px;
+  }
+
+  .calc-card:hover {
+    border-color: var(--color-accent);
+  }
+
+  .calc-card[aria-pressed='true'] {
+    background: var(--color-accent-glass);
+    border-color: var(--color-accent);
+  }
+
+  .calc-card[aria-pressed='true'] .calc-card-icon {
+    color: var(--color-accent);
+  }
+
+  .calc-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .calc-option {
+    padding: 12px 20px;
+    border-radius: var(--radius-button);
+    border: 1px solid var(--color-border-strong);
+    background: transparent;
+    color: var(--color-text);
+    font-size: 15px;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+  }
+
+  .calc-option:hover {
+    border-color: var(--color-accent);
+  }
+
+  .calc-option[aria-pressed='true'] {
+    background: var(--color-accent-glass);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .calc-field {
+    margin-top: 28px;
+  }
+
+  .calc-field-label {
+    display: block;
+    font-size: 14px;
+    color: var(--color-text-muted);
+    margin-bottom: 12px;
+  }
+
+  .calc-input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-input);
+    color: var(--color-text);
+  }
+
+  .calc-input:focus-visible {
+    border-color: var(--color-accent);
+  }
+
+  .calc-result-box {
+    padding: 28px;
+    border-radius: var(--radius-card);
+    background: var(--color-abyss);
+    text-align: center;
+  }
+
+  .calc-result-label {
+    color: var(--color-text-dim);
+  }
+
+  .calc-result {
+    font-family: var(--font-mono);
+    font-size: 40px;
+    color: var(--color-accent);
+    margin-top: 12px;
+  }
+
+  .calc-result-note {
+    margin-top: 8px;
+    font-size: 14px;
+    color: var(--color-text-muted);
+    min-height: 20px;
+  }
+
+  .calc-disclaimer {
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--color-text-dim);
+  }
+
+  .calc-actions {
+    margin-top: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+</style>
+
+<script>
+  type Need = 'site' | 'ads' | 'package' | null;
+  type SiteType = 'landing' | 'multi' | 'store';
+
+  const PRICES = {
+    siteByType: {
+      landing: 25000,
+      multi: 30000,
+      store: 50000,
+    } as Record<SiteType, number>,
+    direct: 15000,
+    vk: 10000,
+  };
+
+  const panel = document.getElementById('calculator');
+  const indicator = document.getElementById('calc-indicator');
+
+  if (panel) {
+    const steps = panel.querySelectorAll<HTMLElement>('[data-step]');
+    const resultEl = document.getElementById('calc-result');
+    const resultNoteEl = document.getElementById('calc-result-note');
+    const disclaimerEl = document.getElementById('calc-disclaimer');
+    const ctaBtn = document.getElementById('calc-cta');
+
+    const DISCLAIMER_SITE = '* Точная стоимость — после обсуждения задачи.';
+    const DISCLAIMER_ADS = '* Точная стоимость — после обсуждения задачи. Рекламный бюджет оплачивается отдельно, напрямую в рекламный кабинет сервиса.';
+
+    let currentStep = 1;
+    let need: Need = null;
+    let siteType: SiteType | null = null;
+    let channels = new Set<'direct' | 'vk'>();
+
+    function updateIndicator(n: number) {
+      if (!indicator) return;
+      const nodes = indicator.querySelectorAll<HTMLElement>('[data-indicator]');
+      const lines = indicator.querySelectorAll<HTMLElement>('.calc-indicator-line');
+
+      nodes.forEach((node) => {
+        const i = Number(node.dataset.indicator);
+        node.classList.toggle('is-active', i === n);
+        node.classList.toggle('is-done', i < n);
+      });
+      lines.forEach((line, i) => {
+        line.classList.toggle('is-done', i + 1 < n);
+      });
+    }
+
+    function showStep(n: number) {
+      currentStep = n;
+      steps.forEach((s) => {
+        s.hidden = Number(s.dataset.step) !== n;
+      });
+      updateIndicator(n);
+      if (n === 3) computeResult();
+    }
+
+    function setPressed(buttons: NodeListOf<Element>, activeEl: Element) {
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === activeEl)));
+    }
+
+    const needButtons = panel.querySelectorAll('[data-need]');
+    needButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        need = btn.getAttribute('data-need') as Need;
+        setPressed(needButtons, btn);
+
+        // Сбрасываем параметры прошлого выбора — иначе тип сайта или каналы
+        // рекламы, выбранные в предыдущей ветке, "утекают" в текст заявки.
+        siteType = null;
+        channels.clear();
+        siteTypeButtons.forEach((b) => b.setAttribute('aria-pressed', 'false'));
+        channelButtons.forEach((b) => b.setAttribute('aria-pressed', 'false'));
+
+        const siteField = panel.querySelector<HTMLElement>('[data-field="site-type"]');
+        const adsField = panel.querySelector<HTMLElement>('[data-field="ads-channel"]');
+        if (siteField) siteField.hidden = need !== 'site';
+        if (adsField) adsField.hidden = need !== 'ads';
+
+        showStep(2);
+      });
+    });
+
+    const siteTypeButtons = panel.querySelectorAll('[data-site-type]');
+    siteTypeButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        siteType = btn.getAttribute('data-site-type') as SiteType;
+        setPressed(siteTypeButtons, btn);
+      });
+    });
+
+    const channelButtons = panel.querySelectorAll('[data-channel]');
+    channelButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const ch = btn.getAttribute('data-channel') as 'direct' | 'vk';
+        if (channels.has(ch)) {
+          channels.delete(ch);
+          btn.setAttribute('aria-pressed', 'false');
+        } else {
+          channels.add(ch);
+          btn.setAttribute('aria-pressed', 'true');
+        }
+      });
+    });
+
+    function fmt(n: number) {
+      return new Intl.NumberFormat('ru-RU').format(n);
+    }
+
+    function computeResult() {
+      if (disclaimerEl) {
+        disclaimerEl.textContent = need === 'site' ? DISCLAIMER_SITE : DISCLAIMER_ADS;
+      }
+
+      if (need === 'package') {
+        if (resultEl) resultEl.textContent = 'Договорная';
+        if (resultNoteEl) resultNoteEl.textContent = 'Зависит от объёма задач и целей проекта.';
+        return;
+      }
+
+      let workTotal = 0;
+      let note = '';
+
+      if (need === 'site') {
+        const type = siteType ?? 'landing';
+        workTotal = PRICES.siteByType[type];
+        note = siteType
+          ? 'Реклама не выбрана — считает только сайт.'
+          : 'Тип сайта не выбран — показан минимальный тариф (лендинг).';
+      } else if (need === 'ads') {
+        if (channels.size === 0) {
+          workTotal = 0;
+          note = 'Выберите хотя бы один канал рекламы на шаге 2.';
+        } else {
+          channels.forEach((ch) => {
+            workTotal += ch === 'direct' ? PRICES.direct : PRICES.vk;
+          });
+          note = 'Стоимость ведения в месяц. Рекламный бюджет — отдельно.';
+        }
+      }
+
+      if (resultEl) resultEl.textContent = `от ${fmt(workTotal)} ₽`;
+      if (resultNoteEl) resultNoteEl.textContent = note;
+    }
+
+    panel.querySelectorAll('[data-calc-back]').forEach((btn) => {
+      btn.addEventListener('click', () => showStep(Math.max(1, currentStep - 1)));
+    });
+
+    panel.querySelectorAll('[data-calc-next]').forEach((btn) => {
+      btn.addEventListener('click', () => showStep(3));
+    });
+
+    ctaBtn?.addEventListener('click', () => {
+      const nicheInput = document.getElementById('calc-niche') as HTMLInputElement | null;
+      const niche = nicheInput?.value?.trim();
+
+      const needLabel = need === 'site' ? 'Сайт' : need === 'ads' ? 'Реклама' : need === 'package' ? 'Тариф «Абсолют»' : '';
+      const parts = [`Из калькулятора: ${needLabel}`];
+      if (siteType) {
+        const siteTypeLabel = siteType === 'landing' ? 'лендинг' : siteType === 'multi' ? 'многостраничный сайт' : 'интернет-магазин';
+        parts.push(siteTypeLabel);
+      }
+      if (channels.size > 0) parts.push([...channels].map((c) => (c === 'direct' ? 'Яндекс.Директ' : 'Таргет ВК')).join(' + '));
+      if (niche) parts.push(`ниша: ${niche}`);
+      const text = parts.join(', ');
+
+      window.dispatchEvent(new CustomEvent('prefill-lead-form', { detail: text }));
+
+      document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    updateIndicator(1);
+  }
+</script>

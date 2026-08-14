@@ -1,0 +1,42 @@
+:root {
+  /* Полотно */
+  --color-canvas: #101112;
+  --color-abyss: #0a0b0b;
+  --color-surface: #1a1c1d;
+  --color-surface-2: #24272a;
+
+  /* Светлая инверсия — одна секция на страницу */
+  --color-invert-bg: #ffffff;
+  --color-invert-text: #101112;
+
+  /* Текст */
+  --color-text: #ffffff;
+  --color-text-muted: #8b9095;
+  --color-text-dim: #5c6165;
+
+  /* Обводки */
+  --color-border: #2a2d2f;
+  --color-border-strong: #3d4144;
+
+  /* Акцент — единственный хроматический цвет */
+  --color-accent: #e3b200;
+  --color-accent-dim: #8a6d00;
+  --color-accent-glass: rgba(227, 178, 0, 0.12);
+
+  /* Радиусы */
+  --radius-card: 10px;
+  --radius-button: 6px;
+  --radius-pill: 999px;
+  --radius-input: 6px;
+
+  /* Сетка */
+  --page-max: 1320px;
+  --section-gap: 112px;
+  --section-gap-m: 64px;
+  --card-padding: 32px;
+
+  /* Шрифты */
+  --font-display: 'Unbounded', 'Oswald', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}

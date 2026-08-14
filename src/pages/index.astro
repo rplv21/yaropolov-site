@@ -1,0 +1,29 @@
+---
+export const prerender = true;
+
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import Problem from '../components/Problem.astro';
+import Cases from '../components/Cases.astro';
+import Services from '../components/Services.astro';
+import HowIWork from '../components/HowIWork.astro';
+import Calculator from '../components/Calculator.astro';
+import About from '../components/About.astro';
+import Faq from '../components/Faq.astro';
+import LeadForm from '../components/LeadForm.astro';
+---
+
+<Layout
+  title="Ярополов Павел — интернет-маркетолог в Ярославле | Яндекс.Директ и сайты"
+  description="Настраиваю и веду Яндекс.Директ, делаю сайты для бизнеса в Ярославле и области. Работаю сам, без агентства и менеджеров. Бесплатный медиаплан перед стартом."
+>
+  <Hero />
+  <Problem />
+  <Cases />
+  <Services />
+  <HowIWork />
+  <Calculator />
+  <About />
+  <Faq />
+  <LeadForm />
+</Layout>

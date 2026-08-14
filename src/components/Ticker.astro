@@ -1,0 +1,56 @@
+<div class="ticker">
+  <span id="ticker-clock" class="ticker-clock" aria-hidden="true">--:--</span>
+  <span class="dot" aria-hidden="true">•</span>
+  <span aria-hidden="true">ЯНДЕКС.ДИРЕКТ И САЙТЫ</span>
+  <span class="dot" aria-hidden="true">•</span>
+  <span aria-hidden="true">ПРИНИМАЮ ПРОЕКТЫ</span>
+</div>
+
+<style>
+  .ticker {
+    background: var(--color-abyss);
+    height: 34px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .ticker-clock {
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text);
+    min-width: 2.6em;
+    text-align: center;
+  }
+
+  .dot {
+    color: var(--color-accent-dim);
+  }
+
+  @media (min-width: 640px) {
+    .ticker {
+      display: flex;
+    }
+  }
+</style>
+
+<script>
+  function pad(n: number) {
+    return String(n).padStart(2, '0');
+  }
+
+  function updateClock() {
+    const el = document.getElementById('ticker-clock');
+    if (!el) return;
+    const now = new Date();
+    el.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  }
+
+  updateClock();
+  setInterval(updateClock, 1000);
+</script>

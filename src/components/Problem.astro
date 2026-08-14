@@ -1,0 +1,59 @@
+---
+import { problems } from '../data/site';
+---
+
+<section class="section section-gap">
+  <h2 class="problem-title">Узнаёте себя?</h2>
+
+  <div class="problem-grid">
+    {problems.map((p) => (
+      <div class="problem-card glass">
+        <p class="problem-quote">«{p.quote}»</p>
+        <p class="problem-comment">{p.comment}</p>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .problem-title {
+    font-size: 32px;
+    max-width: 640px;
+  }
+
+  @media (min-width: 640px) {
+    .problem-title {
+      font-size: 44px;
+    }
+  }
+
+  .problem-grid {
+    margin-top: 48px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  @media (min-width: 720px) {
+    .problem-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .problem-card {
+    padding: var(--card-padding);
+  }
+
+  .problem-quote {
+    font-family: var(--font-body);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+
+  .problem-comment {
+    margin-top: 16px;
+    font-size: 15px;
+    color: var(--color-text-muted);
+  }
+</style>

@@ -1,0 +1,206 @@
+---
+import { Picture } from 'astro:assets';
+import pavel1 from '../assets/pavel1.jpeg';
+import { heroStats } from '../data/site';
+---
+
+<section class="hero">
+  <div class="hero-inner section">
+    <div class="hero-copy">
+      <p class="mono-label">Интернет-маркетолог</p>
+      <h1 class="hero-title">
+        Настраиваю Яндекс.Директ и создаю сайты для вашего бизнеса
+      </h1>
+      <p class="hero-subtitle">
+        Реклама, за которую я отвечаю лично.
+      </p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn btn-primary">Получить медиаплан</a>
+        <a href="#cases" class="btn btn-ghost">Смотреть кейсы</a>
+      </div>
+    </div>
+
+    <div class="hero-photo">
+      <Picture
+        src={pavel1}
+        formats={['webp']}
+        fallbackFormat="jpeg"
+        alt="Ярополов Павел, интернет-маркетолог"
+        width={640}
+        height={800}
+        class="hero-photo-img hero-photo-sharp"
+        loading="eager"
+        fetchpriority="high"
+      />
+      <Picture
+        src={pavel1}
+        formats={['webp']}
+        fallbackFormat="jpeg"
+        alt=""
+        aria-hidden="true"
+        width={640}
+        height={800}
+        class="hero-photo-img hero-photo-blur"
+        loading="eager"
+      />
+    </div>
+  </div>
+
+  <div class="hero-stats section">
+    {heroStats.map((stat, i) => (
+      <>
+        <div class="hero-stat">
+          <p class="hero-stat-value mono-stat">{stat.value}</p>
+          <p class="hero-stat-label mono-label">{stat.label}</p>
+        </div>
+        {i < heroStats.length - 1 && <span class="hero-stat-divider" aria-hidden="true" />}
+      </>
+    ))}
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    padding-top: 48px;
+    overflow: hidden;
+  }
+
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 48px;
+    align-items: center;
+    padding-bottom: 64px;
+  }
+
+  @media (min-width: 960px) {
+    .hero-inner {
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 64px;
+    }
+  }
+
+  .hero-title {
+    font-size: 40px;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin-top: 16px;
+    max-width: 720px;
+  }
+
+  @media (min-width: 640px) {
+    .hero-title {
+      font-size: 56px;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .hero-title {
+      font-size: 80px;
+      line-height: 0.97;
+    }
+  }
+
+  .hero-subtitle {
+    margin-top: 24px;
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--color-text-muted);
+    max-width: 560px;
+  }
+
+  @media (min-width: 640px) {
+    .hero-subtitle {
+      font-size: 20px;
+    }
+  }
+
+  .hero-actions {
+    margin-top: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .hero-photo {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    max-width: 420px;
+    justify-self: center;
+    width: 100%;
+  }
+
+  .hero-photo-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.08) sepia(0.12) hue-rotate(5deg);
+  }
+
+  .hero-photo-sharp {
+    -webkit-mask-image: radial-gradient(ellipse 66% 70% at center, black 0%, black 58%, transparent 82%);
+    mask-image: radial-gradient(ellipse 66% 70% at center, black 0%, black 58%, transparent 82%);
+  }
+
+  .hero-photo-blur {
+    filter: grayscale(1) contrast(1.08) sepia(0.12) hue-rotate(5deg) blur(14px);
+    -webkit-mask-image: radial-gradient(
+      ellipse 66% 70% at center,
+      transparent 0%,
+      transparent 46%,
+      black 62%,
+      black 78%,
+      transparent 96%
+    );
+    mask-image: radial-gradient(
+      ellipse 66% 70% at center,
+      transparent 0%,
+      transparent 46%,
+      black 62%,
+      black 78%,
+      transparent 96%
+    );
+  }
+
+  .hero-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    border-top: 1px solid var(--color-border);
+    padding-block: 32px;
+  }
+
+  .hero-stat-value {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    color: var(--color-text);
+    white-space: nowrap;
+  }
+
+  @media (min-width: 640px) {
+    .hero-stat-value {
+      font-size: 34px;
+    }
+  }
+
+  .hero-stat-label {
+    margin-top: 6px;
+    white-space: nowrap;
+  }
+
+  .hero-stat-divider {
+    display: none;
+    width: 1px;
+    background: var(--color-border);
+    align-self: stretch;
+  }
+
+  @media (min-width: 720px) {
+    .hero-stat-divider {
+      display: block;
+    }
+  }
+</style>

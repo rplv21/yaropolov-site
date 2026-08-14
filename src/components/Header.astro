@@ -1,0 +1,126 @@
+---
+import { nav, contacts } from '../data/site';
+---
+
+<header class="header" id="site-header">
+  <div class="header-inner section">
+    <a href="#main" class="logo">
+      YAROPOLOV.RU
+    </a>
+
+    <nav class="nav" aria-label="Основная навигация">
+      <ul>
+        {nav.map((item) => (
+          <li><a href={item.href}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <a href={contacts.telegramHref} class="btn btn-primary header-cta" target="_blank" rel="noopener noreferrer">
+      Написать в Telegram
+    </a>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(16, 17, 18, 0.72);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--color-border);
+    transition: transform 0.3s ease;
+  }
+
+  .header.header-hidden {
+    transform: translateY(-100%);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+    gap: 24px;
+  }
+
+  .logo {
+    position: relative;
+    font-family: var(--font-display);
+    font-size: 22px;
+    text-transform: uppercase;
+    color: var(--color-text);
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+  }
+
+  .logo::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 2px;
+    background: var(--color-accent);
+  }
+
+  .nav {
+    display: none;
+  }
+
+  .nav ul {
+    display: flex;
+    gap: 28px;
+  }
+
+  .nav a {
+    font-size: 15px;
+    color: var(--color-text-muted);
+    transition: color 0.2s ease;
+  }
+
+  .nav a:hover {
+    color: var(--color-text);
+  }
+
+  .header-cta {
+    padding: 10px 20px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 1024px) {
+    .nav {
+      display: block;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .header-cta {
+      padding: 10px 14px;
+    }
+  }
+</style>
+
+<script>
+  let lastScrollY = window.scrollY;
+  const header = document.getElementById('site-header');
+
+  function onScroll() {
+    if (!header) return;
+    const currentScrollY = window.scrollY;
+    const scrollingDown = currentScrollY > lastScrollY;
+
+    if (scrollingDown && currentScrollY > 120) {
+      header.classList.add('header-hidden');
+    } else {
+      header.classList.remove('header-hidden');
+    }
+
+    lastScrollY = currentScrollY;
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+</script>

@@ -1,0 +1,180 @@
+<canvas id="sound-waves" aria-hidden="true"></canvas>
+
+<style>
+  #sound-waves {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    width: 100vw;
+    height: 100vh;
+  }
+</style>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canvas = document.getElementById('sound-waves') as HTMLCanvasElement | null;
+  const ctx = canvas?.getContext('2d');
+
+  if (canvas && ctx) {
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+    type Layer = {
+      baseY: number; // доля высоты вьюпорта
+      ampBase: number;
+      ampRange: number;
+      freqBase: number;
+      freqRange: number;
+      phaseSpeed: number; // намеренно очень маленькая — волна никогда не "спешит"
+      modOffset: number;
+      thickness: number; // "объём" ленты
+      blur: number; // чем дальше слой, тем сильнее блюр — эффект глубины
+      alpha: number;
+      color: string;
+      lastFreq: number;
+      lastAmp: number;
+      lastPhase: number;
+    };
+
+    // От дальнего слоя к ближнему: больше блюра и меньше чёткости у дальних,
+    // толще и ярче — у передних. Это и создаёт ощущение объёма/глубины.
+    const LAYERS: Layer[] = [
+      { baseY: 0.18, ampBase: 28, ampRange: 12, freqBase: 0.0050, freqRange: 0.0018, phaseSpeed: 0.00014, modOffset: 0.0, thickness: 10, blur: 7, alpha: 0.055, color: '#8a6d00', lastFreq: 0, lastAmp: 0, lastPhase: 0 },
+      { baseY: 0.34, ampBase: 36, ampRange: 14, freqBase: 0.0044, freqRange: 0.0016, phaseSpeed: 0.00012, modOffset: 1.3, thickness: 9, blur: 5, alpha: 0.075, color: '#E3B200', lastFreq: 0, lastAmp: 0, lastPhase: 0 },
+      { baseY: 0.50, ampBase: 42, ampRange: 16, freqBase: 0.0038, freqRange: 0.0014, phaseSpeed: 0.00010, modOffset: 2.6, thickness: 8, blur: 3, alpha: 0.10, color: '#E3B200', lastFreq: 0, lastAmp: 0, lastPhase: 0 },
+      { baseY: 0.66, ampBase: 34, ampRange: 13, freqBase: 0.0048, freqRange: 0.0017, phaseSpeed: 0.00013, modOffset: 3.9, thickness: 6, blur: 1.5, alpha: 0.12, color: '#ffffff', lastFreq: 0, lastAmp: 0, lastPhase: 0 },
+      { baseY: 0.82, ampBase: 22, ampRange: 9, freqBase: 0.0060, freqRange: 0.0020, phaseSpeed: 0.00016, modOffset: 5.2, thickness: 4, blur: 0, alpha: 0.14, color: '#E3B200', lastFreq: 0, lastAmp: 0, lastPhase: 0 },
+    ];
+
+    // Общий медленный "пульс" — амплитуда всех слоёв мягко дышит в такт,
+    // с небольшим сдвигом фазы по слоям, чтобы не выглядело механически.
+    const PULSE_PERIOD_MS = 7200;
+    const PULSE_DEPTH = 0.22;
+
+    // Курсор "разрывает" волну в точке касания — мягкий стёртый просвет.
+    const ACTIVATE_DISTANCE = 40; // на каком расстоянии от ленты курсор её "задевает"
+    const GAP_RADIUS = 52; // радиус стёртого просвета
+    let mouseX = -99999;
+    let mouseY = -99999;
+
+    let widthCss = 0;
+    let heightCss = 0;
+
+    // Отдельный холст на слой: разрыв стирает пиксели только этого слоя,
+    // не задевая остальные, уже нарисованные на общем канвасе.
+    const scratch = document.createElement('canvas');
+    const scratchCtx = scratch.getContext('2d');
+
+    function resize() {
+      if (!canvas) return;
+      widthCss = window.innerWidth;
+      heightCss = window.innerHeight;
+      canvas.width = widthCss * DPR;
+      canvas.height = heightCss * DPR;
+      scratch.width = canvas.width;
+      scratch.height = canvas.height;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function waveY(layer: Layer, x: number, freq: number, amp: number, phase: number) {
+      const envelope = 0.55 + 0.45 * Math.sin(x * freq * 0.18 + phase * 0.35);
+      return layer.baseY * heightCss + amp * envelope * Math.sin(x * freq + phase);
+    }
+
+    function drawLayer(layer: Layer, index: number, t: number) {
+      if (!ctx || !scratchCtx) return;
+      const pulse = 1 + PULSE_DEPTH * Math.sin((t / PULSE_PERIOD_MS) * Math.PI * 2 + index * 0.5);
+      const freq = layer.freqBase + layer.freqRange * Math.sin(t * 0.00005 + layer.modOffset);
+      const amp = (layer.ampBase + layer.ampRange * Math.sin(t * 0.000035 + layer.modOffset * 1.6)) * pulse;
+      const phase = t * layer.phaseSpeed;
+      layer.lastFreq = freq;
+      layer.lastAmp = amp;
+      layer.lastPhase = phase;
+      const step = 6;
+      const half = layer.thickness / 2;
+
+      scratchCtx.clearRect(0, 0, scratch.width, scratch.height);
+      scratchCtx.save();
+      scratchCtx.scale(DPR, DPR);
+
+      // Лента: верхняя и нижняя кромки волны, заливка между ними даёт "объём"
+      scratchCtx.beginPath();
+      for (let x = 0; x <= widthCss; x += step) {
+        const y = waveY(layer, x, freq, amp, phase) - half;
+        if (x === 0) scratchCtx.moveTo(x, y);
+        else scratchCtx.lineTo(x, y);
+      }
+      for (let x = widthCss; x >= 0; x -= step) {
+        const y = waveY(layer, x, freq, amp, phase) + half;
+        scratchCtx.lineTo(x, y);
+      }
+      scratchCtx.closePath();
+      scratchCtx.fillStyle = layer.color;
+      scratchCtx.globalAlpha = layer.alpha;
+      scratchCtx.fill();
+
+      // Более яркая тонкая линия по центру ленты — добавляет чёткости переднему краю
+      scratchCtx.beginPath();
+      for (let x = 0; x <= widthCss; x += step) {
+        const y = waveY(layer, x, freq, amp, phase);
+        if (x === 0) scratchCtx.moveTo(x, y);
+        else scratchCtx.lineTo(x, y);
+      }
+      scratchCtx.strokeStyle = layer.color;
+      scratchCtx.globalAlpha = Math.min(layer.alpha * 1.8, 0.4);
+      scratchCtx.lineWidth = 1.2;
+      scratchCtx.stroke();
+      scratchCtx.globalAlpha = 1;
+
+      // Курсор рядом с этой лентой — прорезаем в ней мягкий просвет
+      const yAtMouse = waveY(layer, mouseX, freq, amp, phase);
+      if (Math.abs(mouseY - yAtMouse) < half + ACTIVATE_DISTANCE) {
+        scratchCtx.globalCompositeOperation = 'destination-out';
+        const grad = scratchCtx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, GAP_RADIUS);
+        grad.addColorStop(0, 'rgba(0,0,0,1)');
+        grad.addColorStop(0.7, 'rgba(0,0,0,0.8)');
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        scratchCtx.fillStyle = grad;
+        scratchCtx.beginPath();
+        scratchCtx.arc(mouseX, mouseY, GAP_RADIUS, 0, Math.PI * 2);
+        scratchCtx.fill();
+        scratchCtx.globalCompositeOperation = 'source-over';
+      }
+
+      scratchCtx.restore();
+
+      ctx.save();
+      if (layer.blur > 0.2) ctx.filter = `blur(${layer.blur}px)`;
+      ctx.drawImage(scratch, 0, 0);
+      ctx.restore();
+    }
+
+    function render(t: number) {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      LAYERS.forEach((layer, i) => drawLayer(layer, i, t));
+      requestAnimationFrame(render);
+    }
+
+    if (reduceMotion) {
+      LAYERS.forEach((layer, i) => drawLayer(layer, i, 0));
+    } else {
+      requestAnimationFrame(render);
+
+      window.addEventListener(
+        'mousemove',
+        (e) => {
+          mouseX = e.clientX;
+          mouseY = e.clientY;
+        },
+        { passive: true }
+      );
+
+      window.addEventListener('mouseleave', () => {
+        mouseX = -99999;
+        mouseY = -99999;
+      });
+    }
+  }
+</script>

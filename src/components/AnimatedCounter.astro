@@ -1,0 +1,122 @@
+---
+interface Props {
+  num: number;
+  label: string;
+  suffix?: string;
+  prefix?: string;
+  decimals?: number;
+  size?: 'sm' | 'lg';
+}
+
+const { num, label, suffix = '', prefix = '', decimals = 0, size = 'lg' } = Astro.props;
+---
+
+<div class="stat">
+  <p
+    class:list={['stat-value', size === 'lg' ? 'stat-value-lg' : 'stat-value-sm']}
+    data-counter
+    data-target={num}
+    data-suffix={suffix}
+    data-prefix={prefix}
+    data-decimals={decimals}
+  >
+    {prefix}0{suffix}
+  </p>
+  <p class="stat-label mono-label">{label}</p>
+</div>
+
+<style>
+  .stat-value {
+    font-family: var(--font-mono);
+    color: var(--color-text);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .stat-value-lg {
+    font-size: 34px;
+  }
+
+  @media (min-width: 640px) {
+    .stat-value-lg {
+      font-size: 56px;
+    }
+  }
+
+  .stat-value-sm {
+    font-size: 19px;
+  }
+
+  @media (min-width: 640px) {
+    .stat-value-sm {
+      font-size: 23px;
+    }
+  }
+
+  .stat-label {
+    margin-top: 8px;
+    color: var(--color-accent);
+  }
+</style>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function formatNumber(value: number, decimals: number) {
+    return new Intl.NumberFormat('ru-RU', {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    }).format(value);
+  }
+
+  function animateCounter(el: HTMLElement) {
+    const target = parseFloat(el.dataset.target || '0');
+    const suffix = el.dataset.suffix || '';
+    const prefix = el.dataset.prefix || '';
+    const decimals = parseInt(el.dataset.decimals || '0', 10);
+
+    if (reduceMotion) {
+      el.textContent = `${prefix}${formatNumber(target, decimals)}${suffix}`;
+      return;
+    }
+
+    const duration = 1500;
+    const start = performance.now();
+
+    function frame(now: number) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = target * eased;
+      el.textContent = `${prefix}${formatNumber(current, decimals)}${suffix}`;
+      if (progress < 1) {
+        requestAnimationFrame(frame);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  const counters = document.querySelectorAll<HTMLElement>('[data-counter]:not([data-counter-bound])');
+
+  if (counters.length > 0) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement;
+            el.dataset.counterBound = 'true';
+            animateCounter(el);
+            observer.unobserve(el);
+          }
+        }
+      },
+      { threshold: 0.4 }
+    );
+
+    counters.forEach((el) => {
+      el.dataset.counterBound = 'true';
+      observer.observe(el);
+    });
+  }
+</script>

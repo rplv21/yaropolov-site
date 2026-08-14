@@ -1,0 +1,163 @@
+<div id="easter-egg-layer" aria-hidden="true"></div>
+
+<style is:global>
+  /* Дочерние элементы пасхалки создаются в рантайме через createElement/innerHTML,
+     поэтому стили должны быть глобальными — Astro не скоупит динамически созданный DOM. */
+  #easter-egg-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+  }
+
+  .bullseye-egg {
+    position: absolute;
+    width: 120px;
+    height: 140px;
+    transform: translate(-50%, -50%);
+    animation: egg-fade-out 0.45s ease-in 1.2s forwards;
+  }
+
+  .egg-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    fill: var(--color-accent);
+    opacity: 0;
+    animation: egg-label-in 0.3s ease-out 0.58s forwards;
+  }
+
+  .egg-target {
+    transform-origin: 60px 60px;
+    transform: scale(0);
+    animation: egg-target-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s forwards;
+  }
+
+  .egg-arrow {
+    transform: translate(var(--arrow-start-x), var(--arrow-start-y)) rotate(var(--arrow-angle));
+    transform-origin: 60px 60px;
+    opacity: 0;
+    animation: egg-arrow-fly 0.55s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+  }
+
+  .egg-impact {
+    transform-origin: 60px 60px;
+    opacity: 0;
+    animation: egg-impact-flash 0.3s ease-out 0.52s forwards;
+  }
+
+  @keyframes egg-target-in {
+    to {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes egg-arrow-fly {
+    0% {
+      transform: translate(var(--arrow-start-x), var(--arrow-start-y)) rotate(var(--arrow-angle));
+      opacity: 0;
+    }
+    12% {
+      opacity: 1;
+    }
+    100% {
+      transform: translate(0, 0) rotate(var(--arrow-angle));
+      opacity: 1;
+    }
+  }
+
+  @keyframes egg-impact-flash {
+    0% {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+    40% {
+      opacity: 1;
+      transform: scale(1.3);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.8);
+    }
+  }
+
+  @keyframes egg-label-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes egg-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+</style>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isMobile = window.innerWidth < 768;
+
+  if (!reduceMotion && !isMobile) {
+    const layer = document.getElementById('easter-egg-layer');
+    const interactiveSelector = 'a, button, input, select, textarea, label, [role="button"], [tabindex]';
+
+    // Редкая пасхалка: 1% кликов по фону превращаются в выстрел "в яблочко".
+    const HIT_CHANCE = 0.01;
+    const TOTAL_LIFETIME_MS = 1700;
+
+    let eggCounter = 0;
+
+    function spawnBullseye(x: number, y: number) {
+      if (!layer) return;
+
+      const angle = Math.random() * 360;
+      const rad = (angle * Math.PI) / 180;
+      const distance = 130;
+      const startX = -Math.cos(rad) * distance;
+      const startY = -Math.sin(rad) * distance;
+      const arcId = `egg-arc-${eggCounter++}`;
+
+      const wrap = document.createElement('div');
+      wrap.className = 'bullseye-egg';
+      wrap.style.left = `${x}px`;
+      wrap.style.top = `${y}px`;
+      wrap.style.setProperty('--arrow-angle', `${angle}deg`);
+      wrap.style.setProperty('--arrow-start-x', `${startX}px`);
+      wrap.style.setProperty('--arrow-start-y', `${startY}px`);
+
+      wrap.innerHTML = `
+        <svg viewBox="0 0 120 140" width="120" height="140">
+          <defs>
+            <path id="${arcId}" d="M 17.4,89.83 A 52,52 0 0,0 102.6,89.83" fill="none" />
+          </defs>
+          <g class="egg-target">
+            <circle cx="60" cy="60" r="34" fill="none" stroke="var(--color-border-strong)" stroke-width="2" />
+            <circle cx="60" cy="60" r="24" fill="none" stroke="var(--color-accent-dim)" stroke-width="2" />
+            <circle cx="60" cy="60" r="14" fill="none" stroke="var(--color-accent)" stroke-width="2" />
+            <circle cx="60" cy="60" r="4" fill="var(--color-accent)" />
+          </g>
+          <circle class="egg-impact" cx="60" cy="60" r="16" fill="none" stroke="var(--color-accent)" stroke-width="1.5" />
+          <g class="egg-arrow">
+            <line x1="0" y1="60" x2="-32" y2="60" stroke="var(--color-text)" stroke-width="4.5" stroke-linecap="round" />
+            <path d="M3,60 L-14,49 L-14,71 Z" fill="var(--color-text)" />
+            <path d="M-32,60 L-22,51 M-32,60 L-22,69" stroke="var(--color-text)" stroke-width="3" stroke-linecap="round" />
+          </g>
+          <text class="egg-label">
+            <textPath href="#${arcId}" startOffset="50%" text-anchor="middle">В ЯБЛОЧКО!</textPath>
+          </text>
+        </svg>
+      `;
+
+      layer.appendChild(wrap);
+      setTimeout(() => wrap.remove(), TOTAL_LIFETIME_MS);
+    }
+
+    window.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.closest(interactiveSelector)) return;
+      if (Math.random() > HIT_CHANCE) return;
+      spawnBullseye(e.clientX, e.clientY);
+    });
+  }
+</script>
