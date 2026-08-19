@@ -86,16 +86,18 @@ const localBusinessSchema = {
     <script is:inline type="application/ld+json" set:html={JSON.stringify(serviceSchema)} />
     <script is:inline type="application/ld+json" set:html={JSON.stringify(localBusinessSchema)} />
 
-    <!-- Яндекс.Метрика: ID появится после публикации -->
-    <!--
-    <script type="text/javascript">
-      (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-      m[i].l=1*new Date();
-      k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-      (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-      ym(REPLACE_WITH_METRIKA_ID, "init", { clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true });
+    <!-- Яндекс.Метрика: ID появится после публикации. Согласие на обработку -->
+    <!-- cookie подразумевается использованием сайта (см. сноску в футере). -->
+    <script is:inline>
+      const METRIKA_ID = 'REPLACE_WITH_METRIKA_ID';
+      if (METRIKA_ID !== 'REPLACE_WITH_METRIKA_ID') {
+        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+        (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+        window.ym(METRIKA_ID, "init", { clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true });
+      }
     </script>
-    -->
   </head>
   <body>
     <SoundWaves />

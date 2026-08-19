@@ -3,6 +3,7 @@ import { nav, contacts } from '../data/site';
 import tgSvg from '../assets/icons/tg.svg?raw';
 import vkSvg from '../assets/icons/vk.svg?raw';
 import maxSvg from '../assets/icons/max.svg?raw';
+import PrivacyContent from './PrivacyContent.astro';
 
 const iconLinks = [
   { href: contacts.telegramHref, text: 'Telegram', icon: tgSvg },
@@ -48,11 +49,55 @@ const iconLinks = [
 
   <div class="footer-bottom section">
     <p>{contacts.name} · ИНН {contacts.inn}</p>
-    <p><a href="/privacy">Политика конфиденциальности</a> · © 2026 {contacts.domain}</p>
+    <p>
+      <a href="/privacy" class="privacy-modal-trigger">Политика конфиденциальности</a>
+      · © 2026 {contacts.domain}
+    </p>
   </div>
+
+  <p class="footer-cookie-note section">
+    Используя наш сайт, вы даёте согласие на обработку файлов cookie и пользовательских данных.<br />
+    Если вы не хотите, чтобы ваши данные обрабатывались, пожалуйста покиньте сайт.
+  </p>
 
   <div class="footer-accent" aria-hidden="true"></div>
 </footer>
+
+<div id="privacy-modal" class="privacy-modal-overlay" hidden>
+  <div class="privacy-modal glass" role="dialog" aria-modal="true" aria-labelledby="privacy-modal-title">
+    <div class="privacy-modal-header">
+      <h2 id="privacy-modal-title" class="privacy-modal-title">Политика конфиденциальности</h2>
+      <button type="button" class="privacy-modal-close" aria-label="Закрыть">×</button>
+    </div>
+    <div class="privacy-modal-body">
+      <PrivacyContent />
+    </div>
+  </div>
+</div>
+
+<script>
+  const triggers = document.querySelectorAll('.privacy-modal-trigger');
+  const modal = document.getElementById('privacy-modal');
+  const closeBtn = modal?.querySelector('.privacy-modal-close');
+
+  function openModal(e: Event) {
+    e.preventDefault();
+    if (modal) modal.hidden = false;
+  }
+
+  function closeModal() {
+    if (modal) modal.hidden = true;
+  }
+
+  triggers.forEach((trigger) => trigger.addEventListener('click', openModal));
+  closeBtn?.addEventListener('click', closeModal);
+  modal?.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal && !modal.hidden) closeModal();
+  });
+</script>
 
 <style>
   .footer {
@@ -177,5 +222,73 @@ const iconLinks = [
     height: 6px;
     width: 100%;
     background: var(--color-accent);
+  }
+
+  .footer-cookie-note {
+    padding-bottom: 24px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--color-text-dim);
+  }
+
+  .privacy-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(6, 6, 8, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .privacy-modal {
+    width: 100%;
+    max-width: 680px;
+    max-height: 82vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .privacy-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 24px var(--card-padding) 20px;
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+  }
+
+  .privacy-modal-title {
+    font-size: 20px;
+  }
+
+  .privacy-modal-close {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-text);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .privacy-modal-close:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .privacy-modal-body {
+    padding: 24px var(--card-padding) var(--card-padding);
+    overflow-y: auto;
   }
 </style>
