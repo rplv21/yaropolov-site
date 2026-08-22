@@ -58,11 +58,11 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(JSON.stringify({ error: 'validation_failed' }), { status: 400 });
   }
 
-  const botToken = process.env.TELEGRAM_BOT_TOKEN ?? import.meta.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID ?? import.meta.env.TELEGRAM_CHAT_ID;
+  const relayUrl = process.env.TELEGRAM_RELAY_URL ?? import.meta.env.TELEGRAM_RELAY_URL;
+  const relaySecret = process.env.TELEGRAM_RELAY_SECRET ?? import.meta.env.TELEGRAM_RELAY_SECRET;
 
-  if (!botToken || !chatId) {
-    console.error('TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID не заданы в переменных окружения');
+  if (!relayUrl || !relaySecret) {
+    console.error('TELEGRAM_RELAY_URL / TELEGRAM_RELAY_SECRET не заданы в переменных окружения');
     return new Response(JSON.stringify({ error: 'server_misconfigured' }), { status: 500 });
   }
 
@@ -80,23 +80,22 @@ export const POST: APIRoute = async ({ request }) => {
   const text = lines.join('\n');
 
   try {
-    const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    const tgRes = await fetch(relayUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text,
-        parse_mode: 'HTML',
-      }),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-relay-secret': relaySecret,
+      },
+      body: JSON.stringify({ text }),
     });
 
     if (!tgRes.ok) {
       const errBody = await tgRes.text();
-      console.error('Telegram API error:', errBody);
+      console.error('Telegram relay error:', errBody);
       return new Response(JSON.stringify({ error: 'telegram_failed' }), { status: 502 });
     }
   } catch (err) {
-    console.error('Telegram fetch failed:', err);
+    console.error('Telegram relay fetch failed:', err);
     return new Response(JSON.stringify({ error: 'telegram_failed' }), { status: 502 });
   }
 
