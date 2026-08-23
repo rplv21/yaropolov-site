@@ -1,6 +1,6 @@
 ---
 import { Picture } from 'astro:assets';
-import pavel2 from '../assets/pavel2.jpeg';
+import pavel3 from '../assets/pavel3.png';
 import { contacts } from '../data/site';
 ---
 
@@ -8,7 +8,7 @@ import { contacts } from '../data/site';
   <div class="about-grid">
     <div class="about-photo">
       <Picture
-        src={pavel2}
+        src={pavel3}
         formats={['webp']}
         fallbackFormat="jpeg"
         alt="Ярополов Павел Алексеевич, интернет-маркетолог"
@@ -18,7 +18,7 @@ import { contacts } from '../data/site';
         loading="lazy"
       />
       <Picture
-        src={pavel2}
+        src={pavel3}
         formats={['webp']}
         fallbackFormat="jpeg"
         alt=""
@@ -31,8 +31,11 @@ import { contacts } from '../data/site';
     </div>
 
     <div class="about-copy">
-      <p class="mono-label">Обо мне</p>
-      <h2 class="about-title">{contacts.shortName}</h2>
+      <div class="about-header">
+        <p class="mono-label">Обо мне</p>
+        <h2 class="about-title">{contacts.shortName}</h2>
+        <p class="mono-label about-role">Маркетолог-директолог</p>
+      </div>
 
       <div class="about-text">
         <p>В маркетинге больше 5 лет.</p>
@@ -63,7 +66,13 @@ import { contacts } from '../data/site';
     .about-grid {
       grid-template-columns: 0.8fr 1.2fr;
       gap: 64px;
-      align-items: start;
+      align-items: stretch;
+    }
+
+    .about-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
   }
 
@@ -83,8 +92,8 @@ import { contacts } from '../data/site';
   }
 
   .about-photo-sharp {
-    -webkit-mask-image: radial-gradient(ellipse 66% 70% at center, black 0%, black 58%, transparent 82%);
-    mask-image: radial-gradient(ellipse 66% 70% at center, black 0%, black 58%, transparent 82%);
+    -webkit-mask-image: radial-gradient(ellipse 66% 70% at center, black 0%, black 70%, transparent 94%);
+    mask-image: radial-gradient(ellipse 66% 70% at center, black 0%, black 70%, transparent 94%);
   }
 
   .about-photo-blur {
@@ -92,24 +101,30 @@ import { contacts } from '../data/site';
     -webkit-mask-image: radial-gradient(
       ellipse 66% 70% at center,
       transparent 0%,
-      transparent 46%,
-      black 62%,
-      black 78%,
-      transparent 96%
+      transparent 58%,
+      black 74%,
+      black 90%,
+      transparent 100%
     );
     mask-image: radial-gradient(
       ellipse 66% 70% at center,
       transparent 0%,
-      transparent 46%,
-      black 62%,
-      black 78%,
-      transparent 96%
+      transparent 58%,
+      black 74%,
+      black 90%,
+      transparent 100%
     );
   }
 
   .about-title {
     font-size: 32px;
     margin-top: 12px;
+  }
+
+  .about-role {
+    margin-top: 10px;
+    font-size: 16px;
+    letter-spacing: 0.06em;
   }
 
   @media (min-width: 640px) {
