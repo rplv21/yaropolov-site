@@ -36,7 +36,7 @@
   --card-padding: 32px;
 
   /* Шрифты */
-  --font-display: 'Unbounded', 'Oswald', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Evolventa', 'Oswald', system-ui, sans-serif;
+  --font-body: 'Bender', 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }

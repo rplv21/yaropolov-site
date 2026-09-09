@@ -1,11 +1,22 @@
-@import '@fontsource/unbounded/400.css';
-@import '@fontsource/unbounded/500.css';
 @import '@fontsource/inter/400.css';
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';
 @import '@fontsource/jetbrains-mono/400.css';
 @import '@fontsource/jetbrains-mono/500.css';
 @import './tokens.css';
+
+@font-face {
+  font-family: 'Evolventa';
+  src: url('/fonts/Evolventa-Bold.otf') format('opentype');
+  font-weight: 400 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Bender';
+  src: url('/fonts/Bender-Regular.otf') format('opentype');
+  font-weight: 400 700;
+  font-display: swap;
+}
 
 *,
 *::before,
