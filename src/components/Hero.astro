@@ -1,6 +1,6 @@
 ---
 import { Picture } from 'astro:assets';
-import pavel1 from '../assets/pav.png';
+import pavel1 from '../assets/pavel1.png';
 import { heroStats } from '../data/site';
 ---
 
@@ -137,43 +137,32 @@ import { heroStats } from '../data/site';
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transform: scale(0.85);
     filter: grayscale(1) contrast(1.08) sepia(0.12) hue-rotate(5deg);
   }
 
   .hero-photo-sharp {
-    -webkit-mask-image:
-      radial-gradient(ellipse 72% 88% at 50% 40%, black 0%, black 64%, transparent 87%),
-      linear-gradient(to top, black 0%, black 5%, transparent 24%);
-    mask-image:
-      radial-gradient(ellipse 72% 88% at 50% 40%, black 0%, black 64%, transparent 87%),
-      linear-gradient(to top, black 0%, black 5%, transparent 24%);
+    -webkit-mask-image: radial-gradient(ellipse 66% 70% at center, black 0%, black 58%, transparent 82%);
+    mask-image: radial-gradient(ellipse 66% 70% at center, black 0%, black 58%, transparent 82%);
   }
 
   .hero-photo-blur {
     filter: grayscale(1) contrast(1.08) sepia(0.12) hue-rotate(5deg) blur(14px);
-    -webkit-mask-image:
-      radial-gradient(
-        ellipse 72% 88% at 50% 40%,
-        transparent 0%,
-        transparent 58%,
-        black 72%,
-        black 84%,
-        transparent 97%
-      ),
-      linear-gradient(to top, black 0%, black 9%, transparent 20%);
-    mask-image:
-      radial-gradient(
-        ellipse 72% 88% at 50% 40%,
-        transparent 0%,
-        transparent 58%,
-        black 72%,
-        black 84%,
-        transparent 97%
-      ),
-      linear-gradient(to top, black 0%, black 9%, transparent 20%);
-    -webkit-mask-composite: source-out, xor;
-    mask-composite: subtract;
+    -webkit-mask-image: radial-gradient(
+      ellipse 66% 70% at center,
+      transparent 0%,
+      transparent 46%,
+      black 62%,
+      black 78%,
+      transparent 96%
+    );
+    mask-image: radial-gradient(
+      ellipse 66% 70% at center,
+      transparent 0%,
+      transparent 46%,
+      black 62%,
+      black 78%,
+      transparent 96%
+    );
   }
 
   .hero-stats {
