@@ -373,6 +373,7 @@
       if (!res.ok) throw new Error('request failed');
 
       form.hidden = true;
+      window.dispatchEvent(new CustomEvent('lead-form-submitted'));
       if (statusEl) {
         statusEl.textContent = 'Заявка отправлена. Отвечу в ближайшее время.';
         statusEl.dataset.state = 'success';

@@ -1,0 +1,333 @@
+<div id="ad-popup" class="ad-popup-overlay" hidden>
+  <div class="ad-popup glass" role="dialog" aria-modal="true" aria-labelledby="ad-popup-title">
+    <button type="button" class="ad-popup-close" aria-label="Закрыть">×</button>
+
+    <p class="mono-label">Вы пришли с рекламы</p>
+    <h2 id="ad-popup-title" class="ad-popup-title">Получить медиаплан бесплатно</h2>
+    <p class="ad-popup-subtitle">
+      Оставьте имя и телефон — посчитаю, сколько заявок вы можете получать, и перезвоню сегодня.
+    </p>
+
+    <form id="ad-popup-form" novalidate>
+      <div class="form-row">
+        <label class="form-label" for="ap-name">Имя *</label>
+        <input class="form-input" type="text" id="ap-name" name="name" required autocomplete="name" />
+      </div>
+
+      <div class="form-row">
+        <label class="form-label" for="ap-phone">Телефон *</label>
+        <input
+          class="form-input"
+          type="tel"
+          id="ap-phone"
+          name="phone"
+          required
+          placeholder="+7 (___) ___-__-__"
+          inputmode="numeric"
+          autocomplete="tel"
+        />
+      </div>
+
+      <!-- honeypot: скрытое поле-ловушка для ботов -->
+      <div class="form-honeypot" aria-hidden="true">
+        <label for="ap-hp">Оставьте пустым</label>
+        <input type="text" id="ap-hp" name="hp" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <label class="form-consent">
+        <input type="checkbox" id="ap-consent" name="consent" required />
+        <span>
+          Согласен на обработку персональных данных<br />
+          согласно <a href="#" class="privacy-modal-trigger">политике конфиденциальности</a>
+        </span>
+      </label>
+
+      <button type="submit" class="btn btn-primary form-submit" id="ap-submit" disabled>
+        Отправить заявку
+      </button>
+    </form>
+    <p class="form-status" id="ap-status" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+<style>
+  .ad-popup-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(6, 6, 8, 0.7);
+    backdrop-filter: blur(4px);
+    padding: 20px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ad-popup-overlay:not([hidden]) {
+    display: flex;
+  }
+
+  .ad-popup {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    padding: var(--card-padding);
+  }
+
+  .ad-popup-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-text);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .ad-popup-close:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .ad-popup-title {
+    font-size: 24px;
+    margin-top: 12px;
+    padding-right: 32px;
+  }
+
+  .ad-popup-subtitle {
+    margin-top: 12px;
+    color: var(--color-text-muted);
+    font-size: 15px;
+  }
+
+  .ad-popup form {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .ad-popup .form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ad-popup .form-label {
+    font-size: 14px;
+    color: var(--color-text-muted);
+  }
+
+  .ad-popup .form-input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-input);
+    color: var(--color-text);
+  }
+
+  .ad-popup .form-input:focus-visible {
+    border-color: var(--color-accent);
+  }
+
+  .ad-popup .form-honeypot {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .ad-popup .form-consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  .ad-popup .form-consent input {
+    margin-top: 3px;
+    accent-color: var(--color-accent);
+  }
+
+  .ad-popup .form-consent a {
+    color: var(--color-text);
+    text-decoration: underline;
+  }
+
+  .ad-popup .form-consent a:hover {
+    color: var(--color-accent);
+  }
+
+  .ad-popup .form-submit:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .ad-popup .form-submit:disabled:hover {
+    box-shadow: none;
+  }
+
+  .ad-popup .form-status {
+    margin-top: 16px;
+    font-size: 14px;
+    min-height: 20px;
+  }
+
+  .ad-popup .form-status:empty {
+    margin-top: 0;
+  }
+
+  .ad-popup .form-status[data-state='success'] {
+    color: var(--color-accent);
+  }
+
+  .ad-popup .form-status[data-state='error'] {
+    color: #e0715a;
+  }
+</style>
+
+<script>
+  declare global {
+    interface Window {
+      ym?: (...args: unknown[]) => void;
+    }
+  }
+
+  const SESSION_SOURCE_KEY = 'ya-direct-visit';
+  const SESSION_SHOWN_KEY = 'ad-popup-shown';
+  const DELAY_MS = 20000;
+
+  // Метка визита с Яндекс.Директа: параметр yclid Яндекс добавляет
+  // к ссылке автоматически при клике по объявлению.
+  const params = new URLSearchParams(location.search);
+  if (params.has('yclid')) {
+    sessionStorage.setItem(SESSION_SOURCE_KEY, '1');
+  }
+
+  const fromYandexDirect = sessionStorage.getItem(SESSION_SOURCE_KEY) === '1';
+  const alreadyShown = sessionStorage.getItem(SESSION_SHOWN_KEY) === '1';
+
+  const overlay = document.getElementById('ad-popup');
+  const form = document.getElementById('ad-popup-form') as HTMLFormElement | null;
+  const consent = document.getElementById('ap-consent') as HTMLInputElement | null;
+  const submitBtn = document.getElementById('ap-submit') as HTMLButtonElement | null;
+  const statusEl = document.getElementById('ap-status');
+  const closeBtn = overlay?.querySelector('.ad-popup-close');
+  const phoneInput = document.getElementById('ap-phone') as HTMLInputElement | null;
+
+  let leadAlreadySubmitted = false;
+  window.addEventListener('lead-form-submitted', () => {
+    leadAlreadySubmitted = true;
+  });
+
+  function formatPhone(raw: string) {
+    let digits = raw.replace(/\D/g, '');
+    if (digits.startsWith('7') || digits.startsWith('8')) digits = digits.slice(1);
+    digits = digits.slice(0, 10);
+
+    let out = '+7';
+    if (digits.length > 0) out += ' (' + digits.slice(0, 3);
+    if (digits.length >= 3) out += ')';
+    if (digits.length > 3) out += ' ' + digits.slice(3, 6);
+    if (digits.length > 6) out += '-' + digits.slice(6, 8);
+    if (digits.length > 8) out += '-' + digits.slice(8, 10);
+    return out;
+  }
+
+  if (phoneInput) {
+    phoneInput.addEventListener('input', () => {
+      phoneInput.value = formatPhone(phoneInput.value);
+    });
+    phoneInput.addEventListener('focus', () => {
+      if (!phoneInput.value) phoneInput.value = '+7 (';
+    });
+  }
+
+  consent?.addEventListener('change', () => {
+    if (submitBtn) submitBtn.disabled = !consent.checked;
+  });
+
+  function openPopup() {
+    if (!overlay || leadAlreadySubmitted) return;
+    overlay.hidden = false;
+    sessionStorage.setItem(SESSION_SHOWN_KEY, '1');
+    window.ym?.(112339088, 'reachGoal', 'ad_popup_shown');
+  }
+
+  function closePopup() {
+    if (overlay) overlay.hidden = true;
+  }
+
+  closeBtn?.addEventListener('click', closePopup);
+  overlay?.addEventListener('click', (e) => {
+    if (e.target === overlay) closePopup();
+  });
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay && !overlay.hidden) closePopup();
+  });
+
+  if (fromYandexDirect && !alreadyShown) {
+    setTimeout(openPopup, DELAY_MS);
+  }
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const formData = new FormData(form);
+    const payload = {
+      name: String(formData.get('name') || ''),
+      contact: String(formData.get('phone') || ''),
+      method: 'phone',
+      comment: 'Заявка с поп-апа (переход с рекламы Яндекс.Директ)',
+      consent: consent?.checked ? 'true' : 'false',
+      hp: String(formData.get('hp') || ''),
+    };
+
+    if (submitBtn) submitBtn.disabled = true;
+    if (statusEl) {
+      statusEl.textContent = 'Отправляю...';
+      statusEl.removeAttribute('data-state');
+    }
+
+    try {
+      const res = await fetch('/api/send-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error('request failed');
+
+      form.hidden = true;
+      leadAlreadySubmitted = true;
+      window.ym?.(112339088, 'reachGoal', 'ad_popup_lead_submitted');
+      if (statusEl) {
+        statusEl.textContent = 'Заявка отправлена. Отвечу в ближайшее время.';
+        statusEl.dataset.state = 'success';
+      }
+    } catch (err) {
+      if (statusEl) {
+        statusEl.textContent = 'Не получилось отправить. Попробуйте написать в Telegram напрямую.';
+        statusEl.dataset.state = 'error';
+      }
+      if (submitBtn) submitBtn.disabled = !consent?.checked;
+    }
+  });
+</script>
