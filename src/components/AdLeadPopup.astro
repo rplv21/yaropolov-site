@@ -3,19 +3,19 @@
     <button type="button" class="ad-popup-close" aria-label="Закрыть">×</button>
 
     <p class="mono-label">Вы пришли с рекламы</p>
-    <h2 id="ad-popup-title" class="ad-popup-title">Получить медиаплан бесплатно</h2>
+    <h2 id="ad-popup-title" class="ad-popup-title">«Яндекс.Директ» привёл вас на мой сайт, значит вы там, где и должны быть!</h2>
     <p class="ad-popup-subtitle">
-      Оставьте имя и телефон — посчитаю, сколько заявок вы можете получать, и перезвоню сегодня.
+      Тоже хотите настроить себе эффективную рекламу? Заполняйте форму:
     </p>
 
     <form id="ad-popup-form" novalidate>
       <div class="form-row">
-        <label class="form-label" for="ap-name">Имя *</label>
+        <label class="form-label" for="ap-name">Как к вам можно обращаться? *</label>
         <input class="form-input" type="text" id="ap-name" name="name" required autocomplete="name" />
       </div>
 
       <div class="form-row">
-        <label class="form-label" for="ap-phone">Телефон *</label>
+        <label class="form-label" for="ap-phone">Номер телефона *</label>
         <input
           class="form-input"
           type="tel"
@@ -26,6 +26,21 @@
           inputmode="numeric"
           autocomplete="tel"
         />
+      </div>
+
+      <div class="form-row">
+        <label class="form-label" for="ap-method">Удобный метод связи *</label>
+        <select class="form-input" id="ap-method" name="method" required>
+          <option value="">Выбрать...</option>
+          <option value="telegram">Telegram</option>
+          <option value="max">Max</option>
+          <option value="email">Электронная почта</option>
+        </select>
+      </div>
+
+      <div class="form-row" id="ap-email-row" hidden>
+        <label class="form-label" for="ap-email">Электронная почта *</label>
+        <input class="form-input" type="email" id="ap-email" name="email" placeholder="you@example.com" autocomplete="email" />
       </div>
 
       <!-- honeypot: скрытое поле-ловушка для ботов -->
@@ -227,6 +242,15 @@
   const statusEl = document.getElementById('ap-status');
   const closeBtn = overlay?.querySelector('.ad-popup-close');
   const phoneInput = document.getElementById('ap-phone') as HTMLInputElement | null;
+  const methodSelect = document.getElementById('ap-method') as HTMLSelectElement | null;
+  const emailRow = document.getElementById('ap-email-row') as HTMLElement | null;
+  const emailInput = document.getElementById('ap-email') as HTMLInputElement | null;
+
+  methodSelect?.addEventListener('change', () => {
+    const isEmail = methodSelect.value === 'email';
+    if (emailRow) emailRow.hidden = !isEmail;
+    if (emailInput) emailInput.required = isEmail;
+  });
 
   let leadAlreadySubmitted = false;
   window.addEventListener('lead-form-submitted', () => {
@@ -291,14 +315,19 @@
     }
 
     const formData = new FormData(form);
-    const payload = {
+    const method = String(formData.get('method') || '');
+    const phone = String(formData.get('phone') || '');
+
+    const payload: Record<string, string> = {
       name: String(formData.get('name') || ''),
-      contact: String(formData.get('phone') || ''),
-      method: 'phone',
+      method,
+      contact: method === 'email' ? String(formData.get('email') || '') : phone,
       comment: 'Заявка с поп-апа (переход с рекламы Яндекс.Директ)',
       consent: consent?.checked ? 'true' : 'false',
       hp: String(formData.get('hp') || ''),
     };
+
+    if (method === 'email') payload.extraPhone = phone;
 
     if (submitBtn) submitBtn.disabled = true;
     if (statusEl) {
