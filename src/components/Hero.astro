@@ -79,29 +79,23 @@ import { heroStats } from '../data/site';
 
   @media (min-width: 960px) {
     .hero-inner {
-      grid-template-columns: 1.1fr 0.9fr;
+      grid-template-columns: minmax(0, 1fr) 420px;
       gap: 64px;
     }
   }
 
+  .hero-copy {
+    container-type: inline-size;
+  }
+
   .hero-title {
-    font-size: 40px;
-    line-height: 1.02;
+    /* Заголовок разбит на фиксированные строки (см. разметку) — размер
+       считается от ширины колонки (cqw), чтобы самая длинная строка
+       («для вашего бизнеса») никогда не переносилась сама по себе. */
+    font-size: clamp(26px, 9.3cqw, 84px);
+    line-height: 1;
     letter-spacing: -0.02em;
     margin-top: 16px;
-  }
-
-  @media (min-width: 640px) {
-    .hero-title {
-      font-size: 56px;
-    }
-  }
-
-  @media (min-width: 1200px) {
-    .hero-title {
-      font-size: 80px;
-      line-height: 0.97;
-    }
   }
 
   .hero-subtitle {
