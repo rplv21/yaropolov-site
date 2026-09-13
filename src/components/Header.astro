@@ -5,7 +5,7 @@ import BrandLogo from './BrandLogo.astro';
 
 <header class="header" id="site-header">
   <div class="header-inner section">
-    <a href="#main" class="brand" aria-label="Yaropolov.ru">
+    <a href="/" class="brand" aria-label="Yaropolov.ru">
       <BrandLogo class="brand-logo" />
     </a>
 
@@ -18,6 +18,32 @@ import BrandLogo from './BrandLogo.astro';
     </nav>
 
     <a href={contacts.telegramHref} class="btn btn-primary header-cta" target="_blank" rel="noopener noreferrer">
+      Написать
+    </a>
+
+    <button
+      type="button"
+      class="burger"
+      id="burger-toggle"
+      aria-expanded="false"
+      aria-controls="mobile-nav"
+      aria-label="Открыть меню"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <div class="mobile-nav" id="mobile-nav" hidden>
+    <nav aria-label="Мобильная навигация">
+      <ul>
+        {nav.map((item) => (
+          <li><a href={item.href}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+    <a href={contacts.telegramHref} class="btn btn-primary mobile-nav-cta" target="_blank" rel="noopener noreferrer">
       Написать
     </a>
   </div>
@@ -84,11 +110,86 @@ import BrandLogo from './BrandLogo.astro';
     padding: 10px 22px;
     font-size: 14px;
     white-space: nowrap;
+    display: none;
+  }
+
+  .burger {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .burger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--color-text);
+    transition: transform 0.25s ease, opacity 0.2s ease;
+  }
+
+  .burger[aria-expanded='true'] span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+
+  .burger[aria-expanded='true'] span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .burger[aria-expanded='true'] span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+
+  .mobile-nav {
+    border-top: 1px solid var(--color-border);
+    background: var(--color-canvas);
+    padding: 24px var(--card-padding, 40px) 32px;
+  }
+
+  .mobile-nav[hidden] {
+    display: none;
+  }
+
+  .mobile-nav ul {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobile-nav li + li {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .mobile-nav a {
+    display: block;
+    padding: 16px 4px;
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 200;
+    color: var(--color-text);
+  }
+
+  .mobile-nav-cta {
+    margin-top: 20px;
+    width: 100%;
   }
 
   @media (min-width: 1024px) {
     .nav {
       display: block;
+    }
+
+    .header-cta {
+      display: inline-flex;
+    }
+
+    .burger,
+    .mobile-nav {
+      display: none;
     }
   }
 </style>
@@ -96,6 +197,8 @@ import BrandLogo from './BrandLogo.astro';
 <script>
   let lastScrollY = window.scrollY;
   const header = document.getElementById('site-header');
+  const burger = document.getElementById('burger-toggle');
+  const mobileNav = document.getElementById('mobile-nav');
 
   function onScroll() {
     if (!header) return;
@@ -112,4 +215,38 @@ import BrandLogo from './BrandLogo.astro';
   }
 
   window.addEventListener('scroll', onScroll, { passive: true });
+
+  function closeMenu() {
+    burger?.setAttribute('aria-expanded', 'false');
+    if (burger) burger.setAttribute('aria-label', 'Открыть меню');
+    if (mobileNav) mobileNav.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  function openMenu() {
+    burger?.setAttribute('aria-expanded', 'true');
+    if (burger) burger.setAttribute('aria-label', 'Закрыть меню');
+    if (mobileNav) mobileNav.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  burger?.addEventListener('click', () => {
+    const isOpen = burger.getAttribute('aria-expanded') === 'true';
+    if (isOpen) closeMenu();
+    else openMenu();
+  });
+
+  mobileNav?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', closeMenu);
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMenu();
+  });
+
+  // На переходе в десктопную раскладку выпадающее меню больше не нужно —
+  // иначе body.overflow=hidden может остаться зависшим после ресайза.
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 1024) closeMenu();
+  });
 </script>

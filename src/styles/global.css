@@ -236,15 +236,28 @@ h3 {
    Реквизит: рукописная пометка, инлайн-бейдж, направляющие полей
    ———————————————————————————————————————————————— */
 
-/* Рукописная пометка — редкий, точечный акцент рядом с ключевой фразой */
+/* Рукописная пометка — редкий, точечный акцент рядом с ключевой фразой.
+   На мобильных экранах курсивный шрифт Caveat на некоторых устройствах
+   рендерится грубо (похоже на Comic Sans из-за хинтинга ОС), поэтому там
+   используем обычный шрифт с наклоном вместо рукописного. */
 .marginalia {
-  font-family: var(--font-hand);
-  font-size: 22px;
-  font-weight: 500;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 15px;
+  font-weight: 600;
   color: var(--color-accent);
   line-height: 1;
   transform: rotate(-4deg);
   display: inline-block;
+}
+
+@media (min-width: 640px) {
+  .marginalia {
+    font-family: var(--font-hand);
+    font-style: normal;
+    font-size: 22px;
+    font-weight: 500;
+  }
 }
 
 /* Печатные направляющие полей — обрезные метки типографики,
