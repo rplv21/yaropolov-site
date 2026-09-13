@@ -227,7 +227,7 @@ import { heroStats } from '../data/site';
     border-bottom: 1px solid var(--color-border);
   }
 
-  @media (min-width: 640px) {
+  @media (min-width: 1024px) {
     .hero-stats {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -242,7 +242,7 @@ import { heroStats } from '../data/site';
     border-top: none;
   }
 
-  @media (min-width: 640px) {
+  @media (min-width: 1024px) {
     .hero-stat {
       padding-block: 32px;
       padding-left: 24px;
@@ -265,6 +265,12 @@ import { heroStats } from '../data/site';
   }
 
   @media (min-width: 640px) {
+    .hero-stat-value {
+      font-size: 30px;
+    }
+  }
+
+  @media (min-width: 1024px) {
     .hero-stat-value {
       font-size: 38px;
     }
