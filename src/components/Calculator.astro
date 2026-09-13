@@ -4,7 +4,7 @@ const ICON_ADS = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const ICON_PACKAGE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.5 5.2 5.7.6-4.3 3.9 1.2 5.6-5.1-2.9-5.1 2.9 1.2-5.6-4.3-3.9 5.7-.6L12 3.5Z"/></svg>`;
 ---
 
-<section class="section section-gap">
+<section class="section section-gap" id="calc">
   <div class="calc-wrap">
     <p class="mono-label">Калькулятор</p>
     <h2 class="calc-title">Порядок цифр за 3 шага</h2>
@@ -30,7 +30,7 @@ const ICON_PACKAGE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
       </div>
     </div>
 
-    <div class="calc-panel glass" id="calculator">
+    <div class="calc-panel panel" id="calculator">
       <div class="calc-step" data-step="1">
         <p class="calc-step-heading">Шаг 1 — Что нужно</p>
         <div class="calc-cards">
@@ -161,7 +161,7 @@ const ICON_PACKAGE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
   .calc-indicator-node.is-active .calc-indicator-circle {
     border-color: var(--color-accent);
     background: var(--color-accent);
-    color: var(--color-invert-text);
+    color: var(--color-text);
   }
 
   .calc-indicator-node.is-active .calc-indicator-label {
@@ -315,12 +315,13 @@ const ICON_PACKAGE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
   }
 
   .calc-result-label {
-    color: var(--color-text-dim);
+    color: var(--color-blue);
   }
 
   .calc-result {
-    font-family: var(--font-mono);
-    font-size: 40px;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 42px;
     color: var(--color-accent);
     margin-top: 12px;
   }
@@ -328,7 +329,7 @@ const ICON_PACKAGE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
   .calc-result-note {
     margin-top: 8px;
     font-size: 14px;
-    color: var(--color-text-muted);
+    color: #b9b2a0;
     min-height: 20px;
   }
 

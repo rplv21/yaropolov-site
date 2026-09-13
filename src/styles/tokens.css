@@ -1,42 +1,48 @@
 :root {
-  /* Полотно */
-  --color-canvas: #101112;
-  --color-abyss: #0a0b0b;
-  --color-surface: #1a1c1d;
-  --color-surface-2: #24272a;
+  /* Полотно — тёмный, тихий, редакторский */
+  --color-canvas: #100e0b;
+  --color-abyss: #0a0908;
+  --color-surface: #17140f;
+  --color-surface-2: #1c1c1c;
 
-  /* Светлая инверсия — одна секция на страницу */
-  --color-invert-bg: #ffffff;
-  --color-invert-text: #101112;
+  /* Инверсия — светлая пауза на тёмной полосе */
+  --color-invert-bg: #f4efe1;
+  --color-invert-text: #17130f;
 
   /* Текст */
-  --color-text: #ffffff;
-  --color-text-muted: #8b9095;
-  --color-text-dim: #5c6165;
+  --color-text: #f2ede0;
+  --color-text-muted: #a49d8a;
+  --color-text-dim: #6b6555;
 
-  /* Обводки */
-  --color-border: #2a2d2f;
-  --color-border-strong: #3d4144;
+  /* Тонкие линии — почти невидимые, только направляющие */
+  --color-border: #2a2620;
+  --color-border-strong: #4a4438;
 
-  /* Акцент — единственный хроматический цвет */
-  --color-accent: #e3b200;
-  --color-accent-dim: #8a6d00;
-  --color-accent-glass: rgba(227, 178, 0, 0.12);
+  /* Акцент — единственный цвет на весь сайт */
+  --color-accent: #c8232f;
+  --color-accent-dim: #7d1119;
+  --color-accent-glass: rgba(200, 35, 47, 0.12);
 
-  /* Радиусы */
-  --radius-card: 10px;
-  --radius-button: 6px;
+  /* Второй акцент — синий, только для точечных деталей */
+  --color-blue: #2382c8;
+  --color-blue-dim: #1c6ca3;
+
+  /* Радиусы — острые углы, в духе баухаус */
+  --radius-card: 0;
+  --radius-button: 0;
   --radius-pill: 999px;
-  --radius-input: 6px;
+  --radius-input: 0;
 
-  /* Сетка */
-  --page-max: 1320px;
-  --section-gap: 112px;
-  --section-gap-m: 64px;
-  --card-padding: 32px;
+  /* Сетка — просторная, с большим воздухом */
+  --page-max: 1360px;
+  --section-gap: 160px;
+  --section-gap-m: 88px;
+  --card-padding: 40px;
 
   /* Шрифты */
-  --font-display: 'Unbounded', 'Oswald', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Onest', system-ui, sans-serif;
+  --font-condensed: 'Oswald', system-ui, sans-serif;
+  --font-body: 'Onest', system-ui, sans-serif;
+  --font-hand: 'Caveat', cursive;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }

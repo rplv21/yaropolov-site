@@ -1,0 +1,50 @@
+<div class="status-readout" aria-hidden="true">
+  <span>X <b id="coord-x">000</b></span>
+  <span>Y <b id="coord-y">000</b></span>
+</div>
+
+<style>
+  .status-readout {
+    display: none;
+  }
+
+  @media (min-width: 900px) {
+    .status-readout {
+      display: flex;
+      position: fixed;
+      left: 24px;
+      bottom: 20px;
+      z-index: 30;
+      gap: 14px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      color: var(--color-text-dim);
+      pointer-events: none;
+    }
+  }
+
+  .status-readout b {
+    font-weight: 500;
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+
+<script>
+  const xEl = document.getElementById('coord-x');
+  const yEl = document.getElementById('coord-y');
+
+  function pad(n: number) {
+    return String(Math.max(0, Math.round(n))).padStart(3, '0');
+  }
+
+  window.addEventListener(
+    'mousemove',
+    (e) => {
+      if (xEl) xEl.textContent = pad(e.clientX);
+      if (yEl) yEl.textContent = pad(e.clientY);
+    },
+    { passive: true }
+  );
+</script>

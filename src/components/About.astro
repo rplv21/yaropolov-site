@@ -1,33 +1,50 @@
 ---
 import { Picture } from 'astro:assets';
-import pavel3 from '../assets/pavel3.png';
+import pavel3 from '../assets/p2.jpeg';
 import { contacts } from '../data/site';
 ---
 
 <section class="section section-gap" id="about">
   <div class="about-grid">
-    <div class="about-photo">
-      <Picture
-        src={pavel3}
-        formats={['webp']}
-        fallbackFormat="jpeg"
-        alt="Ярополов Павел Алексеевич, интернет-маркетолог"
-        width={640}
-        height={800}
-        class="about-photo-img about-photo-sharp"
-        loading="lazy"
-      />
-      <Picture
-        src={pavel3}
-        formats={['webp']}
-        fallbackFormat="jpeg"
-        alt=""
-        aria-hidden="true"
-        width={640}
-        height={800}
-        class="about-photo-img about-photo-blur"
-        loading="lazy"
-      />
+    <div class="about-photo panel">
+      <div class="about-photo-layer about-photo-sharp">
+        <Picture
+          src={pavel3}
+          formats={['webp']}
+          fallbackFormat="jpeg"
+          alt="Ярополов Павел Алексеевич, интернет-маркетолог"
+          width={640}
+          height={800}
+          class="about-photo-img"
+          loading="lazy"
+        />
+      </div>
+      <div class="about-photo-layer about-photo-blur">
+        <Picture
+          src={pavel3}
+          formats={['webp']}
+          fallbackFormat="jpeg"
+          alt=""
+          aria-hidden="true"
+          width={640}
+          height={800}
+          class="about-photo-img about-photo-img-blur"
+          loading="lazy"
+        />
+      </div>
+      <div class="about-photo-layer about-photo-edge">
+        <Picture
+          src={pavel3}
+          formats={['webp']}
+          fallbackFormat="jpeg"
+          alt=""
+          aria-hidden="true"
+          width={640}
+          height={800}
+          class="about-photo-img"
+          loading="lazy"
+        />
+      </div>
     </div>
 
     <div class="about-copy">
@@ -38,17 +55,15 @@ import { contacts } from '../data/site';
       </div>
 
       <div class="about-text">
-        <p>В маркетинге больше 5 лет.</p>
         <p>
-          Начинал с SMM, SEO и PR,<br />
-          сейчас основная специализация — интернет-продвижение:<br />
-          Яндекс.Директ и создание сайтов. Для клиентов, с которыми уже есть деловые отношения,<br />
-          веду консультации по продвижению Бренда, SMM и PR деятельности.
+          В маркетинге больше 5 лет. Начинал с SMM, SEO и PR, сейчас основная специализация —
+          интернет-продвижение: Яндекс.Директ и создание сайтов. Для клиентов, с которыми уже есть
+          деловые отношения, веду консультации по продвижению бренда, SMM и PR-деятельности.
         </p>
+        <p class="about-pull-quote">«Работаю самостоятельно, без агентства»</p>
         <p>
-          Работаю самостоятельно, без агентства.<br />
-          Это значит, что с кампанией и с сайтом я работаю индивидуально,<br />
-          без сторонних помощников, специалистов и лишних наценок.
+          Это значит, что с кампанией и с сайтом я работаю индивидуально, без сторонних
+          помощников, специалистов и лишних наценок.
         </p>
       </div>
     </div>
@@ -80,40 +95,45 @@ import { contacts } from '../data/site';
     position: relative;
     aspect-ratio: 4 / 5;
     max-width: 380px;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  /* Маска и фильтр намеренно на разных элементах — так же, как в Hero —
+     иначе наложение mask-image и filter на один узел иногда не
+     прорисовывается при первом заходе на страницу (баг части браузеров
+     на Chromium). */
+  .about-photo-layer {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
   }
 
   .about-photo-img {
-    position: absolute;
-    inset: 0;
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: grayscale(1) contrast(1.08) sepia(0.12) hue-rotate(5deg);
+    filter: url(#duotone-red) contrast(1.1);
+  }
+
+  .about-photo-img-blur {
+    filter: url(#duotone-red) contrast(1.1) blur(10px);
   }
 
   .about-photo-sharp {
-    -webkit-mask-image: radial-gradient(ellipse 66% 70% at center, black 0%, black 70%, transparent 94%);
-    mask-image: radial-gradient(ellipse 66% 70% at center, black 0%, black 70%, transparent 94%);
+    -webkit-mask-image: radial-gradient(ellipse 72% 88% at 50% 40%, black 0%, black 64%, transparent 87%), linear-gradient(to top, black 0%, black 5%, transparent 24%);
+    mask-image: radial-gradient(ellipse 72% 88% at 50% 40%, black 0%, black 64%, transparent 87%), linear-gradient(to top, black 0%, black 5%, transparent 24%);
   }
 
   .about-photo-blur {
-    filter: grayscale(1) contrast(1.08) sepia(0.12) hue-rotate(5deg) blur(14px);
-    -webkit-mask-image: radial-gradient(
-      ellipse 66% 70% at center,
-      transparent 0%,
-      transparent 58%,
-      black 74%,
-      black 90%,
-      transparent 100%
-    );
-    mask-image: radial-gradient(
-      ellipse 66% 70% at center,
-      transparent 0%,
-      transparent 58%,
-      black 74%,
-      black 90%,
-      transparent 100%
-    );
+    -webkit-mask-image: radial-gradient(ellipse 72% 82% at 50% 38%, transparent 0%, transparent 58%, black 72%, black 84%, transparent 96%);
+    mask-image: radial-gradient(ellipse 72% 82% at 50% 38%, transparent 0%, transparent 58%, black 72%, black 84%, transparent 96%);
+  }
+
+  .about-photo-edge {
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 6%, transparent 16%);
+    mask-image: linear-gradient(to top, black 0%, black 6%, transparent 16%);
   }
 
   .about-title {
@@ -125,6 +145,10 @@ import { contacts } from '../data/site';
     margin-top: 10px;
     font-size: 16px;
     letter-spacing: 0.06em;
+  }
+
+  .about-role::before {
+    display: none;
   }
 
   @media (min-width: 640px) {
@@ -145,5 +169,16 @@ import { contacts } from '../data/site';
     line-height: 1.6;
     color: var(--color-text-muted);
     max-width: 620px;
+  }
+
+  .about-pull-quote {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 26px;
+    letter-spacing: -0.01em;
+    color: var(--color-text) !important;
+    border-left: 2px solid var(--color-accent);
+    padding-left: 20px;
+    max-width: 520px !important;
   }
 </style>

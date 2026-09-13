@@ -1,8 +1,14 @@
-@import '@fontsource/unbounded/400.css';
-@import '@fontsource/unbounded/500.css';
-@import '@fontsource/inter/400.css';
-@import '@fontsource/inter/500.css';
-@import '@fontsource/inter/600.css';
+@import '@fontsource/onest/cyrillic-200.css';
+@import '@fontsource/onest/cyrillic-300.css';
+@import '@fontsource/onest/cyrillic-400.css';
+@import '@fontsource/onest/cyrillic-500.css';
+@import '@fontsource/onest/cyrillic-600.css';
+@import '@fontsource/onest/cyrillic-700.css';
+@import '@fontsource/oswald/400.css';
+@import '@fontsource/oswald/500.css';
+@import '@fontsource/oswald/600.css';
+@import '@fontsource/caveat/cyrillic-500.css';
+@import '@fontsource/caveat/cyrillic-600.css';
 @import '@fontsource/jetbrains-mono/400.css';
 @import '@fontsource/jetbrains-mono/500.css';
 @import './tokens.css';
@@ -42,9 +48,10 @@ body {
   color: var(--color-text);
   font-family: var(--font-body);
   font-size: 17px;
-  line-height: 1.6;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  position: relative;
 }
 
 .page-content {
@@ -98,31 +105,44 @@ h4 {
 /* Видимый фокус — единственный способ показать интерактивность клавиатуры */
 :focus-visible {
   outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-  border-radius: var(--radius-button);
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 200;
   letter-spacing: -0.02em;
+  line-height: 1.05;
 }
 
 .mono-label {
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-condensed);
+  font-size: 12.5px;
   line-height: 1.2;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  font-weight: 500;
+  color: var(--color-text-dim);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mono-label::before {
+  content: '';
+  display: inline-block;
+  width: 16px;
+  height: 1px;
+  background: var(--color-accent);
 }
 
 .section {
   max-width: var(--page-max);
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 40px;
 }
 
 .section-gap {
@@ -135,32 +155,28 @@ h3 {
   }
 }
 
-/* Пиксельное стекло — основной приём поверхностей */
-.glass {
-  background: rgba(26, 28, 29, 0.55);
-  backdrop-filter: blur(24px) saturate(1.2);
-  -webkit-backdrop-filter: blur(24px) saturate(1.2);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
+/* Баухаус-панель — плоский цвет, острые углы, жёсткая тень блоком без
+   размытия и геометрическая метка-«марка» в углу вместо блика. Никакого
+   backdrop-filter и полупрозрачности: чистые плоскости и графичная тень,
+   как в конструктивистской печати. */
+.panel {
+  background: var(--color-surface);
+  border: 2px solid var(--color-text);
+  border-radius: 0;
   position: relative;
+  overflow: hidden;
+  box-shadow: 10px 10px 0 0 var(--color-accent);
 }
 
-.glass::before {
+.panel::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 40%);
+  top: 0;
+  left: 0;
+  width: 22px;
+  height: 22px;
+  background: var(--color-accent);
   pointer-events: none;
-  border-radius: inherit;
-}
-
-@supports not (backdrop-filter: blur(1px)) {
-  .glass {
-    background: var(--color-surface);
-  }
-  .glass::before {
-    display: none;
-  }
 }
 
 .btn {
@@ -168,32 +184,40 @@ h3 {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px 28px;
+  padding: 15px 30px;
   border-radius: var(--radius-button);
   font-family: var(--font-body);
-  font-weight: 600;
+  font-weight: 500;
   font-size: 15px;
-  transition: box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  border: 1px solid transparent;
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn:active {
+  transform: translateY(0);
 }
 
 .btn-primary {
   background: var(--color-accent);
-  color: var(--color-invert-text);
+  color: var(--color-text);
 }
 
 .btn-primary:hover {
-  box-shadow: 0 0 32px rgba(227, 178, 0, 0.25);
+  background: #d63541;
 }
 
 .btn-ghost {
   background: transparent;
   color: var(--color-text);
-  border: 1px solid var(--color-text);
+  border-color: var(--color-border-strong);
 }
 
 .btn-ghost:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+  border-color: var(--color-text);
 }
 
 .sr-only {
@@ -206,4 +230,63 @@ h3 {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* ————————————————————————————————————————————————
+   Реквизит: рукописная пометка, инлайн-бейдж, направляющие полей
+   ———————————————————————————————————————————————— */
+
+/* Рукописная пометка — редкий, точечный акцент рядом с ключевой фразой */
+.marginalia {
+  font-family: var(--font-hand);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--color-accent);
+  line-height: 1;
+  transform: rotate(-4deg);
+  display: inline-block;
+}
+
+/* Печатные направляющие полей — обрезные метки типографики,
+   видны только в пустых полях за пределами полосы набора. */
+.margin-guides {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  display: none;
+}
+
+@media (min-width: 1500px) {
+  .margin-guides {
+    display: block;
+  }
+}
+
+.margin-guides span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 1px dotted var(--color-border);
+}
+
+.margin-guides span:first-child {
+  left: calc(50% - 680px);
+}
+
+.margin-guides span:last-child {
+  right: calc(50% - 680px);
+}
+
+/* Технический растр вроде миллиметровки — фон отдельных секций */
+.blueprint-grid {
+  background-image:
+    linear-gradient(var(--color-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: center;
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at center, black 40%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 70% at center, black 40%, transparent 100%);
+  opacity: 0.5;
 }

@@ -6,7 +6,7 @@ import GrowthChart from './GrowthChart.astro';
 
 <section class="cases section section-gap" id="cases">
   <p class="mono-label">Кейсы</p>
-  <h2 class="cases-title">Два проекта, разобранных подробно</h2>
+  <h2 class="cases-title">Два проекта,<br />разобранных подробно</h2>
 
   <div class="case-block">
     <div class="case-copy">
@@ -19,7 +19,7 @@ import GrowthChart from './GrowthChart.astro';
       <p class="case-period mono-label">{case1.period}</p>
     </div>
 
-    <div class="case-panel glass">
+    <div class="case-panel panel">
       <AnimatedCounter num={case1.growth.value} prefix="+" suffix="%" label={case1.growth.label} size="lg" />
       <div class="case-chart">
         <GrowthChart startLabel="Старт" endLabel={`+${case1.growth.value}%`} caption={case1.growth.description} startY={95} />
@@ -54,7 +54,7 @@ import GrowthChart from './GrowthChart.astro';
       <p class="case-period mono-label">{case2.period}</p>
     </div>
 
-    <div class="case-panel glass">
+    <div class="case-panel panel">
       <div class="case-headline-grid">
         {case2.headline.map((s) => (
           <AnimatedCounter num={s.num} suffix={s.suffix} prefix={s.prefix} decimals={s.decimals} label={s.label} size="lg" />
@@ -121,6 +121,7 @@ import GrowthChart from './GrowthChart.astro';
     margin-top: 16px;
     color: var(--color-text-muted);
     font-size: 16px;
+    white-space: pre-line;
   }
 
   .case-actions {
@@ -135,6 +136,7 @@ import GrowthChart from './GrowthChart.astro';
     padding-left: 20px;
     font-size: 15px;
     color: var(--color-text);
+    white-space: pre-line;
   }
 
   .case-actions li::before {
@@ -188,9 +190,8 @@ import GrowthChart from './GrowthChart.astro';
   }
 
   .case-divider {
-    width: 120px;
-    height: 3px;
-    background: var(--color-accent);
-    margin: 56px auto 0;
+    height: 1px;
+    background: var(--color-border);
+    margin: 72px 0 0;
   }
 </style>

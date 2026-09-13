@@ -1,0 +1,189 @@
+---
+const chapters = [
+  { id: 'hero', num: '01', label: 'Познакомимся?' },
+  { id: 'problem', num: '02', label: 'Узнаете себя?' },
+  { id: 'cases', num: '03', label: 'Кейсы' },
+  { id: 'services', num: '04', label: 'Услуги' },
+  { id: 'how', num: '05', label: 'Как я работаю' },
+  { id: 'calc', num: '06', label: 'Калькулятор' },
+  { id: 'about', num: '07', label: 'Кто я?' },
+  { id: 'faq', num: '08', label: 'Вопрос-ответ' },
+  { id: 'form', num: '09', label: 'Заявка' },
+];
+---
+
+<nav class="chapter-rail" aria-label="Содержание номера">
+  <p class="chapter-rail-kicker">Разделы</p>
+  <ol>
+    {chapters.map((c) => (
+      <li data-chapter-item={c.id}>
+        <a href={`#${c.id}`}>
+          <span class="chapter-num">{c.num}</span>
+          <span class="chapter-label">{c.label}</span>
+        </a>
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<style>
+  .chapter-rail {
+    display: none;
+  }
+
+  @media (min-width: 1440px) {
+    .chapter-rail {
+      display: block;
+      position: fixed;
+      top: 50%;
+      right: 28px;
+      transform: translateY(-50%);
+      z-index: 40;
+    }
+  }
+
+  .chapter-rail-kicker {
+    font-family: var(--font-condensed);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-dim);
+    margin-bottom: 12px;
+    text-align: right;
+  }
+
+  .chapter-rail ol {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 9px;
+  }
+
+  .chapter-rail a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-condensed);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--color-text-dim);
+    transition: color 0.2s ease;
+  }
+
+  .chapter-num {
+    font-variant-numeric: tabular-nums;
+    position: relative;
+    padding-right: 2px;
+  }
+
+  .chapter-num::after {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 1px;
+    background: currentColor;
+    margin-left: 8px;
+    vertical-align: middle;
+    transition: width 0.2s ease, background 0.2s ease;
+  }
+
+  .chapter-label {
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    opacity: 0;
+    text-transform: uppercase;
+    transition: max-width 0.25s ease, opacity 0.2s ease;
+  }
+
+  .chapter-rail li:hover a,
+  .chapter-rail li[data-active] a {
+    color: var(--color-text);
+  }
+
+  .chapter-rail li[data-active] .chapter-num {
+    color: var(--color-accent);
+  }
+
+  .chapter-rail li[data-active] .chapter-num::after {
+    width: 22px;
+    background: var(--color-accent);
+  }
+
+  .chapter-rail li:hover .chapter-label,
+  .chapter-rail li[data-active] .chapter-label {
+    max-width: 140px;
+    opacity: 1;
+  }
+
+  /* Рельса — fixed-элемент поверх контента, и под ней иногда оказывается
+     светлая секция «Как я работаю». Стандартный светлый на тёмном цвет
+     текста там становится почти белым на белом — переключаем на тёмный
+     вариант, когда под рельсой светлая поверхность. */
+  .chapter-rail.on-light .chapter-rail-kicker {
+    color: rgba(23, 19, 15, 0.45);
+  }
+
+  .chapter-rail.on-light a {
+    color: rgba(23, 19, 15, 0.45);
+  }
+
+  .chapter-rail.on-light li:hover a,
+  .chapter-rail.on-light li[data-active] a {
+    color: var(--color-invert-text);
+  }
+</style>
+
+<script>
+  const items = document.querySelectorAll<HTMLElement>('[data-chapter-item]');
+  const sections = Array.from(items)
+    .map((item) => {
+      const id = item.dataset.chapterItem;
+      const section = id ? document.getElementById(id) : null;
+      return section ? { item, section } : null;
+    })
+    .filter((x): x is { item: HTMLElement; section: HTMLElement } => x !== null);
+
+  if (sections.length > 0) {
+    const band = Math.round(window.innerHeight * 0.45);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const match = sections.find((s) => s.section === entry.target);
+          if (!match) return;
+          if (entry.isIntersecting) {
+            items.forEach((i) => i.removeAttribute('data-active'));
+            match.item.setAttribute('data-active', 'true');
+          }
+        });
+      },
+      { rootMargin: `-${band}px 0px -${band}px 0px`, threshold: 0 }
+    );
+
+    sections.forEach(({ section }) => observer.observe(section));
+  }
+
+  const rail = document.querySelector<HTMLElement>('.chapter-rail');
+
+  function updateRailSurface() {
+    if (!rail) return;
+    const rect = rail.getBoundingClientRect();
+    const x = Math.min(window.innerWidth - 1, rect.right - 4);
+    const y = rect.top + rect.height / 2;
+
+    /* Сама рельса лежит поверх контента и перекрывает точку сэмплинга —
+       без этого elementFromPoint попадает в саму рельсу, а не в секцию
+       под ней, и on-light никогда не включается. */
+    const prevPointerEvents = rail.style.pointerEvents;
+    rail.style.pointerEvents = 'none';
+    const target = document.elementFromPoint(x, y);
+    rail.style.pointerEvents = prevPointerEvents;
+
+    rail.classList.toggle('on-light', !!target?.closest('.light-surface'));
+  }
+
+  window.addEventListener('scroll', updateRailSurface, { passive: true });
+  window.addEventListener('resize', updateRailSurface, { passive: true });
+  updateRailSurface();
+</script>

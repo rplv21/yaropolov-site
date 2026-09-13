@@ -7,12 +7,18 @@ interface LeadPayload {
   contact?: string;
   method?: string;
   extraPhone?: string;
+  email?: string;
   site?: string;
   niche?: string;
   comment?: string;
   consent?: string;
   hp?: string;
+  source?: string;
 }
+
+const SOURCE_LABELS: Record<string, string> = {
+  ad_popup: 'заявка с поп-апа с рекламы',
+};
 
 const METHOD_LABELS: Record<string, string> = {
   vk: 'ВКонтакте',
@@ -44,6 +50,8 @@ export const POST: APIRoute = async ({ request }) => {
   const comment = (payload.comment ?? '').trim();
   const consent = payload.consent === 'on' || payload.consent === 'true';
   const honeypot = (payload.hp ?? '').trim();
+  const email = (payload.email ?? '').trim();
+  const source = (payload.source ?? '').trim();
 
   // Ловушка для ботов: поле должно оставаться пустым
   if (honeypot) {
@@ -54,7 +62,15 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(JSON.stringify({ error: 'validation_failed' }), { status: 400 });
   }
 
-  if (name.length > 200 || contact.length > 200 || site.length > 300 || comment.length > 2000 || extraPhone.length > 40) {
+  if (
+    name.length > 200 ||
+    contact.length > 200 ||
+    site.length > 300 ||
+    comment.length > 2000 ||
+    extraPhone.length > 40 ||
+    email.length > 200 ||
+    source.length > 100
+  ) {
     return new Response(JSON.stringify({ error: 'validation_failed' }), { status: 400 });
   }
 
@@ -67,12 +83,15 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const lines = [
-    '<b>Новая заявка с yaropolov.ru</b>',
+    source && SOURCE_LABELS[source]
+      ? `<b>Новая заявка с yaropolov.ru</b> (${escapeForTelegram(SOURCE_LABELS[source])})`
+      : '<b>Новая заявка с yaropolov.ru</b>',
     `Имя: ${escapeForTelegram(name)}`,
     `Метод связи: ${escapeForTelegram(METHOD_LABELS[method])}`,
     `Контакт: ${escapeForTelegram(contact)}`,
   ];
   if (extraPhone) lines.push(`Телефон: ${escapeForTelegram(extraPhone)}`);
+  if (email) lines.push(`Email: ${escapeForTelegram(email)}`);
   if (site) lines.push(`Сайт: ${escapeForTelegram(site)}`);
   if (niche) lines.push(`Ниша: ${escapeForTelegram(niche)}`);
   if (comment) lines.push(`Комментарий: ${escapeForTelegram(comment)}`);

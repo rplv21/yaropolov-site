@@ -1,0 +1,100 @@
+---
+export const prerender = true;
+
+import Layout from '../../layouts/Layout.astro';
+import { articles } from '../../data/articles';
+---
+
+<Layout
+  title="Статьи — Yaropolov.ru"
+  description="Разборы про рекламу в Яндекс.Директе и сайты для бизнеса: сколько стоит реклама, почему она иногда не работает и когда сайту пора вырасти из конструктора."
+  showChapterRail={false}
+>
+  <section class="section section-gap">
+    <p class="mono-label">Статьи</p>
+    <h1 class="articles-title">Разборы про рекламу<br />и сайты для бизнеса</h1>
+
+    <div class="articles-grid">
+      {
+        articles.map((article) => (
+          <a href={`/articles/${article.slug}`} class="article-card panel">
+            <p class="article-card-date mono-label">{article.dateDisplay}</p>
+            <h2 class="article-card-title">{article.title}</h2>
+            <p class="article-card-excerpt">{article.excerpt}</p>
+            <span class="article-card-cta">Читать →</span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .articles-title {
+    font-size: 30px;
+    margin-top: 12px;
+    max-width: 700px;
+  }
+
+  @media (min-width: 640px) {
+    .articles-title {
+      font-size: 42px;
+    }
+  }
+
+  .articles-grid {
+    margin-top: 48px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px 24px;
+  }
+
+  @media (min-width: 720px) {
+    .articles-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .article-card {
+    display: flex;
+    flex-direction: column;
+    padding: var(--card-padding);
+    color: var(--color-text);
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .article-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .article-card-date {
+    margin-bottom: 4px;
+  }
+
+  .article-card-date::before {
+    display: none;
+  }
+
+  .article-card-title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    margin-top: 10px;
+  }
+
+  .article-card-excerpt {
+    margin-top: 14px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+    flex-grow: 1;
+  }
+
+  .article-card-cta {
+    margin-top: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-accent);
+  }
+</style>

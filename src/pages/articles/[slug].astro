@@ -1,0 +1,168 @@
+---
+export const prerender = true;
+
+import Layout from '../../layouts/Layout.astro';
+import LeadForm from '../../components/LeadForm.astro';
+import ArticleAuthorCard from '../../components/ArticleAuthorCard.astro';
+import { articles } from '../../data/articles';
+import type { Article } from '../../data/articles';
+
+export function getStaticPaths() {
+  return articles.map((article) => ({
+    params: { slug: article.slug },
+    props: { article },
+  }));
+}
+
+interface Props {
+  article: Article;
+}
+
+const { article } = Astro.props;
+const canonical = `https://yaropolov.ru/articles/${article.slug}`;
+
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: article.title,
+  description: article.description,
+  datePublished: article.datePublished,
+  mainEntityOfPage: canonical,
+  author: { '@type': 'Person', name: 'Ярополов Павел Алексеевич' },
+  publisher: { '@type': 'Person', name: 'Ярополов Павел Алексеевич' },
+};
+---
+
+<Layout title={`${article.title} — Yaropolov.ru`} description={article.description} showChapterRail={false}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  </Fragment>
+
+  <article class="section section-gap article-page" data-article-scroll-goal>
+    <nav class="breadcrumbs" aria-label="Хлебные крошки">
+      <a href="/">Главная</a> <span aria-hidden="true">·</span> <a href="/articles">Статьи</a>
+      <span aria-hidden="true">·</span> <span aria-current="page">{article.title}</span>
+    </nav>
+
+    <h1 class="article-title">{article.title}</h1>
+    <p class="article-date mono-label">{article.dateDisplay}</p>
+
+    <div class="article-body">
+      {article.body.map((block) => (block.type === 'h2' ? <h2>{block.text}</h2> : <p set:html={block.html} />))}
+    </div>
+
+    <div class="article-author">
+      <ArticleAuthorCard />
+    </div>
+  </article>
+
+  <LeadForm />
+</Layout>
+
+<style>
+  .breadcrumbs {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--color-text-dim);
+  }
+
+  .breadcrumbs a {
+    color: var(--color-text-dim);
+    transition: color 0.2s ease;
+  }
+
+  .breadcrumbs a:hover {
+    color: var(--color-text);
+  }
+
+  .breadcrumbs span[aria-current] {
+    color: var(--color-text-muted);
+  }
+
+  .article-title {
+    font-size: 30px;
+    max-width: 780px;
+    margin-top: 18px;
+  }
+
+  @media (min-width: 640px) {
+    .article-title {
+      font-size: 42px;
+    }
+  }
+
+  .article-date {
+    margin-top: 16px;
+  }
+
+  .article-date::before {
+    display: none;
+  }
+
+  .article-body {
+    margin-top: 40px;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .article-body h2 {
+    font-size: 24px;
+    font-weight: 400;
+    margin-top: 16px;
+  }
+
+  .article-body p {
+    font-size: 16.5px;
+    line-height: 1.65;
+    color: var(--color-text-muted);
+  }
+
+  .article-body :global(a) {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .article-body :global(a:hover) {
+    color: var(--color-accent);
+  }
+
+  .article-body :global(strong) {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  .article-author {
+    margin-top: 56px;
+    max-width: 560px;
+  }
+</style>
+
+<script>
+  // Цель в Метрике на глубину прокрутки статьи — фиксируем один раз за визит.
+  const article = document.querySelector('[data-article-scroll-goal]');
+  if (article) {
+    let fired = false;
+    function checkDepth() {
+      if (fired) return;
+      const rect = article!.getBoundingClientRect();
+      const total = rect.height;
+      const scrolled = Math.min(total, window.innerHeight - rect.top);
+      if (total > 0 && scrolled / total >= 0.75) {
+        fired = true;
+        try {
+          if (typeof (window as any).ym === 'function') {
+            (window as any).ym(112339088, 'reachGoal', 'article_scroll_75');
+          }
+        } catch {
+          /* аналитика не должна ронять страницу */
+        }
+        window.removeEventListener('scroll', checkDepth);
+      }
+    }
+    window.addEventListener('scroll', checkDepth, { passive: true });
+    checkDepth();
+  }
+</script>

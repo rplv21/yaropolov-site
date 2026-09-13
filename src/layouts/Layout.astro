@@ -1,19 +1,24 @@
 ---
 import '../styles/global.css';
-import Ticker from '../components/Ticker.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import EasterEgg from '../components/EasterEgg.astro';
-import SoundWaves from '../components/SoundWaves.astro';
+import ChapterRail from '../components/ChapterRail.astro';
+import StatusReadout from '../components/StatusReadout.astro';
+import CursorGrid from '../components/CursorGrid.astro';
+import LoadScreen from '../components/LoadScreen.astro';
+import AdPopup from '../components/AdPopup.astro';
+import FooterDude from '../components/FooterDude.astro';
 import { contacts } from '../data/site';
 
 interface Props {
   title: string;
   description: string;
   noindex?: boolean;
+  showChapterRail?: boolean;
 }
 
-const { title, description, noindex = false } = Astro.props;
+const { title, description, noindex = false, showChapterRail = true } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL('/og-cover.png', Astro.site);
 
@@ -99,13 +104,38 @@ const localBusinessSchema = {
       ym(112339088, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
     </script>
     <noscript><div><img src="https://mc.yandex.ru/watch/112339088" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <slot name="head" />
   </head>
   <body>
-    <SoundWaves />
+    <LoadScreen />
+    <svg class="sr-only" aria-hidden="true" focusable="false">
+      <filter id="duotone-red" color-interpolation-filters="sRGB">
+        <feColorMatrix
+          type="matrix"
+          values="0.33 0.33 0.33 0 0
+                  0.33 0.33 0.33 0 0
+                  0.33 0.33 0.33 0 0
+                  0    0    0    1 0"
+        />
+        <feComponentTransfer>
+          <feFuncR type="table" tableValues="0.49 0.96" />
+          <feFuncG type="table" tableValues="0.067 0.94" />
+          <feFuncB type="table" tableValues="0.098 0.88" />
+        </feComponentTransfer>
+      </filter>
+    </svg>
+    <div class="margin-guides" aria-hidden="true">
+      <span></span>
+      <span></span>
+    </div>
+    <CursorGrid />
     <EasterEgg />
+    {showChapterRail && <ChapterRail />}
+    <StatusReadout />
+    <AdPopup />
+    <FooterDude />
     <div class="page-content">
       <a href="#main" class="sr-only">Перейти к содержимому</a>
-      <Ticker />
       <Header />
       <main id="main">
         <slot />

@@ -4,7 +4,7 @@
     <h2 class="form-title">Оставить заявку</h2>
     <p class="form-subtitle">Отвечаю лично в течение дня.</p>
 
-    <div class="form-panel glass">
+    <div class="form-panel panel">
     <form id="lead-form" novalidate>
       <div class="form-row">
         <label class="form-label" for="lf-name">Имя *</label>
@@ -377,6 +377,7 @@
         statusEl.textContent = 'Заявка отправлена. Отвечу в ближайшее время.';
         statusEl.dataset.state = 'success';
       }
+      window.dispatchEvent(new CustomEvent('lead-form-submitted'));
     } catch (err) {
       if (statusEl) {
         statusEl.textContent = 'Не получилось отправить. Попробуйте написать в Telegram напрямую.';

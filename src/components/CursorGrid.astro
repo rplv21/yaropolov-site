@@ -1,0 +1,107 @@
+<div class="cursor-grid" aria-hidden="true">
+  <div class="cursor-grid-layer cursor-grid-dark"></div>
+  <div class="cursor-grid-layer cursor-grid-light"></div>
+</div>
+
+<style>
+  .cursor-grid {
+    display: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .cursor-grid {
+      display: block;
+      pointer-events: none;
+    }
+
+    /* Два постоянно существующих слоя сетки, тёмный и светлый, наложены
+       друг на друга и всегда отрендерены — переход между поверхностями
+       делается плавным кросс-фейдом их opacity, а не мгновенной сменой
+       класса. Это единственное, что можно анимировать без "скачка": ни
+       z-index, ни mix-blend-mode, ни цвет background-image плавно не
+       переходят.
+       Важно: у каждого слоя своё СОБСТВЕННОЕ position:fixed (а не общий
+       позиционированный контейнер) — иначе оба слоя оказываются в одном
+       стековом контексте обёртки, и светлый слой не может подняться выше
+       .page-content своим z-index, застревая позади вместе с тёмным. */
+    .cursor-grid-layer {
+      position: fixed;
+      inset: 0;
+      opacity: 0;
+      background-size: 32px 32px;
+      -webkit-mask-image: radial-gradient(circle 240px at var(--cursor-x, 50%) var(--cursor-y, 50%), black 0%, transparent 100%);
+      mask-image: radial-gradient(circle 240px at var(--cursor-x, 50%) var(--cursor-y, 50%), black 0%, transparent 100%);
+      transition: opacity 0.4s ease;
+    }
+
+    /* Оба слоя рисуются поверх .page-content (это отдельный стековый
+       контекст со своим z-index:1, поэтому лежащий "позади" слой в принципе
+       не может проступить сквозь непрозрачный фон секции — раньше тёмный
+       слой был спрятан за контентом и виден только сквозь полупрозрачное
+       стекло карточек; теперь, когда все панели стали плоскими и
+       непрозрачными (баухаус), эта полупрозрачность исчезла, и тёмный слой
+       иначе был бы виден вообще нигде. Поэтому у обоих слоёв одинаковый
+       z-index — оба всегда «над» контентом, как .blueprint-grid у Hero. */
+    .cursor-grid-dark {
+      z-index: 3;
+      background-image:
+        linear-gradient(var(--color-border-strong) 1px, transparent 1px),
+        linear-gradient(90deg, var(--color-border-strong) 1px, transparent 1px);
+    }
+
+    /* На светлом фоне то же самое, но другим цветом линий и через multiply —
+       так сквозь текст и карточки не мешает, но по светлому фону видна.
+       Слой существует всегда, меняется только его opacity — сам переход
+       между поверхностями невидим, потому что на границе оба слоя плавно
+       перекрещиваются через opacity. */
+    .cursor-grid-light {
+      z-index: 3;
+      mix-blend-mode: multiply;
+      background-image:
+        linear-gradient(#8f897a 1px, transparent 1px),
+        linear-gradient(90deg, #8f897a 1px, transparent 1px);
+    }
+
+    /* Множитель (1 - --cursor-shield) гасит слой, когда курсор находится
+       прямо над непрозрачной баухаус-панелью (.panel/.grid-shield) — вырезать
+       сетку по месту через маску ненадёжно кросс-браузерно, поэтому просто
+       не даём слою становиться видимым, пока курсор над такой панелью;
+       переход всё равно плавный благодаря transition на opacity. */
+    .cursor-grid.is-active .cursor-grid-dark {
+      opacity: calc(0.22 * (1 - var(--cursor-light-blend, 0)) * (1 - var(--cursor-shield, 0)));
+    }
+
+    .cursor-grid.is-active .cursor-grid-light {
+      opacity: calc(0.22 * var(--cursor-light-blend, 0) * (1 - var(--cursor-shield, 0)));
+    }
+  }
+</style>
+
+<script>
+  const grid = document.querySelector<HTMLElement>('.cursor-grid');
+
+  if (grid && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    let hideTimeout: ReturnType<typeof setTimeout>;
+
+    window.addEventListener(
+      'mousemove',
+      (e) => {
+        grid.style.setProperty('--cursor-x', `${e.clientX}px`);
+        grid.style.setProperty('--cursor-y', `${e.clientY}px`);
+        grid.classList.add('is-active');
+
+        const target = document.elementFromPoint(e.clientX, e.clientY);
+        grid.style.setProperty('--cursor-light-blend', target?.closest('.light-surface') ? '1' : '0');
+        // .panel и .service-card — непрозрачные баухаус-карточки с жёсткой
+        // рамкой/тенью, поверх которых линии сетки выглядят чужеродно.
+        grid.style.setProperty('--cursor-shield', target?.closest('.grid-shield, .panel, .service-card') ? '1' : '0');
+
+        clearTimeout(hideTimeout);
+        hideTimeout = setTimeout(() => grid.classList.remove('is-active'), 2000);
+      },
+      { passive: true }
+    );
+
+    document.addEventListener('mouseleave', () => grid.classList.remove('is-active'));
+  }
+</script>

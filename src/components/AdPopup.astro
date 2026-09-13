@@ -1,0 +1,409 @@
+---
+import { contacts } from '../data/site';
+---
+
+<div id="ad-popup-overlay" class="ad-popup-overlay" hidden>
+  <div class="ad-popup panel" role="dialog" aria-modal="true" aria-labelledby="ad-popup-title">
+    <button type="button" class="ad-popup-close" aria-label="Закрыть">×</button>
+
+    <p class="mono-label">Реклама · Яндекс.Директ</p>
+    <h2 id="ad-popup-title" class="ad-popup-title">Вы попали точно куда нужно</h2>
+    <p class="ad-popup-text">
+      «Яндекс.Директ» привёл вас на мой сайт, значит вы там, где и должны быть! Тоже хотите
+      настроить себе эффективную рекламу? Заполняйте форму:
+    </p>
+
+    <form id="ad-popup-form" novalidate>
+      <div class="ad-popup-row">
+        <label class="ad-popup-label" for="ap-name">Имя *</label>
+        <input class="ad-popup-input" type="text" id="ap-name" name="name" required autocomplete="name" />
+      </div>
+
+      <div class="ad-popup-row">
+        <label class="ad-popup-label" for="ap-phone">Телефон *</label>
+        <input
+          class="ad-popup-input"
+          type="tel"
+          id="ap-phone"
+          name="phone"
+          required
+          placeholder="+7 (___) ___-__-__"
+          inputmode="numeric"
+          autocomplete="tel"
+        />
+      </div>
+
+      <div class="ad-popup-row">
+        <label class="ad-popup-label" for="ap-method">Удобный способ связи *</label>
+        <select class="ad-popup-input" id="ap-method" name="method" required>
+          <option value="">Выбрать...</option>
+          <option value="telegram">Telegram</option>
+          <option value="max">Max</option>
+          <option value="email">Электронная почта</option>
+        </select>
+      </div>
+
+      <div class="ad-popup-row" data-method-field="email" hidden>
+        <label class="ad-popup-label" for="ap-email">Электронная почта *</label>
+        <input class="ad-popup-input" type="email" id="ap-email" name="email" placeholder="you@example.com" autocomplete="off" />
+      </div>
+
+      <!-- honeypot: скрытое поле-ловушка для ботов -->
+      <div class="ad-popup-honeypot" aria-hidden="true">
+        <label for="ap-hp">Оставьте пустым</label>
+        <input type="text" id="ap-hp" name="hp" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <label class="ad-popup-consent">
+        <input type="checkbox" id="ap-consent" name="consent" required />
+        <span>
+          Согласен на обработку персональных данных
+          согласно <a href="#" class="privacy-modal-trigger">политике конфиденциальности</a>
+        </span>
+      </label>
+
+      <button type="submit" class="btn btn-primary ad-popup-submit" id="ap-submit" disabled>
+        Отправить заявку
+      </button>
+    </form>
+    <p class="ad-popup-status" id="ap-status" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+<style>
+  .ad-popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(6, 6, 8, 0.7);
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  /* Скрытие через [hidden] не должно перебиваться этим display —
+     иначе окно остаётся кликабельным поверх страницы, даже когда «скрыто». */
+  .ad-popup-overlay:not([hidden]) {
+    display: flex;
+  }
+
+  .ad-popup {
+    width: 100%;
+    max-width: 480px;
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: var(--card-padding);
+    text-align: left;
+  }
+
+  .ad-popup-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-text);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .ad-popup-close:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .ad-popup-title {
+    font-size: 26px;
+    margin-top: 12px;
+    padding-right: 40px;
+  }
+
+  .ad-popup-text {
+    margin-top: 14px;
+    color: var(--color-text-muted);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  #ad-popup-form {
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .ad-popup-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ad-popup-label {
+    font-size: 14px;
+    color: var(--color-text-muted);
+  }
+
+  .ad-popup-input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-input);
+    color: var(--color-text);
+  }
+
+  .ad-popup-input:focus-visible {
+    border-color: var(--color-accent);
+  }
+
+  .ad-popup-honeypot {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .ad-popup-consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  .ad-popup-consent input {
+    margin-top: 3px;
+    accent-color: var(--color-accent);
+  }
+
+  .ad-popup-consent a {
+    color: var(--color-text);
+    text-decoration: underline;
+  }
+
+  .ad-popup-consent a:hover {
+    color: var(--color-accent);
+  }
+
+  .ad-popup-submit {
+    margin-top: 2px;
+  }
+
+  .ad-popup-submit:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .ad-popup-submit:disabled:hover {
+    box-shadow: none;
+  }
+
+  .ad-popup-status {
+    margin-top: 14px;
+    font-size: 14px;
+    min-height: 20px;
+  }
+
+  .ad-popup-status:empty {
+    margin-top: 0;
+  }
+
+  .ad-popup-status[data-state='success'] {
+    color: var(--color-accent);
+  }
+
+  .ad-popup-status[data-state='error'] {
+    color: #e0715a;
+  }
+</style>
+
+<script define:vars={{ telegramHref: contacts.telegramHref }}>
+  const STORAGE_AD_FLAG = 'yaropolov_ad_visit';
+  const STORAGE_SHOWN_FLAG = 'yaropolov_ad_popup_shown';
+  const SHOW_DELAY_MS = 10000;
+  const YM_COUNTER_ID = 112339088;
+
+  function reachGoal(name) {
+    try {
+      if (typeof window.ym === 'function') window.ym(YM_COUNTER_ID, 'reachGoal', name);
+    } catch {
+      /* аналитика не должна ронять форму */
+    }
+  }
+
+  // 1. Разметка перехода с рекламы: yclid добавляется Яндекс.Директом
+  // автоматически при клике по объявлению.
+  try {
+    const params = new URLSearchParams(location.search);
+    if (params.has('yclid')) {
+      sessionStorage.setItem(STORAGE_AD_FLAG, '1');
+    }
+  } catch {
+    /* sessionStorage может быть недоступен (приватный режим и т.п.) */
+  }
+
+  const overlay = document.getElementById('ad-popup-overlay');
+  const closeBtn = overlay?.querySelector('.ad-popup-close');
+  const form = document.getElementById('ad-popup-form');
+  const consent = document.getElementById('ap-consent');
+  const submitBtn = document.getElementById('ap-submit');
+  const statusEl = document.getElementById('ap-status');
+
+  let mainFormSubmitted = false;
+
+  function hasFlag(key) {
+    try {
+      return sessionStorage.getItem(key) === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  function setFlag(key) {
+    try {
+      sessionStorage.setItem(key, '1');
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function showPopup() {
+    if (!overlay || mainFormSubmitted) return;
+    if (hasFlag(STORAGE_SHOWN_FLAG)) return;
+    setFlag(STORAGE_SHOWN_FLAG);
+    overlay.hidden = false;
+    reachGoal('ad_popup_shown');
+  }
+
+  function hidePopup() {
+    if (overlay) overlay.hidden = true;
+  }
+
+  window.addEventListener('lead-form-submitted', () => {
+    mainFormSubmitted = true;
+    hidePopup();
+  });
+
+  if (hasFlag(STORAGE_AD_FLAG) && !hasFlag(STORAGE_SHOWN_FLAG)) {
+    setTimeout(showPopup, SHOW_DELAY_MS);
+  }
+
+  closeBtn?.addEventListener('click', hidePopup);
+  overlay?.addEventListener('click', (e) => {
+    if (e.target === overlay) hidePopup();
+  });
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay && !overlay.hidden) hidePopup();
+  });
+
+  consent?.addEventListener('change', () => {
+    if (submitBtn) submitBtn.disabled = !consent.checked;
+  });
+
+  // Маска номера телефона: +7 (XXX) XXX-XX-XX
+  function formatPhone(raw) {
+    let digits = raw.replace(/\D/g, '');
+    if (digits.startsWith('7') || digits.startsWith('8')) digits = digits.slice(1);
+    digits = digits.slice(0, 10);
+
+    let out = '+7';
+    if (digits.length > 0) out += ' (' + digits.slice(0, 3);
+    if (digits.length >= 3) out += ')';
+    if (digits.length > 3) out += ' ' + digits.slice(3, 6);
+    if (digits.length > 6) out += '-' + digits.slice(6, 8);
+    if (digits.length > 8) out += '-' + digits.slice(8, 10);
+    return out;
+  }
+
+  const phoneInput = document.getElementById('ap-phone');
+  phoneInput?.addEventListener('input', () => {
+    phoneInput.value = formatPhone(phoneInput.value);
+  });
+  phoneInput?.addEventListener('focus', () => {
+    if (!phoneInput.value) phoneInput.value = '+7 (';
+  });
+
+  // Показываем поле почты только при выборе метода "email"
+  const methodSelect = document.getElementById('ap-method');
+  const emailField = document.querySelector('[data-method-field="email"]');
+  const emailInput = document.getElementById('ap-email');
+
+  methodSelect?.addEventListener('change', () => {
+    const isEmail = methodSelect.value === 'email';
+    if (emailField) emailField.hidden = !isEmail;
+    if (emailInput) emailInput.required = isEmail;
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const formData = new FormData(form);
+    const method = String(formData.get('method') || '');
+    const phone = String(formData.get('phone') || '');
+
+    const payload = {
+      name: String(formData.get('name') || ''),
+      method,
+      contact: phone,
+      consent: consent?.checked ? 'true' : 'false',
+      hp: String(formData.get('hp') || ''),
+      source: 'ad_popup',
+    };
+
+    if (method === 'email') {
+      payload.email = String(formData.get('email') || '');
+    }
+
+    if (submitBtn) submitBtn.disabled = true;
+    if (statusEl) {
+      statusEl.textContent = 'Отправляю...';
+      statusEl.removeAttribute('data-state');
+    }
+
+    try {
+      const res = await fetch('/api/send-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error('request failed');
+
+      form.hidden = true;
+      if (statusEl) {
+        statusEl.textContent = 'Заявка отправлена. Отвечу в ближайшее время.';
+        statusEl.dataset.state = 'success';
+      }
+      mainFormSubmitted = true;
+      reachGoal('ad_popup_lead');
+      // Событие диспатчим вместе со скрытием, а не сразу — иначе собственный же
+      // слушатель 'lead-form-submitted' ниже мгновенно закроет попап, не дав
+      // посетителю увидеть сообщение об успехе.
+      setTimeout(() => {
+        hidePopup();
+        window.dispatchEvent(new CustomEvent('lead-form-submitted'));
+      }, 2500);
+    } catch (err) {
+      if (statusEl) {
+        statusEl.textContent = `Не получилось отправить. Попробуйте написать в Telegram напрямую: ${telegramHref}`;
+        statusEl.dataset.state = 'error';
+      }
+      if (submitBtn) submitBtn.disabled = !consent?.checked;
+    }
+  });
+</script>
