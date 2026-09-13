@@ -196,20 +196,43 @@ import { contacts } from '../data/site';
 
   .ad-popup-status {
     margin-top: 14px;
-    font-size: 14px;
+    font-size: 15px;
     min-height: 20px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
   }
 
   .ad-popup-status:empty {
     margin-top: 0;
   }
 
+  .ad-popup-status::before {
+    content: '';
+    flex-shrink: 0;
+    width: 9px;
+    height: 9px;
+    transform: translateY(-1px);
+  }
+
+  .ad-popup-status:empty::before {
+    display: none;
+  }
+
   .ad-popup-status[data-state='success'] {
-    color: var(--color-accent);
+    color: var(--color-text);
+  }
+
+  .ad-popup-status[data-state='success']::before {
+    background: var(--color-accent);
   }
 
   .ad-popup-status[data-state='error'] {
     color: #e0715a;
+  }
+
+  .ad-popup-status[data-state='error']::before {
+    background: #e0715a;
   }
 </style>
 

@@ -212,20 +212,43 @@
 
   .form-status {
     margin-top: 16px;
-    font-size: 14px;
+    font-size: 15px;
     min-height: 20px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
   }
 
   .form-status:empty {
     margin-top: 0;
   }
 
+  .form-status::before {
+    content: '';
+    flex-shrink: 0;
+    width: 9px;
+    height: 9px;
+    transform: translateY(-1px);
+  }
+
+  .form-status:empty::before {
+    display: none;
+  }
+
   .form-status[data-state='success'] {
-    color: var(--color-accent);
+    color: var(--color-text);
+  }
+
+  .form-status[data-state='success']::before {
+    background: var(--color-accent);
   }
 
   .form-status[data-state='error'] {
     color: #e0715a;
+  }
+
+  .form-status[data-state='error']::before {
+    background: #e0715a;
   }
 </style>
 
