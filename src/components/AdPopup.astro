@@ -33,21 +33,6 @@ import { contacts } from '../data/site';
         />
       </div>
 
-      <div class="ad-popup-row">
-        <label class="ad-popup-label" for="ap-method">Удобный способ связи *</label>
-        <select class="ad-popup-input" id="ap-method" name="method" required>
-          <option value="">Выбрать...</option>
-          <option value="telegram">Telegram</option>
-          <option value="max">Max</option>
-          <option value="email">Электронная почта</option>
-        </select>
-      </div>
-
-      <div class="ad-popup-row" data-method-field="email" hidden>
-        <label class="ad-popup-label" for="ap-email">Электронная почта *</label>
-        <input class="ad-popup-input" type="email" id="ap-email" name="email" placeholder="you@example.com" autocomplete="off" />
-      </div>
-
       <!-- honeypot: скрытое поле-ловушка для ботов -->
       <div class="ad-popup-honeypot" aria-hidden="true">
         <label for="ap-hp">Оставьте пустым</label>
@@ -334,17 +319,6 @@ import { contacts } from '../data/site';
     if (!phoneInput.value) phoneInput.value = '+7 (';
   });
 
-  // Показываем поле почты только при выборе метода "email"
-  const methodSelect = document.getElementById('ap-method');
-  const emailField = document.querySelector('[data-method-field="email"]');
-  const emailInput = document.getElementById('ap-email');
-
-  methodSelect?.addEventListener('change', () => {
-    const isEmail = methodSelect.value === 'email';
-    if (emailField) emailField.hidden = !isEmail;
-    if (emailInput) emailInput.required = isEmail;
-  });
-
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!form.checkValidity()) {
@@ -353,21 +327,16 @@ import { contacts } from '../data/site';
     }
 
     const formData = new FormData(form);
-    const method = String(formData.get('method') || '');
     const phone = String(formData.get('phone') || '');
 
     const payload = {
       name: String(formData.get('name') || ''),
-      method,
+      method: 'phone',
       contact: phone,
       consent: consent?.checked ? 'true' : 'false',
       hp: String(formData.get('hp') || ''),
       source: 'ad_popup',
     };
-
-    if (method === 'email') {
-      payload.email = String(formData.get('email') || '');
-    }
 
     if (submitBtn) submitBtn.disabled = true;
     if (statusEl) {
