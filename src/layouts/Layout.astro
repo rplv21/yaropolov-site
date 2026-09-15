@@ -66,6 +66,15 @@ const localBusinessSchema = {
 <!doctype html>
 <html lang="ru">
   <head>
+    <script is:inline>
+      (function () {
+        try {
+          if (localStorage.getItem('yaropolov-theme') === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+          }
+        } catch (e) {}
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

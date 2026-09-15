@@ -5,9 +5,10 @@
   --color-surface: #17140f;
   --color-surface-2: #1c1c1c;
 
-  /* Инверсия — светлая пауза на тёмной полосе */
-  --color-invert-bg: #f4efe1;
-  --color-invert-text: #17130f;
+  /* Инверсия — фирменная чёрная полоса-акцент, одинаковая в обеих темах */
+  --color-invert-bg: #100e0b;
+  --color-invert-text: #f9f3dc;
+  --color-invert-text-muted: #a49d8a;
 
   /* Текст */
   --color-text: #f2ede0;
@@ -27,6 +28,13 @@
   --color-blue: #2382c8;
   --color-blue-dim: #1c6ca3;
 
+  /* Служебные цвета интерфейса */
+  --color-error: #e0715a;
+  --color-text-faint: #8c8570;
+  --color-scrim: rgba(16, 14, 11, 0.42);
+  --color-grid-line: #4a4438;
+  --color-faq-tint: rgba(255, 255, 255, 0.045);
+
   /* Радиусы — острые углы, в духе баухаус */
   --radius-card: 0;
   --radius-button: 0;
@@ -45,4 +53,31 @@
   --font-body: 'Onest', system-ui, sans-serif;
   --font-hand: 'Caveat', cursive;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* Светлая тема — переключается атрибутом data-theme="light" на <html>.
+   Акцент, инверсионная полоса (свет на тёмном в разделе «Как я работаю»)
+   и второй синий акцент оставлены как есть: это фирменные константы,
+   а не часть тёмного/светлого полотна. */
+:root[data-theme='light'] {
+  --color-canvas: #f9f3dc;
+  --color-abyss: #f0e7c9;
+  --color-surface: #fffdf3;
+  --color-surface-2: #f1ead2;
+
+  --color-text: #100e0b;
+  --color-text-muted: #6b6254;
+  --color-text-dim: #837953;
+  --color-text-faint: #746b52;
+
+  --color-border: #ece1c0;
+  --color-border-strong: #cbb98a;
+
+  --color-error: #b8391f;
+  --color-scrim: rgba(249, 243, 220, 0.72);
+  --color-grid-line: #9c8f66;
+  --color-faq-tint: rgba(16, 14, 11, 0.045);
+
+  --color-blue: #1a5f8f;
+  --color-blue-dim: #124a70;
 }

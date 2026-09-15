@@ -1,0 +1,81 @@
+<button type="button" class="theme-toggle" id="theme-toggle" aria-label="Переключить на светлую тему">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.6" />
+    <path
+      d="M12 2.5V5M12 19V21.5M21.5 12H19M5 12H2.5M18.4 5.6L16.6 7.4M7.4 16.6L5.6 18.4M18.4 18.4L16.6 16.6M7.4 7.4L5.6 5.6"
+      stroke="currentColor"
+      stroke-width="1.6"
+      stroke-linecap="round"
+    />
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path
+      d="M20.5 14.2C19.3 14.8 17.9 15.1 16.5 15.1C11.7 15.1 7.9 11.3 7.9 6.5C7.9 5.1 8.2 3.7 8.8 2.5C5 3.9 2.3 7.6 2.3 11.9C2.3 17.4 6.8 21.9 12.3 21.9C16.6 21.9 20.2 19.2 21.7 15.4C21.3 14.9 20.9 14.5 20.5 14.2Z"
+      stroke="currentColor"
+      stroke-width="1.6"
+      stroke-linejoin="round"
+    />
+  </svg>
+</button>
+
+<style>
+  .theme-toggle {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text);
+  }
+
+  .theme-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .theme-icon-sun {
+    display: none;
+  }
+
+  :global(html[data-theme='light']) .theme-icon-sun {
+    display: block;
+  }
+
+  :global(html[data-theme='light']) .theme-icon-moon {
+    display: none;
+  }
+</style>
+
+<script>
+  const STORAGE_KEY = 'yaropolov-theme';
+  const btn = document.getElementById('theme-toggle');
+
+  function syncLabel() {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    btn?.setAttribute('aria-label', isLight ? 'Переключить на тёмную тему' : 'Переключить на светлую тему');
+  }
+
+  syncLabel();
+
+  btn?.addEventListener('click', () => {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    if (isLight) {
+      document.documentElement.removeAttribute('data-theme');
+      try {
+        localStorage.setItem(STORAGE_KEY, 'dark');
+      } catch {
+        /* ignore */
+      }
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+      try {
+        localStorage.setItem(STORAGE_KEY, 'light');
+      } catch {
+        /* ignore */
+      }
+    }
+    syncLabel();
+  });
+</script>

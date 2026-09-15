@@ -45,21 +45,18 @@
     .cursor-grid-dark {
       z-index: 3;
       background-image:
-        linear-gradient(var(--color-border-strong) 1px, transparent 1px),
-        linear-gradient(90deg, var(--color-border-strong) 1px, transparent 1px);
+        linear-gradient(var(--color-grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--color-grid-line) 1px, transparent 1px);
     }
 
-    /* На светлом фоне то же самое, но другим цветом линий и через multiply —
-       так сквозь текст и карточки не мешает, но по светлому фону видна.
-       Слой существует всегда, меняется только его opacity — сам переход
-       между поверхностями невидим, потому что на границе оба слоя плавно
-       перекрещиваются через opacity. */
+    /* Над секцией «Как я работаю» — она чёрная в любой теме сайта, поэтому
+       здесь всегда используем светлую полупрозрачную линию напрямую,
+       без блендинга (он был нужен только пока эта секция была светлой). */
     .cursor-grid-light {
       z-index: 3;
-      mix-blend-mode: multiply;
       background-image:
-        linear-gradient(#8f897a 1px, transparent 1px),
-        linear-gradient(90deg, #8f897a 1px, transparent 1px);
+        linear-gradient(rgba(249, 243, 220, 0.35) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(249, 243, 220, 0.35) 1px, transparent 1px);
     }
 
     /* Множитель (1 - --cursor-shield) гасит слой, когда курсор находится

@@ -1,6 +1,7 @@
 ---
 import { nav, contacts } from '../data/site';
 import BrandLogo from './BrandLogo.astro';
+import ThemeToggle from './ThemeToggle.astro';
 ---
 
 <header class="header" id="site-header">
@@ -17,22 +18,26 @@ import BrandLogo from './BrandLogo.astro';
       </ul>
     </nav>
 
-    <a href={contacts.telegramHref} class="btn btn-primary header-cta" target="_blank" rel="noopener noreferrer">
-      Написать
-    </a>
+    <div class="header-controls">
+      <a href={contacts.telegramHref} class="btn btn-primary header-cta" target="_blank" rel="noopener noreferrer">
+        Написать
+      </a>
 
-    <button
-      type="button"
-      class="burger"
-      id="burger-toggle"
-      aria-expanded="false"
-      aria-controls="mobile-nav"
-      aria-label="Открыть меню"
-    >
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
+      <ThemeToggle />
+
+      <button
+        type="button"
+        class="burger"
+        id="burger-toggle"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+        aria-label="Открыть меню"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
   </div>
 
   <div class="mobile-nav" id="mobile-nav" hidden>
@@ -54,7 +59,7 @@ import BrandLogo from './BrandLogo.astro';
     position: sticky;
     top: 0;
     z-index: 50;
-    background: rgba(16, 14, 11, 0.42);
+    background: var(--color-scrim);
     backdrop-filter: blur(8px) saturate(1.1);
     -webkit-backdrop-filter: blur(8px) saturate(1.1);
     border-bottom: 1px solid var(--color-border);
@@ -104,6 +109,12 @@ import BrandLogo from './BrandLogo.astro';
 
   .nav a:hover {
     color: var(--color-text);
+  }
+
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 18px;
   }
 
   .header-cta {
