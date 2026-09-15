@@ -41,7 +41,7 @@
 
   /* Шрифты */
   --font-display: 'Onest', system-ui, sans-serif;
-  --font-condensed: 'Oswald', system-ui, sans-serif;
+  --font-condensed: 'JetBrains Mono', ui-monospace, monospace;
   --font-body: 'Onest', system-ui, sans-serif;
   --font-hand: 'Caveat', cursive;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;

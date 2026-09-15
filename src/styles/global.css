@@ -4,13 +4,12 @@
 @import '@fontsource/onest/cyrillic-500.css';
 @import '@fontsource/onest/cyrillic-600.css';
 @import '@fontsource/onest/cyrillic-700.css';
-@import '@fontsource/oswald/400.css';
-@import '@fontsource/oswald/500.css';
-@import '@fontsource/oswald/600.css';
 @import '@fontsource/caveat/cyrillic-500.css';
 @import '@fontsource/caveat/cyrillic-600.css';
 @import '@fontsource/jetbrains-mono/400.css';
 @import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/600.css';
+@import '@fontsource/jetbrains-mono/700.css';
 @import './tokens.css';
 
 *,
