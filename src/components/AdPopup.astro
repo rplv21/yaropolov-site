@@ -2,29 +2,29 @@
 import { contacts } from '../data/site';
 ---
 
-<div id="ad-popup-overlay" class="ad-popup-overlay" hidden>
-  <div class="ad-popup panel" role="dialog" aria-modal="true" aria-labelledby="ad-popup-title">
-    <button type="button" class="ad-popup-close" aria-label="Закрыть">×</button>
+<div id="direct-popup-overlay" class="direct-popup-overlay" hidden>
+  <div class="direct-popup panel" role="dialog" aria-modal="true" aria-labelledby="direct-popup-title">
+    <button type="button" class="direct-popup-close" aria-label="Закрыть">×</button>
 
     <p class="mono-label">Реклама · Яндекс.Директ</p>
-    <h2 id="ad-popup-title" class="ad-popup-title">Вы попали точно куда нужно</h2>
-    <p class="ad-popup-text">
+    <h2 id="direct-popup-title" class="direct-popup-title">Вы попали точно куда нужно</h2>
+    <p class="direct-popup-text">
       «Яндекс.Директ» привёл вас на мой сайт, значит вы там, где и должны быть! Тоже хотите
       настроить себе эффективную рекламу? Заполняйте форму:
     </p>
 
-    <form id="ad-popup-form" novalidate>
-      <div class="ad-popup-row">
-        <label class="ad-popup-label" for="ap-name">Имя *</label>
-        <input class="ad-popup-input" type="text" id="ap-name" name="name" required autocomplete="name" />
+    <form id="direct-popup-form" novalidate>
+      <div class="direct-popup-row">
+        <label class="direct-popup-label" for="dp-name">Имя *</label>
+        <input class="direct-popup-input" type="text" id="dp-name" name="name" required autocomplete="name" />
       </div>
 
-      <div class="ad-popup-row">
-        <label class="ad-popup-label" for="ap-phone">Телефон *</label>
+      <div class="direct-popup-row">
+        <label class="direct-popup-label" for="dp-phone">Телефон *</label>
         <input
-          class="ad-popup-input"
+          class="direct-popup-input"
           type="tel"
-          id="ap-phone"
+          id="dp-phone"
           name="phone"
           required
           placeholder="+7 (___) ___-__-__"
@@ -34,29 +34,29 @@ import { contacts } from '../data/site';
       </div>
 
       <!-- honeypot: скрытое поле-ловушка для ботов -->
-      <div class="ad-popup-honeypot" aria-hidden="true">
-        <label for="ap-hp">Оставьте пустым</label>
-        <input type="text" id="ap-hp" name="hp" tabindex="-1" autocomplete="off" />
+      <div class="direct-popup-honeypot" aria-hidden="true">
+        <label for="dp-hp">Оставьте пустым</label>
+        <input type="text" id="dp-hp" name="hp" tabindex="-1" autocomplete="off" />
       </div>
 
-      <label class="ad-popup-consent">
-        <input type="checkbox" id="ap-consent" name="consent" required />
+      <label class="direct-popup-consent">
+        <input type="checkbox" id="dp-consent" name="consent" required />
         <span>
           Согласен на обработку персональных данных
           согласно <a href="#" class="privacy-modal-trigger">политике конфиденциальности</a>
         </span>
       </label>
 
-      <button type="submit" class="btn btn-primary ad-popup-submit" id="ap-submit" disabled>
+      <button type="submit" class="btn btn-primary direct-popup-submit" id="dp-submit" disabled>
         Отправить заявку
       </button>
     </form>
-    <p class="ad-popup-status" id="ap-status" role="status" aria-live="polite"></p>
+    <p class="direct-popup-status" id="dp-status" role="status" aria-live="polite"></p>
   </div>
 </div>
 
 <style>
-  .ad-popup-overlay {
+  .direct-popup-overlay {
     display: none;
     position: fixed;
     inset: 0;
@@ -70,11 +70,11 @@ import { contacts } from '../data/site';
 
   /* Скрытие через [hidden] не должно перебиваться этим display —
      иначе окно остаётся кликабельным поверх страницы, даже когда «скрыто». */
-  .ad-popup-overlay:not([hidden]) {
+  .direct-popup-overlay:not([hidden]) {
     display: flex;
   }
 
-  .ad-popup {
+  .direct-popup {
     width: 100%;
     max-width: 480px;
     max-height: 88vh;
@@ -83,7 +83,7 @@ import { contacts } from '../data/site';
     text-align: left;
   }
 
-  .ad-popup-close {
+  .direct-popup-close {
     position: absolute;
     top: 20px;
     right: 20px;
@@ -99,43 +99,43 @@ import { contacts } from '../data/site';
     transition: border-color 0.2s ease, color 0.2s ease;
   }
 
-  .ad-popup-close:hover {
+  .direct-popup-close:hover {
     border-color: var(--color-accent);
     color: var(--color-accent);
   }
 
-  .ad-popup-title {
+  .direct-popup-title {
     font-size: 26px;
     margin-top: 12px;
     padding-right: 40px;
   }
 
-  .ad-popup-text {
+  .direct-popup-text {
     margin-top: 14px;
     color: var(--color-text-muted);
     font-size: 15px;
     line-height: 1.6;
   }
 
-  #ad-popup-form {
+  #direct-popup-form {
     margin-top: 28px;
     display: flex;
     flex-direction: column;
     gap: 18px;
   }
 
-  .ad-popup-row {
+  .direct-popup-row {
     display: flex;
     flex-direction: column;
     gap: 8px;
   }
 
-  .ad-popup-label {
+  .direct-popup-label {
     font-size: 14px;
     color: var(--color-text-muted);
   }
 
-  .ad-popup-input {
+  .direct-popup-input {
     width: 100%;
     padding: 12px 16px;
     background: var(--color-surface-2);
@@ -144,11 +144,11 @@ import { contacts } from '../data/site';
     color: var(--color-text);
   }
 
-  .ad-popup-input:focus-visible {
+  .direct-popup-input:focus-visible {
     border-color: var(--color-accent);
   }
 
-  .ad-popup-honeypot {
+  .direct-popup-honeypot {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -157,7 +157,7 @@ import { contacts } from '../data/site';
     pointer-events: none;
   }
 
-  .ad-popup-consent {
+  .direct-popup-consent {
     display: flex;
     align-items: flex-start;
     gap: 10px;
@@ -167,34 +167,34 @@ import { contacts } from '../data/site';
     cursor: pointer;
   }
 
-  .ad-popup-consent input {
+  .direct-popup-consent input {
     margin-top: 3px;
     accent-color: var(--color-accent);
   }
 
-  .ad-popup-consent a {
+  .direct-popup-consent a {
     color: var(--color-text);
     text-decoration: underline;
   }
 
-  .ad-popup-consent a:hover {
+  .direct-popup-consent a:hover {
     color: var(--color-accent);
   }
 
-  .ad-popup-submit {
+  .direct-popup-submit {
     margin-top: 2px;
   }
 
-  .ad-popup-submit:disabled {
+  .direct-popup-submit:disabled {
     opacity: 0.4;
     cursor: not-allowed;
   }
 
-  .ad-popup-submit:disabled:hover {
+  .direct-popup-submit:disabled:hover {
     box-shadow: none;
   }
 
-  .ad-popup-status {
+  .direct-popup-status {
     margin-top: 14px;
     font-size: 15px;
     min-height: 20px;
@@ -203,11 +203,11 @@ import { contacts } from '../data/site';
     gap: 10px;
   }
 
-  .ad-popup-status:empty {
+  .direct-popup-status:empty {
     margin-top: 0;
   }
 
-  .ad-popup-status::before {
+  .direct-popup-status::before {
     content: '';
     flex-shrink: 0;
     width: 9px;
@@ -215,23 +215,23 @@ import { contacts } from '../data/site';
     transform: translateY(-1px);
   }
 
-  .ad-popup-status:empty::before {
+  .direct-popup-status:empty::before {
     display: none;
   }
 
-  .ad-popup-status[data-state='success'] {
+  .direct-popup-status[data-state='success'] {
     color: var(--color-text);
   }
 
-  .ad-popup-status[data-state='success']::before {
+  .direct-popup-status[data-state='success']::before {
     background: var(--color-accent);
   }
 
-  .ad-popup-status[data-state='error'] {
+  .direct-popup-status[data-state='error'] {
     color: var(--color-error);
   }
 
-  .ad-popup-status[data-state='error']::before {
+  .direct-popup-status[data-state='error']::before {
     background: var(--color-error);
   }
 </style>
@@ -261,12 +261,12 @@ import { contacts } from '../data/site';
     /* sessionStorage может быть недоступен (приватный режим и т.п.) */
   }
 
-  const overlay = document.getElementById('ad-popup-overlay');
-  const closeBtn = overlay?.querySelector('.ad-popup-close');
-  const form = document.getElementById('ad-popup-form');
-  const consent = document.getElementById('ap-consent');
-  const submitBtn = document.getElementById('ap-submit');
-  const statusEl = document.getElementById('ap-status');
+  const overlay = document.getElementById('direct-popup-overlay');
+  const closeBtn = overlay?.querySelector('.direct-popup-close');
+  const form = document.getElementById('direct-popup-form');
+  const consent = document.getElementById('dp-consent');
+  const submitBtn = document.getElementById('dp-submit');
+  const statusEl = document.getElementById('dp-status');
 
   let mainFormSubmitted = false;
 
@@ -334,7 +334,7 @@ import { contacts } from '../data/site';
     return out;
   }
 
-  const phoneInput = document.getElementById('ap-phone');
+  const phoneInput = document.getElementById('dp-phone');
   phoneInput?.addEventListener('input', () => {
     phoneInput.value = formatPhone(phoneInput.value);
   });
