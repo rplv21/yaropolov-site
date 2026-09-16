@@ -68,6 +68,7 @@ import { heroStats } from '../data/site';
             loading="eager"
           />
         </div>
+        <div class="hero-photo-grain" aria-hidden="true"></div>
       </div>
       <p class="hero-caption">
         <span class="marginalia" aria-hidden="true">это я →</span>
@@ -185,11 +186,11 @@ import { heroStats } from '../data/site';
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: url(#duotone-red) contrast(1.1);
+    filter: url(#photo-mono) contrast(1.1);
   }
 
   .hero-photo-img-blur {
-    filter: url(#duotone-red) contrast(1.1) blur(10px);
+    filter: url(#photo-mono) contrast(1.1);
   }
 
   .hero-photo-sharp {
@@ -207,6 +208,18 @@ import { heroStats } from '../data/site';
   .hero-photo-edge {
     -webkit-mask-image: linear-gradient(to top, black 0%, black 6%, transparent 16%);
     mask-image: linear-gradient(to top, black 0%, black 6%, transparent 16%);
+  }
+
+  /* Плёночное зерно поверх фото — генерируется SVG-турбулентностью,
+     а не текстурной картинкой, чтобы не тянуть лишний файл и не
+     размножать его на каждое фото на сайте. */
+  .hero-photo-grain {
+    position: absolute;
+    inset: 0;
+    filter: url(#photo-grain);
+    mix-blend-mode: overlay;
+    opacity: 0.22;
+    pointer-events: none;
   }
 
   .hero-caption {

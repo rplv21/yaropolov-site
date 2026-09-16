@@ -5,6 +5,7 @@
 
 <div class="author-banner panel">
   <img src="/author-signature.svg" alt="Павел Ярополов — Директолог, Yaropolov.ru" class="author-banner-img" />
+  <div class="author-banner-grain" aria-hidden="true"></div>
 </div>
 
 <style>
@@ -13,9 +14,21 @@
     overflow: hidden;
   }
 
+  /* Файл author-signature.svg не трогаем (готовая графика) — чёрно-белый
+     эффект с зерном, как у остальных фото сайта, накладываем снаружи. */
   .author-banner-img {
     display: block;
     width: 100%;
     height: auto;
+    filter: url(#photo-mono) contrast(1.1);
+  }
+
+  .author-banner-grain {
+    position: absolute;
+    inset: 0;
+    filter: url(#photo-grain);
+    mix-blend-mode: overlay;
+    opacity: 0.22;
+    pointer-events: none;
   }
 </style>
