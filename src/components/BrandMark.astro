@@ -1,0 +1,88 @@
+---
+// Тот же "человечек" (рука + голова-кольцо + нога), что и на загрузочном
+// экране (LoadScreen.astro) — тут вырезан из общего лого в отдельный
+// компонент-иконку, чтобы использовать его отдельно от текстового
+// вордмарка (например, в шапке).
+interface Props {
+  class?: string;
+  wave?: 'loop' | 'intro' | 'none';
+}
+
+const { class: className, wave = 'none' } = Astro.props;
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="879 315 130 130"
+  class={`brand-mark ${className ?? ''}`.trim()}
+  data-wave={wave}
+  aria-hidden="true"
+>
+  <path
+    class="brand-mark-arm"
+    d="M901.791 361.623L891 374.219L945.275 420.717L956.066 408.121L901.791 361.623Z"
+    fill="var(--color-text)"
+  />
+  <path
+    d="M956.056 322C979.292 322 998.129 340.834 998.129 364.065L998.115 365.15C997.543 387.74 979.158 405.901 956.479 406.124L953.419 389.362C954.286 389.452 955.165 389.498 956.056 389.498C970.109 389.498 981.497 378.109 981.497 364.065C981.497 350.022 970.109 338.632 956.056 338.632C951.955 338.632 948.081 339.603 944.651 341.325L941.591 324.552C946.101 322.901 950.973 322 956.056 322Z"
+    fill="var(--color-accent)"
+  />
+  <path
+    d="M947.004 438.828L963.315 435.821L950.358 365.537L934.047 368.543L947.004 438.828Z"
+    fill="var(--color-text)"
+  />
+</svg>
+
+<style>
+  .brand-mark-arm {
+    transform-box: fill-box;
+    transform-origin: 88% 88%;
+  }
+
+  svg.brand-mark[data-wave='loop'] .brand-mark-arm {
+    animation: brand-mark-wave-loop 5s ease-in-out infinite;
+  }
+
+  svg.brand-mark[data-wave='intro'] .brand-mark-arm {
+    animation: brand-mark-wave-intro 0.45s ease-in-out 0.6s 2;
+  }
+
+  /* Основную часть 5-секундного цикла рука неподвижна — взмах занимает
+     только небольшой хвост таймлайна, поэтому и выглядит как "изредка". */
+  @keyframes brand-mark-wave-loop {
+    0%,
+    80%,
+    100% {
+      transform: rotate(0deg);
+    }
+    84% {
+      transform: rotate(20deg);
+    }
+    88% {
+      transform: rotate(-10deg);
+    }
+    92% {
+      transform: rotate(0deg);
+    }
+  }
+
+  @keyframes brand-mark-wave-intro {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    30% {
+      transform: rotate(20deg);
+    }
+    65% {
+      transform: rotate(-10deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    svg.brand-mark[data-wave='loop'] .brand-mark-arm,
+    svg.brand-mark[data-wave='intro'] .brand-mark-arm {
+      animation: none;
+    }
+  }
+</style>

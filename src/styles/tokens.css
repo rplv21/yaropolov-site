@@ -2,13 +2,18 @@
   /* Полотно — тёмный, тихий, редакторский */
   --color-canvas: #100e0b;
   --color-abyss: #0a0908;
-  --color-surface: #17140f;
+  --color-surface: #1c1b1a;
   --color-surface-2: #1c1c1c;
 
-  /* Инверсия — фирменная чёрная полоса-акцент, одинаковая в обеих темах */
-  --color-invert-bg: #100e0b;
-  --color-invert-text: #f9f3dc;
-  --color-invert-text-muted: #a49d8a;
+  /* Инверсия — полоса-акцент, всегда противоположная текущей теме:
+     светлая пауза на тёмной теме, тёмная — на светлой (см. переопределение
+     ниже). Раздел «Как я работаю» использует именно эти токены. */
+  --color-invert-bg: #f4efe1;
+  --color-invert-surface: #f4efe1;
+  --color-invert-text: #17130f;
+  --color-invert-text-muted: #5a5340;
+  --color-invert-accent: #7d1119;
+  --color-invert-rail-tint: rgba(23, 19, 15, 0.45);
 
   /* Текст */
   --color-text: #f2ede0;
@@ -52,9 +57,10 @@
 }
 
 /* Светлая тема — переключается атрибутом data-theme="light" на <html>.
-   Акцент и инверсионная полоса (чёрное на светлом в разделе «Как я
-   работаю») оставлены как есть: это фирменные константы, а не часть
-   тёмного/светлого полотна. */
+   Акцент — фирменная константа, не часть тёмного/светлого полотна.
+   Инверсионная полоса («Как я работаю»), наоборот, специально переворачивается
+   в каждой теме на противоположную — тёмная на светлой странице, светлая
+   на тёмной — это визуальный акцент-контраст, а не фиксированный цвет. */
 :root[data-theme='light'] {
   --color-canvas: #f9f3dc;
   --color-abyss: #f0e7c9;
@@ -73,4 +79,11 @@
   --color-scrim: rgba(249, 243, 220, 0.72);
   --color-grid-line: #9c8f66;
   --color-faq-tint: rgba(16, 14, 11, 0.045);
+
+  --color-invert-bg: #100e0b;
+  --color-invert-surface: #1c1b1a;
+  --color-invert-text: #f9f3dc;
+  --color-invert-text-muted: #a49d8a;
+  --color-invert-accent: #c8232f;
+  --color-invert-rail-tint: rgba(249, 243, 220, 0.45);
 }
