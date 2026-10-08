@@ -6,10 +6,13 @@
 // this worker sits in between: the app POSTs here, the worker calls
 // Telegram using its own bot token/chat id.
 //
-// Two modes, chosen by the request Content-Type:
-//   1. application/json           {"text": "..."}              -> sendMessage
-//   2. multipart/form-data        document (file) + caption    -> sendDocument
-//      (used by /api/send-brief to deliver the brief as a PDF)
+// Modes, chosen by the request Content-Type / body:
+//   1. application/json  {"text": "..."}                      -> sendMessage
+//   2. multipart/form-data  document (file) + caption         -> sendDocument
+//   3. application/json  {"action":"brief_put", token, data}  -> store a brief in KV
+//      application/json  {"action":"brief_get", token}        -> read it back
+//      (used by /api/send-brief and the /brief/<token> page; briefs live in
+//       the KV namespace bound as BRIEFS and expire after BRIEF_TTL_SECONDS)
 //
 // Deploy: Cloudflare dashboard -> Workers & Pages -> Create Worker,
 // paste this file, then set these as encrypted variables (Settings ->
@@ -18,11 +21,18 @@
 //   TELEGRAM_CHAT_ID
 //   RELAY_SECRET        (shared secret, also set as TELEGRAM_RELAY_SECRET
 //                         in the TimeWeb app's env vars)
+// and bind a KV namespace under the variable name BRIEFS
+// (Settings -> Bindings -> Add -> KV namespace).
 //
 // After changing this file the worker must be re-deployed in Cloudflare,
 // otherwise PDF delivery (mode 2) will not work.
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
+const BRIEF_TTL_SECONDS = 90 * 24 * 60 * 60; // how long a brief link stays alive
+const TOKEN_RE = /^[A-Za-z0-9_-]{22}$/;
+
+const json = (body, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 
 export default {
   async fetch(request, env) {
@@ -77,6 +87,22 @@ export default {
       payload = await request.json();
     } catch {
       return new Response('Bad Request', { status: 400 });
+    }
+
+    // Mode 3: brief storage
+    if (payload.action === 'brief_put' || payload.action === 'brief_get') {
+      if (!env.BRIEFS) return json({ error: 'kv_not_bound' }, 500);
+      if (typeof payload.token !== 'string' || !TOKEN_RE.test(payload.token)) {
+        return json({ error: 'bad_token' }, 400);
+      }
+      if (payload.action === 'brief_put') {
+        const data = JSON.stringify(payload.data ?? null);
+        if (!payload.data || data.length > 200000) return json({ error: 'bad_data' }, 400);
+        await env.BRIEFS.put(payload.token, data, { expirationTtl: BRIEF_TTL_SECONDS });
+        return json({ ok: true });
+      }
+      const stored = await env.BRIEFS.get(payload.token);
+      return stored ? new Response(stored, { headers: { 'Content-Type': 'application/json' } }) : json({ error: 'not_found' }, 404);
     }
 
     const text = typeof payload.text === 'string' ? payload.text : '';

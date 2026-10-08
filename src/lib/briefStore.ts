@@ -40,17 +40,61 @@ export function countAnswered(sections: BriefSection[], a: BriefAnswers) {
   return { answered, total };
 }
 
+// Основное хранилище: Cloudflare KV через тот же воркер, что шлёт сообщения в Telegram.
+// Файлы на диске остаются запасным вариантом: для локальной разработки и на случай,
+// если воркер ещё не обновлён или KV недоступен.
+function relay() {
+  const url = process.env.TELEGRAM_RELAY_URL ?? import.meta.env.TELEGRAM_RELAY_URL;
+  const secret = process.env.TELEGRAM_RELAY_SECRET ?? import.meta.env.TELEGRAM_RELAY_SECRET;
+  return url && secret ? { url: String(url), secret: String(secret) } : null;
+}
+
+async function relayCall(body: Record<string, unknown>) {
+  const r = relay();
+  if (!r) return null;
+  try {
+    return await fetch(r.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-relay-secret': r.secret },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(8000),
+    });
+  } catch (err) {
+    console.error('Хранилище брифов (relay) недоступно:', err);
+    return null;
+  }
+}
+
+async function saveToFile(token: string, data: StoredBrief) {
+  await mkdir(dir(), { recursive: true });
+  await writeFile(path.join(dir(), `${token}.json`), JSON.stringify(data), { flag: 'wx' });
+}
+
 /** Сохраняет бриф и возвращает его уникальный токен (128 бит случайности). */
 export async function saveBrief(answers: BriefAnswers): Promise<string> {
   const token = randomBytes(16).toString('base64url');
   const data: StoredBrief = { createdAt: new Date().toISOString(), answers };
-  await mkdir(dir(), { recursive: true });
-  await writeFile(path.join(dir(), `${token}.json`), JSON.stringify(data), { flag: 'wx' });
+
+  const res = await relayCall({ action: 'brief_put', token, data });
+  if (res?.ok) return token;
+  if (res) console.error('KV не принял бриф, пишу в файл:', res.status, await res.text().catch(() => ''));
+
+  await saveToFile(token, data);
   return token;
 }
 
 export async function loadBrief(token: string): Promise<StoredBrief | null> {
   if (!TOKEN_RE.test(token)) return null;
+
+  const res = await relayCall({ action: 'brief_get', token });
+  if (res?.ok) {
+    try {
+      return (await res.json()) as StoredBrief;
+    } catch {
+      /* пойдём в файл */
+    }
+  }
+
   try {
     return JSON.parse(await readFile(path.join(dir(), `${token}.json`), 'utf8')) as StoredBrief;
   } catch {
