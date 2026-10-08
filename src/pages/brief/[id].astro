@@ -1,0 +1,244 @@
+---
+export const prerender = false;
+
+import AvLayout from '../../layouts/AvLayout.astro';
+import { briefSections, BRIEF_KEYS } from '../../data/brief';
+import { answerParts, countAnswered, loadBrief } from '../../lib/briefStore';
+
+const stored = await loadBrief(Astro.params.id ?? '');
+if (!stored) return new Response(null, { status: 404 });
+
+// Бриф закрыт от поисковиков и не кэшируется: ссылка видна только тем, у кого она есть
+Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+Astro.response.headers.set('Cache-Control', 'no-store');
+
+const a = stored.answers;
+const val = (key: string) => {
+  const v = a.values[key];
+  return Array.isArray(v) ? v.join(', ') : (v ?? '');
+};
+const { answered, total } = countAnswered(briefSections, a);
+const date = new Date(stored.createdAt).toLocaleString('ru-RU', {
+  timeZone: 'Europe/Moscow',
+  dateStyle: 'long',
+  timeStyle: 'short',
+});
+
+const summary = [
+  ['Контактное лицо', val(BRIEF_KEYS.name)],
+  ['Телефон', val(BRIEF_KEYS.phone)],
+  ['Электронная почта', val(BRIEF_KEYS.email)],
+  ['Удобный способ связи', val(BRIEF_KEYS.contact)],
+].filter(([, v]) => v);
+const telHref = val(BRIEF_KEYS.phone).replace(/[^\d+]/g, '');
+const company = val(BRIEF_KEYS.company);
+---
+
+<AvLayout title={`Бриф: ${company}`} noindex noChat>
+  <header class="vh">
+    <div class="wrap">
+      <p class="mono vh-tag">Бриф от {date}</p>
+      <h1 class="giant vh-h">{company}</h1>
+      <dl class="vh-sum">
+        {
+          summary.map(([k, v]) => (
+            <div>
+              <dt class="mono">{k}</dt>
+              <dd>{k === 'Телефон' ? <a href={`tel:${telHref}`}>{v}</a> : v}</dd>
+            </div>
+          ))
+        }
+        <div>
+          <dt class="mono">Заполнено</dt>
+          <dd>{answered} из {total}</dd>
+        </div>
+      </dl>
+    </div>
+  </header>
+
+  <main class="vb">
+    <div class="wrap vb-in">
+      {
+        briefSections.map((s) => (
+          <section class="vs">
+            <h2 class="vs-t">
+              <span class="mono">{s.n}</span>
+              {s.title}
+            </h2>
+            {s.items.map((it) => {
+              const { list, extra } = answerParts(it, a);
+              const empty = !list.length && !extra;
+              return (
+                <div class="vq">
+                  <p class="vq-q">
+                    <span class="mono">{it.n}</span>
+                    {it.q}
+                  </p>
+                  <div class="vq-a">
+                    {empty ? (
+                      <p class="vq-empty">не заполнено</p>
+                    ) : (
+                      <>
+                        {it.type === 'checks' && list.length > 0 ? (
+                          <ul>{list.map((x) => <li>{x}</li>)}</ul>
+                        ) : (
+                          list.length > 0 && <p>{list.join(', ')}</p>
+                        )}
+                        {extra && (
+                          <p class="vq-extra">
+                            {it.type === 'radio' || it.type === 'checks' ? <span>Уточнение: </span> : null}
+                            {extra}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </section>
+        ))
+      }
+    </div>
+  </main>
+</AvLayout>
+
+<style>
+  .vh {
+    padding-top: calc(var(--mast) + clamp(40px, 6vw, 96px));
+    padding-bottom: clamp(40px, 6vw, 88px);
+  }
+
+  .vh-tag {
+    color: #cfc8b4;
+  }
+
+  .vh-h {
+    margin-top: clamp(16px, 2.4vw, 32px);
+    max-width: 18ch;
+    font-size: clamp(36px, 7vw, 120px);
+    overflow-wrap: anywhere;
+  }
+
+  .vh-sum {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 24px 32px;
+    margin-top: clamp(28px, 4vw, 56px);
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+
+  .vh-sum dt {
+    color: #a09882;
+    margin-bottom: 6px;
+  }
+
+  .vh-sum dd {
+    margin: 0;
+    font-size: clamp(17px, 1.5vw, 22px);
+    font-weight: 300;
+    overflow-wrap: anywhere;
+  }
+
+  .vh-sum a {
+    border-bottom: 1px solid currentColor;
+  }
+
+  .vb {
+    background: var(--paper);
+    color: var(--ink);
+    padding-block: clamp(40px, 6vw, 96px) clamp(64px, 8vw, 140px);
+  }
+
+  .vb-in {
+    max-width: 980px;
+    display: grid;
+    gap: clamp(40px, 5vw, 72px);
+  }
+
+  .vs-t {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--ink);
+    font-weight: 200;
+    font-size: clamp(28px, 3.4vw, 52px);
+    letter-spacing: -0.05em;
+    line-height: 1.05;
+  }
+
+  .vs-t .mono {
+    color: var(--red);
+    font-size: 13px;
+    letter-spacing: 0;
+  }
+
+  .vq {
+    display: grid;
+    gap: 8px 32px;
+    padding-block: 16px;
+    border-bottom: 1px solid rgba(15, 13, 10, 0.14);
+  }
+
+  @media (min-width: 760px) {
+    .vq {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    }
+  }
+
+  .vq-q {
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 1.35;
+  }
+
+  .vq-q .mono {
+    margin-right: 8px;
+    color: var(--red);
+    font-size: 11px;
+  }
+
+  .vq-a {
+    font-size: 17px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .vq-a p {
+    margin: 0;
+  }
+
+  .vq-a ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 4px;
+  }
+
+  .vq-a li::before {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 10px;
+    background: var(--red);
+    vertical-align: 0.08em;
+  }
+
+  .vq-extra {
+    margin-top: 6px;
+  }
+
+  .vq-extra span {
+    color: #6b6556;
+  }
+
+  .vq-empty {
+    font-style: italic;
+    color: #a09882;
+  }
+</style>

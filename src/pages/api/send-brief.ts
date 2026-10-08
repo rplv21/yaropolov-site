@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { briefSections, briefItemById, BRIEF_KEYS, BRIEF_LIMITS } from '../../data/brief';
-import { buildBriefPdf, countAnswered, type BriefAnswers } from '../../lib/briefPdf';
+import { countAnswered, saveBrief, type BriefAnswers } from '../../lib/briefStore';
 
 export const prerender = false;
 
@@ -29,21 +29,6 @@ const clean = (v: unknown) =>
   String(v ?? '')
     .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
     .trim();
-
-const TRANSLIT: Record<string, string> = {
-  а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'e', ж: 'zh', з: 'z', и: 'i', й: 'y', к: 'k', л: 'l',
-  м: 'm', н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't', у: 'u', ф: 'f', х: 'h', ц: 'c', ч: 'ch', ш: 'sh',
-  щ: 'sch', ъ: '', ы: 'y', ь: '', э: 'e', ю: 'yu', я: 'ya',
-};
-const slug = (v: string) =>
-  v
-    .toLowerCase()
-    .split('')
-    .map((ch) => TRANSLIT[ch] ?? ch)
-    .join('')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 40);
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {
   const raw = await request.text();
@@ -111,42 +96,34 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     return json({ error: 'server_misconfigured' }, 500);
   }
 
-  const date = new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow', dateStyle: 'short', timeStyle: 'short' });
   const { answered, total } = countAnswered(briefSections, answers);
 
-  let pdf: Buffer;
+  let token: string;
   try {
-    pdf = await buildBriefPdf(briefSections, answers, { date, keys: BRIEF_KEYS });
+    token = await saveBrief(answers);
   } catch (err) {
-    console.error('Не удалось собрать PDF брифа:', err);
-    return json({ error: 'pdf_failed' }, 500);
+    console.error('Не удалось сохранить бриф:', err);
+    return json({ error: 'storage_failed' }, 500);
   }
 
+  const siteUrl = (process.env.SITE_URL || 'https://yaropolov.ru').replace(/\/$/, '');
   const email = String(answers.values[BRIEF_KEYS.email] ?? '');
-  const caption = [
+  const text = [
     '<b>Новый бриф с yaropolov.ru</b>',
     `Компания: ${esc(company)}`,
     `Контакт: ${esc(name)}`,
     `Телефон: ${esc(phone)}`,
-    email ? `Почта: ${esc(email)}` : '',
+    ...(email ? [`Почта: ${esc(email)}`] : []),
     `Заполнено: ${answered} из ${total}`,
-  ]
-    .filter(Boolean)
-    .join('\n')
-    .slice(0, 1000);
-
-  const day = new Date().toISOString().slice(0, 10);
-  const filename = `brief-${slug(company) || 'client'}-${day}.pdf`;
-
-  const form = new FormData();
-  form.append('document', new Blob([new Uint8Array(pdf)], { type: 'application/pdf' }), filename);
-  form.append('caption', caption);
+    '',
+    `${siteUrl}/brief/${token}`,
+  ].join('\n');
 
   try {
     const res = await fetch(relayUrl, {
       method: 'POST',
-      headers: { 'x-relay-secret': relaySecret },
-      body: form,
+      headers: { 'Content-Type': 'application/json', 'x-relay-secret': relaySecret },
+      body: JSON.stringify({ text }),
     });
     if (!res.ok) {
       console.error('Telegram relay (brief) error:', await res.text());

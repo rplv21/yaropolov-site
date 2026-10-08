@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /brief/
 
 Sitemap: https://yaropolov.ru/sitemap-index.xml

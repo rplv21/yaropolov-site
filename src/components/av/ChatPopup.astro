@@ -444,7 +444,7 @@ import { contacts } from '../../data/brand';
     var CHAT_SHOWN_KEY = 'yaropolov_chat_shown';
     var AD_SHOWN_KEY = 'yaropolov_ad_popup_shown';
     var LEAD_SENT_KEY = 'yaropolov_lead_sent';
-    var SHOW_AFTER_MS = 20000;
+    var SHOW_AFTER_MS = 40000;
     var YM_COUNTER_ID = 112339088;
 
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -556,7 +556,7 @@ import { contacts } from '../../data/brand';
       });
     }
 
-    // Отсчёт 20 секунд идёт от первого захода в сессии, а не от каждой страницы
+    // Отсчёт 40 секунд идёт от первого захода в сессии, а не от каждой страницы
     if (!get(SESSION_START_KEY)) set(SESSION_START_KEY, String(Date.now()));
     var started = parseInt(get(SESSION_START_KEY) || '0', 10) || Date.now();
     var wait = Math.max(0, SHOW_AFTER_MS - (Date.now() - started));
