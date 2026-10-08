@@ -10,6 +10,8 @@
 @import '@fontsource/jetbrains-mono/500.css';
 @import '@fontsource/jetbrains-mono/600.css';
 @import '@fontsource/jetbrains-mono/700.css';
+@import '@fontsource/oswald/cyrillic-300.css';
+@import '@fontsource/oswald/cyrillic-700.css';
 @import './tokens.css';
 
 *,
@@ -108,6 +110,10 @@ h4 {
   border-radius: 2px;
 }
 
+p {
+  text-wrap: pretty;
+}
+
 h1,
 h2,
 h3 {
@@ -115,6 +121,7 @@ h3 {
   font-weight: 200;
   letter-spacing: -0.02em;
   line-height: 1.05;
+  text-wrap: balance;
 }
 
 .mono-label {
@@ -301,4 +308,63 @@ h3 {
   -webkit-mask-image: radial-gradient(ellipse 70% 70% at center, black 40%, transparent 100%);
   mask-image: radial-gradient(ellipse 70% 70% at center, black 40%, transparent 100%);
   opacity: 0.5;
+}
+
+/* ————————————————————————————————————————————————
+   Журнальный заголовок раздела: гигантское плотное слово капсом,
+   под ним — обычная строка-пояснение. Двойной класс нужен, чтобы
+   перебить локальные размеры заголовков в самих секциях.
+   ———————————————————————————————————————————————— */
+h2.poster-h.poster-h {
+  font-family: var(--font-poster);
+  font-weight: 700;
+  font-size: clamp(64px, 12.5vw, 200px);
+  line-height: 0.86;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  max-width: none;
+  margin-top: 18px;
+  text-wrap: nowrap;
+}
+
+h2.poster-h.poster-h small {
+  display: block;
+  margin-top: 22px;
+  max-width: 34ch;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: clamp(20px, 2vw, 30px);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  text-wrap: balance;
+  color: var(--color-text-muted);
+}
+
+h2.poster-h.poster-h em {
+  font-style: normal;
+  color: var(--color-accent);
+}
+
+/* Появление заголовка: слово «проявляется» слева направо маской.
+   Только при наличии JS и без reduce-motion (см. ScrollReveal). */
+body .ph-init {
+  clip-path: inset(-0.2em 100% -0.2em -0.1em);
+}
+
+body .ph-init.ph-in {
+  clip-path: inset(-0.2em -0.1em -0.2em -0.1em);
+  transition: clip-path 0.9s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* Зеркальный разворот: заголовок прижат к правому краю сетки */
+@media (min-width: 960px) {
+  h2.poster-h.poster-h.poster-h--r {
+    text-align: right;
+  }
+
+  h2.poster-h.poster-h.poster-h--r small {
+    margin-left: auto;
+    text-align: right;
+  }
 }

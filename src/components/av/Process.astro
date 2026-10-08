@@ -1,0 +1,112 @@
+---
+import { howIWork } from '../../data/brand';
+---
+
+<section class="proc" aria-labelledby="proc-title">
+  <div class="wrap">
+    <p class="mono tag">Процесс</p>
+    <h2 id="proc-title" class="giant proc-h" data-split>От прогноза <em>до отчёта</em></h2>
+    <p class="proc-sub">Без сюрпризов</p>
+
+    <ol class="tl">
+      <span class="tl-line" aria-hidden="true"><span class="tl-line-fill"></span></span>
+      {howIWork.map((s) => (
+        <li class="tl-step">
+          <p class="tl-n giant" aria-hidden="true">{s.number}</p>
+          <div class="tl-t">
+            <h3 class="tl-h">{s.title}</h3>
+            <p class="tl-x">{s.text.replace(/\n/g, ' ')}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .proc {
+    background: var(--ink);
+    padding-block: clamp(72px, 10vw, 160px);
+  }
+
+  .proc-h {
+    margin-top: clamp(20px, 3vw, 40px);
+    max-width: 12ch;
+    font-size: clamp(44px, 8.4vw, 160px);
+  }
+
+  .proc-sub {
+    margin-top: 20px;
+    font-weight: 200;
+    font-size: clamp(20px, 2vw, 32px);
+    color: var(--dim);
+  }
+
+  .tl {
+    position: relative;
+    margin-top: clamp(40px, 6vw, 96px);
+    padding-left: clamp(24px, 3vw, 48px);
+  }
+
+  .tl-line {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--line);
+  }
+
+  .tl-line-fill {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--red);
+    transform: scaleY(0);
+  }
+
+  .tl-step {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    padding-block: clamp(28px, 4vw, 64px);
+    border-bottom: 1px solid var(--line);
+    opacity: 0.35;
+    transition: opacity 0.5s ease;
+  }
+
+  @media (min-width: 800px) {
+    .tl-step {
+      grid-template-columns: minmax(180px, 4fr) 6fr;
+      align-items: end;
+      gap: 40px;
+    }
+  }
+
+  .tl-step.is-on {
+    opacity: 1;
+  }
+
+  .tl-n {
+    font-size: clamp(90px, 15vw, 280px);
+    line-height: 0.82;
+    transition: color 0.5s ease;
+  }
+
+  .tl-step.is-on .tl-n {
+    color: var(--red);
+  }
+
+  .tl-h {
+    font-weight: 200;
+    font-size: clamp(28px, 3.4vw, 60px);
+    letter-spacing: -0.05em;
+    line-height: 1;
+  }
+
+  .tl-x {
+    margin-top: 14px;
+    max-width: 44ch;
+    color: #cfc8b4;
+  }
+</style>

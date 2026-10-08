@@ -8,7 +8,7 @@ export default defineConfig({
   site: 'https://yaropolov.ru',
   output: 'server',
   adapter: node({ mode: 'standalone' }),
-  integrations: [sitemap()],
+  integrations: [sitemap({ filter: (page) => !page.includes('/brief') })],
   server: {
     host: true,
   },

@@ -1,0 +1,340 @@
+---
+import { contacts, contact } from '../../data/brand';
+
+const channels = [
+  { label: 'Телефон', text: contacts.phone, href: contacts.phoneHref },
+  { label: 'Telegram', text: contacts.telegram, href: contacts.telegramHref },
+  { label: 'ВКонтакте', text: contacts.vk, href: contacts.vkHref },
+  { label: 'Макс', text: contacts.max, href: contacts.maxHref },
+  { label: 'Почта', text: contacts.email, href: contacts.emailHref },
+];
+---
+
+<section class="contact" id="contact" aria-labelledby="contact-title">
+  <div class="wipe" aria-hidden="true"></div>
+
+  <div class="wrap contact-in">
+    <p class="mono tag">Заявка</p>
+    <h2 id="contact-title" class="giant contact-h" data-split>Оставить <em>заявку</em></h2>
+    <p class="contact-sub">{contact.sub}</p>
+
+    <div class="contact-grid">
+      <ul class="channels">
+        {channels.map((c) => (
+          <li>
+            <span class="mono">{c.label}</span>
+            <a href={c.href} rel="noopener">{c.text}</a>
+          </li>
+        ))}
+      </ul>
+
+      <div class="form-card">
+        <p class="mono form-tag">Форма заявки</p>
+        <form id="lead-form" class="form" novalidate>
+          <label class="f">
+            <span class="mono">Имя</span>
+            <input type="text" name="name" required autocomplete="name" />
+          </label>
+          <label class="f">
+            <span class="mono">Телефон</span>
+            <input type="tel" id="lf-phone" name="phone" required autocomplete="tel" inputmode="tel" />
+          </label>
+          <label class="f">
+            <span class="mono">Комментарий, необязательно</span>
+            <textarea name="comment" id="lf-comment" rows="3"></textarea>
+          </label>
+
+          <input type="text" name="hp" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true" />
+
+          <label class="chk">
+            <input type="checkbox" id="lf-consent" />
+            <span>
+              Согласен на обработку персональных данных.<br />
+              <a href="#" class="privacy-open">Политика конфиденциальности</a>
+            </span>
+          </label>
+
+          <button type="submit" id="lf-submit" class="btn send" disabled data-mag>Отправить заявку</button>
+        </form>
+        <p id="lf-status" class="status" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact {
+    position: relative;
+    background: var(--ink);
+    padding-block: clamp(72px, 10vw, 160px);
+    overflow: clip;
+  }
+
+  /* Красная заливка раскрывается кругом снизу (см. initWipe) */
+  .wipe {
+    position: absolute;
+    inset: 0;
+    background: var(--red);
+  }
+
+  .js .wipe {
+    clip-path: circle(0% at 50% 100%);
+  }
+
+  .contact-in {
+    position: relative;
+  }
+
+  .contact .tag {
+    color: var(--paper);
+  }
+
+  .contact .tag::before {
+    background: var(--paper);
+  }
+
+  .contact-h {
+    margin-top: clamp(20px, 3vw, 40px);
+    font-size: clamp(48px, 11vw, 220px);
+  }
+
+  .contact-h :global(em) {
+    color: var(--ink);
+  }
+
+  .contact-sub {
+    margin-top: 18px;
+    font-weight: 200;
+    font-size: clamp(20px, 2.2vw, 36px);
+    letter-spacing: -0.03em;
+  }
+
+  .contact-grid {
+    margin-top: clamp(40px, 6vw, 96px);
+    display: grid;
+    gap: 48px;
+  }
+
+  @media (min-width: 1000px) {
+    .contact-grid {
+      grid-template-columns: 6fr 5fr;
+      column-gap: clamp(40px, 6vw, 112px);
+      /* Обе колонки одной высоты: верх и низ контактов совпадают с карточкой формы */
+      align-items: stretch;
+    }
+
+    /* Строки контактов делят всю высоту поровну */
+    .channels {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .channels li {
+      flex: 1;
+      align-items: center;
+    }
+  }
+
+  .channels {
+    border-top: 1px solid rgba(246, 240, 220, 0.6);
+  }
+
+  .channels li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(246, 240, 220, 0.4);
+  }
+
+  .channels a {
+    font-weight: 200;
+    font-size: clamp(20px, 2.2vw, 36px);
+    letter-spacing: -0.04em;
+    transition: transform 0.35s var(--ease), color 0.2s ease;
+  }
+
+  .channels a:hover {
+    transform: translateX(-8px);
+    color: var(--ink);
+  }
+
+  /* Форма стоит на светлой карточке цвета бумаги: на красном фоне она читается и не сливается */
+  .form-card {
+    padding: clamp(24px, 3vw, 48px);
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--ink);
+  }
+
+  .form-tag {
+    margin-bottom: 22px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--ink);
+    color: var(--ink);
+  }
+
+  .form {
+    display: grid;
+    gap: 22px;
+  }
+
+  .f .mono {
+    color: #6b6556;
+  }
+
+  .f {
+    display: grid;
+    gap: 6px;
+  }
+
+  .f input,
+  .f textarea {
+    width: 100%;
+    padding: 12px 0;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--ink);
+    border-radius: 0;
+    font-size: 22px;
+    font-weight: 200;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+  }
+
+  .f input:focus,
+  .f textarea:focus {
+    outline: none;
+    border-bottom-color: var(--red);
+  }
+
+  .hp {
+    position: absolute;
+    left: -9999px;
+    opacity: 0;
+  }
+
+  .chk {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .chk input {
+    margin-top: 3px;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--red);
+    flex-shrink: 0;
+  }
+
+  .chk a {
+    border-bottom: 1px solid currentColor;
+  }
+
+  .send {
+    justify-self: start;
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+
+  /* Заливка при наведении: красная (стандартная бумажная на светлой карточке не видна) */
+  .send::before {
+    background: var(--red);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .send:not(:disabled):hover {
+      color: #fff;
+      border-color: var(--red);
+    }
+  }
+
+  /* Пока нет согласия: контурная кнопка, понятно что неактивна и без грязно-серой заливки */
+  .send:disabled {
+    background: transparent;
+    border-color: #6b6556;
+    color: #6b6556;
+    cursor: not-allowed;
+  }
+
+  .send:disabled::before {
+    display: none;
+  }
+
+  .status {
+    margin-top: 4px;
+    min-height: 1.5em;
+    font-weight: 600;
+  }
+</style>
+
+<script>
+  const form = document.getElementById('lead-form') as HTMLFormElement | null;
+  const consent = document.getElementById('lf-consent') as HTMLInputElement | null;
+  const submitBtn = document.getElementById('lf-submit') as HTMLButtonElement | null;
+  const statusEl = document.getElementById('lf-status');
+  const phone = document.getElementById('lf-phone') as HTMLInputElement | null;
+
+  consent?.addEventListener('change', () => {
+    if (submitBtn) submitBtn.disabled = !consent.checked;
+  });
+
+  // Маска номера: +7 (XXX) XXX-XX-XX
+  function formatPhone(raw: string) {
+    let d = raw.replace(/\D/g, '');
+    if (d.startsWith('7') || d.startsWith('8')) d = d.slice(1);
+    d = d.slice(0, 10);
+    let out = '+7';
+    if (d.length > 0) out += ' (' + d.slice(0, 3);
+    if (d.length >= 3) out += ')';
+    if (d.length > 3) out += ' ' + d.slice(3, 6);
+    if (d.length > 6) out += '-' + d.slice(6, 8);
+    if (d.length > 8) out += '-' + d.slice(8, 10);
+    return out;
+  }
+  phone?.addEventListener('input', () => (phone.value = formatPhone(phone.value)));
+  phone?.addEventListener('focus', () => {
+    if (!phone.value) phone.value = '+7 (';
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    const fd = new FormData(form);
+    const payload = {
+      name: String(fd.get('name') || ''),
+      method: 'phone',
+      contact: String(fd.get('phone') || ''),
+      comment: String(fd.get('comment') || ''),
+      consent: consent?.checked ? 'true' : 'false',
+      hp: String(fd.get('hp') || ''),
+    };
+
+    if (submitBtn) submitBtn.disabled = true;
+    if (statusEl) statusEl.textContent = 'Отправляю...';
+
+    try {
+      const res = await fetch('/api/send-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('request failed');
+      form.hidden = true;
+      if (statusEl) statusEl.textContent = 'Заявка отправлена. Отвечу в ближайшее время.';
+      // Попап для гостей из Директа не должен показываться тем, кто уже оставил заявку
+      window.dispatchEvent(new CustomEvent('lead-form-submitted'));
+    } catch {
+      if (submitBtn) submitBtn.disabled = false;
+      if (statusEl) statusEl.textContent = 'Не удалось отправить. Попробуйте ещё раз или позвоните.';
+    }
+  });
+</script>

@@ -18,6 +18,7 @@ interface LeadPayload {
 
 const SOURCE_LABELS: Record<string, string> = {
   ad_popup: 'заявка с поп-апа с рекламы',
+  chat_popup: 'заявка из онлайн-чата',
 };
 
 const METHOD_LABELS: Record<string, string> = {

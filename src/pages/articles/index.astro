@@ -1,100 +1,140 @@
 ---
 export const prerender = true;
 
-import Layout from '../../layouts/Layout.astro';
+import AvLayout from '../../layouts/AvLayout.astro';
 import { articles } from '../../data/articles';
 ---
 
-<Layout
-  title="Статьи — Yaropolov.ru"
+<AvLayout
+  title="Статьи — Ярополов Павел"
   description="Разборы про рекламу в Яндекс.Директе и сайты для бизнеса: сколько стоит реклама, почему она иногда не работает и когда сайту пора вырасти из конструктора."
-  showChapterRail={false}
 >
-  <section class="section section-gap">
-    <p class="mono-label">Статьи</p>
-    <h1 class="articles-title">Разборы про рекламу<br />и сайты для бизнеса</h1>
-
-    <div class="articles-grid">
-      {
-        articles.map((article) => (
-          <a href={`/articles/${article.slug}`} class="article-card panel">
-            <p class="article-card-date mono-label">{article.dateDisplay}</p>
-            <h2 class="article-card-title">{article.title}</h2>
-            <p class="article-card-excerpt">{article.excerpt}</p>
-            <span class="article-card-cta">Читать →</span>
-          </a>
-        ))
-      }
+  <section class="ahead">
+    <div class="wrap">
+      <p class="mono tag">Статьи</p>
+      <h1 class="giant ahead-h" data-split>Разборы про рекламу<br />и <em>сайты</em> для бизнеса</h1>
     </div>
   </section>
-</Layout>
+
+  <section class="alist" aria-label="Список статей">
+    <div class="wrap">
+      <ul>
+        {
+          articles.map((a) => (
+            <li>
+              <a href={`/articles/${a.slug}`} class="arow">
+                <p class="mono arow-date">{a.dateDisplay}</p>
+                <div class="arow-main">
+                  <h2 class="arow-title">{a.title}</h2>
+                  <p class="arow-excerpt">{a.excerpt}</p>
+                </div>
+                <span class="arow-go" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" focusable="false">
+                    <path d="M5 19 19 5M8 5h11v11" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" />
+                  </svg>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</AvLayout>
 
 <style>
-  .articles-title {
-    font-size: 30px;
-    margin-top: 12px;
-    max-width: 700px;
+  .ahead {
+    padding-top: calc(var(--mast) + clamp(40px, 6vw, 96px));
+    padding-bottom: clamp(40px, 6vw, 96px);
   }
 
-  @media (min-width: 640px) {
-    .articles-title {
-      font-size: 42px;
-    }
+  .ahead-h {
+    margin-top: clamp(20px, 3vw, 40px);
+    font-size: clamp(40px, 8.2vw, 156px);
   }
 
-  .articles-grid {
-    margin-top: 48px;
+  .alist {
+    padding-bottom: clamp(72px, 10vw, 160px);
+  }
+
+  .alist ul {
+    border-top: 1px solid var(--line);
+  }
+
+  .arow {
+    position: relative;
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 28px 24px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    padding: clamp(24px, 3vw, 44px) clamp(12px, 2vw, 32px);
+    border-bottom: 1px solid var(--line);
+    transition: background 0.35s var(--ease), color 0.35s var(--ease), padding 0.45s var(--ease);
   }
 
-  @media (min-width: 720px) {
-    .articles-grid {
-      grid-template-columns: 1fr 1fr;
+  @media (min-width: 900px) {
+    .arow {
+      grid-template-columns: 200px minmax(0, 1fr) 56px;
+      column-gap: clamp(24px, 3vw, 56px);
+      align-items: start;
     }
   }
 
-  .article-card {
-    display: flex;
-    flex-direction: column;
-    padding: var(--card-padding);
-    color: var(--color-text);
-    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  .arow-date {
+    color: var(--dim);
+    padding-top: 0.8em;
+    transition: color 0.35s ease;
   }
 
-  .article-card:hover {
-    transform: translateY(-2px);
+  .arow-title {
+    font-weight: 200;
+    font-size: clamp(26px, 3.4vw, 58px);
+    line-height: 1.05;
+    letter-spacing: -0.045em;
+    max-width: 22ch;
+    text-wrap: balance;
   }
 
-  .article-card-date {
-    margin-bottom: 4px;
+  .arow-excerpt {
+    margin-top: 16px;
+    max-width: 62ch;
+    color: #cfc8b4;
+    font-size: clamp(15px, 1.2vw, 18px);
+    line-height: 1.55;
+    transition: color 0.35s ease;
   }
 
-  .article-card-date::before {
-    display: none;
+  .arow-go {
+    display: grid;
+    place-items: center;
+    justify-self: end;
+    width: 56px;
+    height: 56px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    transition: transform 0.5s var(--ease), background 0.3s ease, color 0.3s ease;
   }
 
-  .article-card-title {
-    font-family: var(--font-display);
-    font-weight: 400;
-    font-size: 22px;
-    letter-spacing: -0.01em;
-    margin-top: 10px;
+  .arow-go svg {
+    width: 22px;
+    height: 22px;
   }
 
-  .article-card-excerpt {
-    margin-top: 14px;
-    font-size: 15px;
-    line-height: 1.6;
-    color: var(--color-text-muted);
-    flex-grow: 1;
-  }
+  @media (hover: hover) and (pointer: fine) {
+    .arow:hover {
+      background: var(--red);
+      color: var(--ink);
+    }
 
-  .article-card-cta {
-    margin-top: 20px;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--color-accent);
+    .arow:hover .arow-date,
+    .arow:hover .arow-excerpt {
+      color: var(--ink);
+    }
+
+    .arow:hover .arow-go {
+      transform: rotate(45deg);
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+    }
   }
 </style>

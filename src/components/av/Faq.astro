@@ -1,0 +1,149 @@
+---
+import { faq } from '../../data/brand';
+---
+
+<section class="faq" id="faq" aria-labelledby="faq-title">
+  <div class="wrap">
+    <p class="mono tag">Вопросы</p>
+    <h2 id="faq-title" class="giant faq-h" data-split>Отвечаю <em>честно</em></h2>
+
+    <div class="fq-list">
+      {faq.map((f, i) => (
+        <div class="fq">
+          <button type="button" class="fq-q" aria-expanded="false" aria-controls={`fq-${i}`}>
+            <span class="fq-t">{f.question}</span>
+            <span class="fq-i" aria-hidden="true"></span>
+          </button>
+          <div class="fq-p" id={`fq-${i}`}>
+            <div class="fq-pin">
+              <p>{f.answer.replace(/\n/g, ' ')}</p>
+              {f.articleSlug && (
+                <a class="fq-link" href={`/articles/${f.articleSlug}`}>Читать: {f.articleLabel}</a>
+              )}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq {
+    background: var(--ink-2);
+    padding-block: clamp(72px, 10vw, 160px);
+  }
+
+  .faq-h {
+    margin-top: clamp(20px, 3vw, 40px);
+    font-size: clamp(44px, 9vw, 176px);
+  }
+
+  .fq-list {
+    margin-top: clamp(40px, 6vw, 96px);
+    border-top: 1px solid var(--line);
+  }
+
+  .fq {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .fq-q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    width: 100%;
+    padding: clamp(20px, 2.4vw, 36px) 0;
+    background: none;
+    border: 0;
+    text-align: left;
+  }
+
+  .fq-t {
+    font-weight: 200;
+    font-size: clamp(22px, 3vw, 52px);
+    line-height: 1.08;
+    letter-spacing: -0.045em;
+    transition: color 0.25s ease, transform 0.4s var(--ease);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .fq-q:hover .fq-t {
+      color: var(--red);
+      transform: translateX(10px);
+    }
+  }
+
+  .fq-i {
+    position: relative;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+  }
+
+  .fq-i::before,
+  .fq-i::after {
+    content: '';
+    position: absolute;
+    background: var(--paper);
+    transition: transform 0.4s var(--ease), background 0.2s ease;
+  }
+
+  .fq-i::before {
+    left: 0;
+    right: 0;
+    top: 13px;
+    height: 2px;
+  }
+
+  .fq-i::after {
+    top: 0;
+    bottom: 0;
+    left: 13px;
+    width: 2px;
+  }
+
+  .fq.is-open .fq-i::after {
+    transform: scaleY(0);
+  }
+
+  .fq.is-open .fq-i::before {
+    background: var(--red);
+  }
+
+  /* Раскрытие без измерения высоты: сетка 0fr → 1fr */
+  .fq-p {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.55s var(--ease);
+  }
+
+  .fq.is-open .fq-p {
+    grid-template-rows: 1fr;
+  }
+
+  .fq-pin {
+    overflow: hidden;
+    display: grid;
+    gap: 14px;
+    max-width: 72ch;
+    color: #cfc8b4;
+  }
+
+  .fq.is-open .fq-pin {
+    padding-bottom: clamp(20px, 2.4vw, 36px);
+  }
+
+  .fq-link {
+    justify-self: start;
+    color: var(--paper);
+    font-weight: 600;
+    border-bottom: 1px solid var(--red);
+    transition: color 0.2s ease;
+  }
+
+  .fq-link:hover {
+    color: var(--red);
+  }
+</style>

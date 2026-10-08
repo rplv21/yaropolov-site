@@ -4,10 +4,7 @@ import { services, contacts } from '../data/site';
 
 <section class="section section-gap" id="services">
   <p class="mono-label">Услуги</p>
-  <h2 class="services-title">
-    Что я предлагаю<br />
-    и сколько это стоит
-  </h2>
+  <h2 class="services-title poster-h poster-h--r">Услуги<small>Что я предлагаю и сколько это стоит</small></h2>
 
   <div class="services-grid">
     {services.map((s) => (
@@ -69,10 +66,26 @@ import { services, contacts } from '../data/site';
     display: flex;
     flex-direction: column;
     position: relative;
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s ease;
+  }
+
+  .service-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-text);
   }
 
   .service-card-featured {
     border-color: var(--color-accent);
+  }
+
+  .service-card-featured:hover {
+    border-color: var(--color-accent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .service-card:hover {
+      transform: none;
+    }
   }
 
   .service-badge {

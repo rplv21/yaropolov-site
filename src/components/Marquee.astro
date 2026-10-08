@@ -1,0 +1,89 @@
+---
+// Только то, что реально есть на сайте: услуги из блока «Услуги» и ниши
+// из списка в калькуляторе/заявке. Ничего выдуманного.
+const items = [
+  'Яндекс.Директ',
+  'Сайты для бизнеса',
+  'Яндекс.Метрика',
+  'Таргет ВКонтакте',
+  'SEO',
+  'Розничная торговля',
+  'Услуги для бизнеса',
+  'Производство',
+  'Строительство и ремонт',
+  'Культура и события',
+  'Медицина и красота',
+];
+---
+
+<section class="marquee" aria-label="Услуги и ниши, с которыми я работаю">
+  <div class="marquee-track">
+    {[0, 1].map((copy) => (
+      <ul class="marquee-list" aria-hidden={copy === 1 ? 'true' : undefined}>
+        {items.map((item) => (
+          <li>{item}</li>
+        ))}
+      </ul>
+    ))}
+  </div>
+</section>
+
+<style>
+  .marquee {
+    /* Красная полоса от края до края — фиксированная пара цветов (кремовый
+       на акценте), одинаковая в обеих темах, как и сам акцент. */
+    background: var(--color-accent);
+    color: #f9f3dc;
+    overflow: hidden;
+    border-top: 2px solid var(--color-text);
+    border-bottom: 2px solid var(--color-text);
+  }
+
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee-scroll 55s linear infinite;
+  }
+
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+
+  .marquee-list {
+    display: flex;
+    flex-shrink: 0;
+  }
+
+  .marquee-list li {
+    display: flex;
+    align-items: center;
+    padding: 18px 0;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .marquee-list li::after {
+    content: '';
+    width: 9px;
+    height: 9px;
+    margin-inline: 36px;
+    background: #f9f3dc;
+    flex-shrink: 0;
+  }
+
+  @keyframes marquee-scroll {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+    }
+  }
+</style>

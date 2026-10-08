@@ -54,6 +54,7 @@
   --font-body: 'Onest', system-ui, sans-serif;
   --font-hand: 'Caveat', cursive;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-poster: 'Oswald', 'Arial Narrow', Impact, sans-serif;
 }
 
 /* Светлая тема — переключается атрибутом data-theme="light" на <html>.

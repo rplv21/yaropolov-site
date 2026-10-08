@@ -1,0 +1,96 @@
+---
+// Журнальный разворот-плакат: гигантское слово на всю ширину, поверх него
+// тонкая разреженная строка (приём «НАШ / У ВОРОТ»). Текст — из реальных
+// обещаний сайта (подзаголовок hero), ничего выдуманного.
+---
+
+<section class="poster" aria-labelledby="poster-title">
+  <div class="poster-stage">
+    <p class="poster-big" aria-hidden="true">ОТЧЁТ</p>
+    <h2 id="poster-title" class="poster-over">Каждый рубль — в отчёте</h2>
+  </div>
+  <div class="poster-lede section">
+    <p class="mono-label">Принцип работы</p>
+    <p class="poster-text">
+      <strong>Реклама, за которую я отвечаю лично.</strong>{' '}
+      Ни один рубль бюджета не проходит мимо отчёта: вы видите, куда ушли деньги и что они принесли.
+    </p>
+  </div>
+</section>
+
+<style>
+  .poster {
+    padding-block: 64px 0;
+    margin-top: var(--section-gap-m);
+    border-top: 1px solid var(--color-border-strong);
+    overflow: hidden;
+  }
+
+  @media (min-width: 960px) {
+    .poster {
+      margin-top: var(--section-gap);
+    }
+  }
+
+  .poster-stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+  }
+
+  .poster-big {
+    font-family: var(--font-poster);
+    font-weight: 700;
+    font-size: clamp(120px, 31vw, 520px);
+    line-height: 0.82;
+    letter-spacing: -0.01em;
+    color: var(--color-accent);
+    text-transform: uppercase;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .poster-over {
+    position: absolute;
+    inset-inline: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
+    text-align: center;
+    font-family: var(--font-poster);
+    font-weight: 300;
+    font-size: clamp(22px, 5.6vw, 92px);
+    line-height: 1;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-text);
+    mix-blend-mode: normal;
+  }
+
+  .poster-lede {
+    display: grid;
+    gap: 16px;
+    padding-block: 28px 56px;
+    margin-top: 28px;
+    border-top: 1px solid var(--color-border-strong);
+  }
+
+  @media (min-width: 960px) {
+    .poster-lede {
+      grid-template-columns: 200px minmax(0, 1fr);
+      align-items: baseline;
+    }
+  }
+
+  .poster-text {
+    max-width: 62ch;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--color-text-muted);
+  }
+
+  .poster-text strong {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+</style>

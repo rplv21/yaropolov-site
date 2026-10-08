@@ -1,0 +1,229 @@
+---
+import { services } from '../../data/brand';
+---
+
+<section class="svcs" id="services" aria-labelledby="svc-title">
+  <div class="wrap">
+    <p class="mono tag">Услуги</p>
+    <h2 id="svc-title" class="giant svc-h poster" data-split>Что я <em>предлагаю</em><br />и сколько это стоит</h2>
+
+    <div class="svc-row">
+      {services.map((s) => (
+        <article class:list={['svc', { 'svc--feat': s.featured }]} tabindex="0" aria-label={s.name}>
+          <p class="svc-vert" aria-hidden="true">{s.name}{s.featured && <svg class="star" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" /></svg>}</p>
+
+          <div class="svc-body">
+            <p class="mono svc-cat">{s.category}</p>
+            <h3 class="svc-name">{s.name}{s.featured && <svg class="star" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" /></svg>}</h3>
+            <p class="svc-price">{s.price}</p>
+            <ul class="svc-list">
+              {s.items.map((it) => <li>{it}</li>)}
+            </ul>
+            <a href="#contact" class="svc-go mono" data-mag aria-label={`Обсудить: ${s.name}`}>Обсудить →</a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .svcs {
+    background: var(--paper);
+    color: var(--ink);
+    padding-block: clamp(72px, 10vw, 160px);
+  }
+
+  .svcs .tag {
+    color: var(--ink);
+  }
+
+  .svc-h {
+    margin-top: clamp(20px, 3vw, 40px);
+    /* Две строки: «Что я предлагаю и» / «сколько это стоит». Ширину не ограничиваем,
+       чтобы «стоит» не уезжало на третью строку. */
+    max-width: none;
+    font-size: clamp(32px, 7.4vw, 140px);
+  }
+
+  .svc-row {
+    margin-top: clamp(40px, 6vw, 96px);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  @media (min-width: 900px) {
+    .svc-row {
+      flex-direction: row;
+      height: clamp(520px, 62vh, 700px);
+      gap: 0;
+    }
+  }
+
+  .svc {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(22px, 2.4vw, 40px);
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--ink);
+    outline-offset: -4px;
+    transition: flex-grow 0.7s var(--ease), background 0.4s ease, color 0.4s ease;
+  }
+
+  @media (min-width: 900px) {
+    .svc {
+      flex: 1 1 0;
+      min-width: 0;
+      margin-left: -1px;
+    }
+
+    .svc.is-open {
+      flex-grow: 3.2;
+    }
+  }
+
+  .svc.is-open {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  /* «Абсолют» выделен красным всегда, в закрытом и в раскрытом виде. Текст чёрный. */
+  .svc.svc--feat,
+  .svc.svc--feat.is-open {
+    background: var(--red);
+    color: var(--ink);
+    border-color: var(--red);
+  }
+
+  /* Вертикальная подпись закрытой колонки */
+  .svc-vert {
+    display: none;
+  }
+
+  @media (min-width: 900px) {
+    .svc-vert {
+      display: block;
+      position: absolute;
+      left: 50%;
+      bottom: clamp(22px, 2.4vw, 40px);
+      writing-mode: vertical-rl;
+      transform: translateX(-50%) rotate(180deg);
+      font-weight: 200;
+      font-size: clamp(24px, 2.6vw, 44px);
+      letter-spacing: -0.04em;
+      white-space: nowrap;
+      /* Подпись закрытой колонки появляется, когда старый текст уже исчез и колонка сузилась */
+      transition: opacity 0.25s ease 0.22s;
+    }
+
+    .svc.is-open .svc-vert {
+      opacity: 0;
+      transition: opacity 0.08s ease;
+    }
+
+    /* Уходящий текст пропадает мгновенно: иначе он наезжает на новый, пока колонка сужается */
+    .svc:not(.is-open) .svc-body {
+      pointer-events: none;
+    }
+
+    .svc:not(.is-open) .svc-body > * {
+      opacity: 0;
+      transition: opacity 0.08s ease;
+    }
+  }
+
+  .svc-body {
+    display: grid;
+    align-content: start;
+    gap: 14px;
+    min-width: min(100%, 360px);
+  }
+
+  /* Новый текст появляется с задержкой: когда колонка уже достаточно раскрылась */
+  .svc.is-open .svc-body > *:not(.svc-name) {
+    transition: opacity 0.35s ease 0.3s;
+  }
+
+  /* Заголовок виден сразу: его буквы прилетают из вертикальной подписи (см. av.ts) */
+  .svc.is-open .svc-body > .svc-name {
+    transition: none;
+  }
+
+  .svc-cat {
+    opacity: 0.65;
+  }
+
+  /* Звёздочка-метка тарифа: бежевый шестилучевой знак, поднят как верхний индекс */
+  .star {
+    display: inline-block;
+    width: 0.46em;
+    height: 0.46em;
+    margin-left: 0.1em;
+    vertical-align: 0.5em;
+    color: var(--paper);
+    transition: transform 0.7s var(--ease);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .svc--feat:hover .star {
+      transform: rotate(90deg);
+    }
+  }
+
+  .svc-vert .star {
+    vertical-align: baseline;
+    margin-left: 0;
+    margin-top: 0.12em;
+    transform: rotate(180deg);
+  }
+
+  .svc-name {
+    font-weight: 200;
+    font-size: clamp(30px, 3.6vw, 64px);
+    line-height: 1;
+    letter-spacing: -0.05em;
+  }
+
+  .svc-price {
+    font-weight: 600;
+    font-size: clamp(18px, 1.6vw, 26px);
+    letter-spacing: -0.02em;
+    color: var(--red);
+  }
+
+  .svc--feat .svc-price,
+  .svc--feat.is-open .svc-price {
+    color: var(--ink);
+  }
+
+  .svc-list {
+    display: grid;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 16px;
+  }
+
+  .svc-list li {
+    position: relative;
+    padding-left: 22px;
+  }
+
+  .svc-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 10px;
+    height: 1px;
+    background: currentColor;
+  }
+
+  .svc-go {
+    justify-self: start;
+    margin-top: 12px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid currentColor;
+  }
+</style>

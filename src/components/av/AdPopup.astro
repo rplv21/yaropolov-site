@@ -1,0 +1,455 @@
+---
+import { contacts } from '../../data/brand';
+---
+
+<div id="direct-popup-overlay" class="direct-popup-overlay" hidden>
+  <div class="direct-popup" role="dialog" aria-modal="true" aria-labelledby="direct-popup-title">
+    <button type="button" class="direct-popup-close" aria-label="Закрыть"></button>
+
+    <p class="mono dp-tag">Реклама · Яндекс.Директ</p>
+    <h2 id="direct-popup-title" class="giant dp-title">Вы попали <em>точно</em> куда нужно</h2>
+    <p class="dp-text">
+      «Яндекс.Директ» привёл вас на мой сайт, значит вы там, где и должны быть. Тоже хотите
+      настроить себе эффективную рекламу? Заполняйте форму:
+    </p>
+
+    <form id="direct-popup-form" novalidate>
+      <label class="dp-f" for="dp-name">
+        <span class="mono">Имя *</span>
+        <input type="text" id="dp-name" name="name" required autocomplete="name" />
+      </label>
+
+      <label class="dp-f" for="dp-phone">
+        <span class="mono">Телефон *</span>
+        <input
+          type="tel"
+          id="dp-phone"
+          name="phone"
+          required
+          placeholder="+7 (___) ___-__-__"
+          inputmode="numeric"
+          autocomplete="tel"
+        />
+      </label>
+
+      <!-- honeypot: скрытое поле-ловушка для ботов -->
+      <div class="dp-hp" aria-hidden="true">
+        <label for="dp-hp">Оставьте пустым</label>
+        <input type="text" id="dp-hp" name="hp" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <label class="dp-consent">
+        <input type="checkbox" id="dp-consent" name="consent" required />
+        <span>
+          Согласен на обработку персональных данных<br />
+          согласно <a href="#" class="privacy-open">политике конфиденциальности</a>
+        </span>
+      </label>
+
+      <button type="submit" class="btn dp-submit" id="dp-submit" disabled>Отправить заявку</button>
+    </form>
+    <p class="dp-status" id="dp-status" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+<style>
+  .direct-popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 13, 10, 0.82);
+  }
+
+  /* Скрытие через [hidden] не должно перебиваться этим display */
+  .direct-popup-overlay:not([hidden]) {
+    display: flex;
+    animation: dp-fade 0.35s ease both;
+  }
+
+  .direct-popup {
+    position: relative;
+    width: 100%;
+    max-width: 540px;
+    max-height: 90dvh;
+    overflow-y: auto;
+    padding: clamp(24px, 3.4vw, 44px);
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--ink);
+    animation: dp-rise 0.6s var(--ease) both;
+  }
+
+  /* Красный квадрат-метка в углу, как знак бренда на карточках */
+  .direct-popup::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: -1px;
+    width: 14px;
+    height: 14px;
+    background: var(--red);
+  }
+
+  @keyframes dp-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes dp-rise {
+    from {
+      opacity: 0;
+      transform: translateY(28px) scale(0.98);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .direct-popup-overlay:not([hidden]),
+    .direct-popup {
+      animation: none;
+    }
+  }
+
+  .direct-popup-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 38px;
+    height: 38px;
+    background: transparent;
+    border: 1px solid var(--ink);
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+
+  /* Крестик из двух линий */
+  .direct-popup-close::before,
+  .direct-popup-close::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 16px;
+    height: 1.5px;
+    background: var(--ink);
+    transition: background 0.2s ease;
+  }
+
+  .direct-popup-close::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+
+  .direct-popup-close::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .direct-popup-close:hover {
+      background: var(--red);
+      border-color: var(--red);
+    }
+
+    .direct-popup-close:hover::before,
+    .direct-popup-close:hover::after {
+      background: #fff;
+    }
+  }
+
+  .dp-tag {
+    color: #6b6556;
+    padding-right: 52px;
+  }
+
+  .dp-title {
+    margin-top: 16px;
+    padding-right: 20px;
+    font-size: clamp(34px, 4.6vw, 56px);
+    letter-spacing: -0.05em;
+  }
+
+  .dp-text {
+    margin-top: 16px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #3a352c;
+  }
+
+  #direct-popup-form {
+    margin-top: 26px;
+    display: grid;
+    gap: 20px;
+  }
+
+  .dp-f {
+    display: grid;
+    gap: 6px;
+  }
+
+  .dp-f .mono {
+    color: #6b6556;
+  }
+
+  .dp-f input {
+    width: 100%;
+    padding: 12px 0;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--ink);
+    border-radius: 0;
+    font-size: 21px;
+    font-weight: 200;
+    transition: border-color 0.2s ease;
+  }
+
+  .dp-f input::placeholder {
+    color: #a09882;
+  }
+
+  .dp-f input:focus {
+    outline: none;
+    border-bottom-color: var(--red);
+  }
+
+  .dp-hp {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .dp-consent {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 13px;
+    line-height: 1.5;
+    cursor: pointer;
+  }
+
+  .dp-consent input {
+    margin-top: 3px;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--red);
+    flex-shrink: 0;
+  }
+
+  .dp-consent a {
+    border-bottom: 1px solid currentColor;
+  }
+
+  .dp-submit {
+    justify-self: start;
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+
+  .dp-submit::before {
+    background: var(--red);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .dp-submit:not(:disabled):hover {
+      color: #fff;
+      border-color: var(--red);
+    }
+  }
+
+  /* Пока нет согласия: контурная кнопка */
+  .dp-submit:disabled {
+    background: transparent;
+    border-color: #6b6556;
+    color: #6b6556;
+    cursor: not-allowed;
+  }
+
+  .dp-submit:disabled::before {
+    display: none;
+  }
+
+  .dp-status {
+    margin-top: 14px;
+    min-height: 20px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .dp-status:empty {
+    margin-top: 0;
+  }
+
+  .dp-status[data-state='error'] {
+    color: var(--red);
+  }
+</style>
+
+<script define:vars={{ telegramHref: contacts.telegramHref }}>
+  const STORAGE_AD_FLAG = 'yaropolov_ad_visit';
+  const STORAGE_SHOWN_FLAG = 'yaropolov_ad_popup_shown';
+  const SHOW_DELAY_MS = 10000;
+  const YM_COUNTER_ID = 112339088;
+
+  function reachGoal(name) {
+    try {
+      if (typeof window.ym === 'function') window.ym(YM_COUNTER_ID, 'reachGoal', name);
+    } catch {
+      /* аналитика не должна ронять форму */
+    }
+  }
+
+  // 1. Разметка перехода с рекламы: yclid добавляется Яндекс.Директом
+  // автоматически при клике по объявлению.
+  try {
+    const params = new URLSearchParams(location.search);
+    if (params.has('yclid')) {
+      sessionStorage.setItem(STORAGE_AD_FLAG, '1');
+    }
+  } catch {
+    /* sessionStorage может быть недоступен (приватный режим и т.п.) */
+  }
+
+  const overlay = document.getElementById('direct-popup-overlay');
+  const closeBtn = overlay?.querySelector('.direct-popup-close');
+  const form = document.getElementById('direct-popup-form');
+  const consent = document.getElementById('dp-consent');
+  const submitBtn = document.getElementById('dp-submit');
+  const statusEl = document.getElementById('dp-status');
+
+  let mainFormSubmitted = false;
+
+  function hasFlag(key) {
+    try {
+      return sessionStorage.getItem(key) === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  function setFlag(key) {
+    try {
+      sessionStorage.setItem(key, '1');
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function showPopup() {
+    if (!overlay || mainFormSubmitted) return;
+    if (document.body.hasAttribute('data-no-chat')) return;
+    if (hasFlag(STORAGE_SHOWN_FLAG)) return;
+    setFlag(STORAGE_SHOWN_FLAG);
+    overlay.hidden = false;
+    reachGoal('ad_popup_shown');
+  }
+
+  function hidePopup() {
+    if (overlay) overlay.hidden = true;
+  }
+
+  window.addEventListener('lead-form-submitted', () => {
+    mainFormSubmitted = true;
+    hidePopup();
+  });
+
+  if (hasFlag(STORAGE_AD_FLAG) && !hasFlag(STORAGE_SHOWN_FLAG)) {
+    setTimeout(showPopup, SHOW_DELAY_MS);
+  }
+
+  closeBtn?.addEventListener('click', hidePopup);
+  overlay?.addEventListener('click', (e) => {
+    if (e.target === overlay) hidePopup();
+  });
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay && !overlay.hidden) hidePopup();
+  });
+
+  consent?.addEventListener('change', () => {
+    if (submitBtn) submitBtn.disabled = !consent.checked;
+  });
+
+  // Маска номера телефона: +7 (XXX) XXX-XX-XX
+  function formatPhone(raw) {
+    let digits = raw.replace(/\D/g, '');
+    if (digits.startsWith('7') || digits.startsWith('8')) digits = digits.slice(1);
+    digits = digits.slice(0, 10);
+
+    let out = '+7';
+    if (digits.length > 0) out += ' (' + digits.slice(0, 3);
+    if (digits.length >= 3) out += ')';
+    if (digits.length > 3) out += ' ' + digits.slice(3, 6);
+    if (digits.length > 6) out += '-' + digits.slice(6, 8);
+    if (digits.length > 8) out += '-' + digits.slice(8, 10);
+    return out;
+  }
+
+  const phoneInput = document.getElementById('dp-phone');
+  phoneInput?.addEventListener('input', () => {
+    phoneInput.value = formatPhone(phoneInput.value);
+  });
+  phoneInput?.addEventListener('focus', () => {
+    if (!phoneInput.value) phoneInput.value = '+7 (';
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const formData = new FormData(form);
+    const phone = String(formData.get('phone') || '');
+
+    const payload = {
+      name: String(formData.get('name') || ''),
+      method: 'phone',
+      contact: phone,
+      consent: consent?.checked ? 'true' : 'false',
+      hp: String(formData.get('hp') || ''),
+      source: 'ad_popup',
+    };
+
+    if (submitBtn) submitBtn.disabled = true;
+    if (statusEl) {
+      statusEl.textContent = 'Отправляю...';
+      statusEl.removeAttribute('data-state');
+    }
+
+    try {
+      const res = await fetch('/api/send-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error('request failed');
+
+      form.hidden = true;
+      if (statusEl) {
+        statusEl.textContent = 'Заявка отправлена. Отвечу в ближайшее время.';
+        statusEl.dataset.state = 'success';
+      }
+      mainFormSubmitted = true;
+      reachGoal('ad_popup_lead');
+      // Событие диспатчим вместе со скрытием, а не сразу: иначе собственный же
+      // слушатель 'lead-form-submitted' мгновенно закроет попап, не дав
+      // посетителю увидеть сообщение об успехе.
+      setTimeout(() => {
+        hidePopup();
+        window.dispatchEvent(new CustomEvent('lead-form-submitted'));
+      }, 2500);
+    } catch (err) {
+      if (statusEl) {
+        statusEl.textContent = `Не получилось отправить. Попробуйте написать в Telegram напрямую: ${telegramHref}`;
+        statusEl.dataset.state = 'error';
+      }
+      if (submitBtn) submitBtn.disabled = !consent?.checked;
+    }
+  });
+</script>

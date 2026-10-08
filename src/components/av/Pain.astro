@@ -1,0 +1,96 @@
+---
+import { problems } from '../../data/brand';
+
+// Цвета карточек стопки
+const tones = ['ink', 'red', 'ink', 'red'];
+---
+
+<section class="pain" aria-labelledby="pain-title">
+  <div class="wrap">
+    <p class="mono tag">Типовые ситуации</p>
+    <h2 id="pain-title" class="giant pain-h" data-split>Узнаёте <em>себя?</em></h2>
+
+    <ul class="stack">
+      {problems.map((p, i) => (
+        <li class={`card card--${tones[i % tones.length]}`} style={`--i:${i}`}>
+          <span class="card-veil" aria-hidden="true"></span>
+          <p class="card-q giant">{p.quote}</p>
+          <p class="card-c">{p.comment.replace(/\n/g, ' ')}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .pain {
+    background: var(--paper);
+    color: var(--ink);
+    padding-block: clamp(72px, 10vw, 160px) clamp(48px, 6vw, 96px);
+  }
+
+  .pain .tag {
+    color: var(--ink);
+  }
+
+  .pain-h {
+    margin-top: clamp(20px, 3vw, 40px);
+    font-size: clamp(48px, 11vw, 220px);
+  }
+
+  .stack {
+    margin-top: clamp(40px, 6vw, 96px);
+    padding-bottom: 8vh;
+  }
+
+  .card {
+    position: sticky;
+    top: calc(var(--mast) + 16px + var(--i) * 18px);
+    display: grid;
+    align-content: space-between;
+    gap: 32px;
+    min-height: min(68vh, 560px);
+    margin-bottom: 24px;
+    padding: clamp(24px, 3.4vw, 56px);
+    transform-origin: 50% 0;
+    will-change: transform;
+  }
+
+  .card-veil {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .card--ink {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .card--red {
+    background: var(--red);
+    color: var(--ink);
+  }
+
+  .card-q {
+    max-width: 18ch;
+    font-size: clamp(30px, 5.2vw, 96px);
+    letter-spacing: -0.05em;
+  }
+
+  .card-c {
+    max-width: 44ch;
+    margin-left: auto;
+    font-size: clamp(16px, 1.3vw, 21px);
+    line-height: 1.5;
+  }
+
+  @media (max-width: 899px) {
+    .card-c {
+      margin-left: 0;
+    }
+  }
+</style>

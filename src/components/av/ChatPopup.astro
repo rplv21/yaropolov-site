@@ -1,0 +1,656 @@
+---
+import { contacts } from '../../data/brand';
+---
+
+<aside id="chat" class="chat" role="dialog" aria-label="Чат с Павлом" hidden>
+  <header class="chat-head">
+    <span class="chat-ava" aria-hidden="true">П</span>
+    <div class="chat-who">
+      <p class="chat-name">Павел</p>
+      <p class="chat-status mono">на связи</p>
+    </div>
+    <button type="button" class="chat-close" aria-label="Закрыть чат"></button>
+  </header>
+
+  <div class="chat-body" id="chat-body" aria-live="polite"></div>
+
+  <!-- Быстрые ответы: пользователь не пишет, а выбирает готовый вариант -->
+  <div class="chat-replies" id="chat-replies" hidden>
+    <button type="button" class="chat-btn chat-btn--ink" data-answer="Да" data-tone="ink">Да</button>
+    <button type="button" class="chat-btn chat-btn--red" data-answer="Да, но красного цвета" data-tone="red">
+      Да, но красного цвета
+    </button>
+  </div>
+
+  <!-- Короткая форма появляется после выбора ответа -->
+  <form class="chat-form" id="chat-form" novalidate hidden>
+    <label class="cf-f">
+      <span class="mono">Имя</span>
+      <input type="text" name="name" id="cf-name" required autocomplete="name" />
+    </label>
+    <label class="cf-f">
+      <span class="mono">Телефон</span>
+      <input
+        type="tel"
+        name="phone"
+        id="cf-phone"
+        required
+        placeholder="+7 (___) ___-__-__"
+        inputmode="numeric"
+        autocomplete="tel"
+      />
+    </label>
+
+    <!-- honeypot: скрытое поле-ловушка для ботов -->
+    <div class="cf-hp" aria-hidden="true">
+      <label for="cf-hp">Оставьте пустым</label>
+      <input type="text" id="cf-hp" name="hp" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <label class="cf-consent">
+      <input type="checkbox" id="cf-consent" name="consent" required />
+      <span>
+        Согласен на обработку персональных данных.<br />
+        <a href="#" class="privacy-open">Политика конфиденциальности</a>
+      </span>
+    </label>
+
+    <button type="submit" class="cf-submit" id="cf-submit" disabled>Отправить</button>
+    <p class="cf-status" id="cf-status" role="status" aria-live="polite"></p>
+  </form>
+</aside>
+
+<style>
+  .chat {
+    position: fixed;
+    right: clamp(12px, 2vw, 28px);
+    bottom: clamp(12px, 2vw, 28px);
+    z-index: 140;
+    display: flex;
+    flex-direction: column;
+    width: min(390px, calc(100vw - 24px));
+    max-height: calc(100dvh - 24px);
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--ink);
+  }
+
+  /* display у этих блоков перебивает атрибут hidden, поэтому прячем явно */
+  .chat[hidden],
+  .chat-replies[hidden],
+  .chat-form[hidden] {
+    display: none;
+  }
+
+  .chat:not([hidden]) {
+    animation: chat-in 0.7s var(--ease) both;
+  }
+
+  @keyframes chat-in {
+    from {
+      opacity: 0;
+      transform: translateY(32px);
+    }
+  }
+
+  .chat-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .chat-ava {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    background: var(--red);
+    color: #fff;
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  .chat-who {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .chat-name {
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 1.1;
+  }
+
+  .chat-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 4px;
+    color: #a49d8a;
+    font-size: 10.5px;
+  }
+
+  /* Индикатор «на связи»: реальное состояние, а не украшение */
+  .chat-status::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    background: var(--red);
+  }
+
+  .chat-close {
+    position: relative;
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    background: transparent;
+    border: 1px solid #5c554a;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .chat-close::before,
+  .chat-close::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 14px;
+    height: 1.5px;
+    background: var(--paper);
+  }
+
+  .chat-close::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+
+  .chat-close::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .chat-close:hover {
+      background: var(--red);
+      border-color: var(--red);
+    }
+  }
+
+  .chat-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 18px 14px 12px;
+    min-height: 150px;
+    max-height: 300px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .chat :global(.msg) {
+    max-width: 86%;
+    padding: 11px 14px;
+    font-size: 15px;
+    line-height: 1.45;
+    animation: msg-in 0.4s var(--ease) both;
+  }
+
+  @keyframes msg-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  }
+
+  /* Реплики Павла слева, ответы пользователя справа и цвета выбранной кнопки */
+  .chat :global(.msg--pavel) {
+    align-self: flex-start;
+    background: #ece6d3;
+    border: 1px solid var(--ink);
+  }
+
+  .chat :global(.msg--ink) {
+    align-self: flex-end;
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .chat :global(.msg--red) {
+    align-self: flex-end;
+    background: var(--red);
+    color: #fff;
+  }
+
+  /* Индикатор «Павел печатает»: три точки, пока готовится ответ */
+  .chat :global(.msg--typing) {
+    display: flex;
+    gap: 5px;
+    padding: 14px 16px;
+  }
+
+  .chat :global(.msg--typing i) {
+    width: 6px;
+    height: 6px;
+    background: var(--ink);
+    animation: typing 1s ease-in-out infinite;
+  }
+
+  .chat :global(.msg--typing i:nth-child(2)) {
+    animation-delay: 0.15s;
+  }
+
+  .chat :global(.msg--typing i:nth-child(3)) {
+    animation-delay: 0.3s;
+  }
+
+  @keyframes typing {
+    0%,
+    60%,
+    100% {
+      opacity: 0.25;
+      transform: translateY(0);
+    }
+    30% {
+      opacity: 1;
+      transform: translateY(-4px);
+    }
+  }
+
+  .chat-replies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 4px 14px 16px;
+  }
+
+  .chat-replies:not([hidden]) {
+    animation: msg-in 0.4s var(--ease) both;
+  }
+
+  .chat-btn {
+    padding: 12px 18px;
+    font-weight: 600;
+    font-size: 15px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s var(--ease);
+  }
+
+  .chat-btn:active {
+    transform: scale(0.97);
+  }
+
+  .chat-btn--ink {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+
+  .chat-btn--red {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .chat-btn--ink:hover {
+      background: var(--red);
+      border-color: var(--red);
+    }
+
+    .chat-btn--red:hover {
+      background: var(--ink);
+      border-color: var(--ink);
+    }
+  }
+
+  .chat-form {
+    display: grid;
+    gap: 16px;
+    padding: 16px 14px 18px;
+    border-top: 1px solid var(--ink);
+    overflow-y: auto;
+  }
+
+  .chat-form:not([hidden]) {
+    animation: msg-in 0.45s var(--ease) both;
+  }
+
+  .cf-f {
+    display: grid;
+    gap: 4px;
+  }
+
+  .cf-f .mono {
+    color: #6b6556;
+    font-size: 11px;
+  }
+
+  .cf-f input {
+    width: 100%;
+    padding: 9px 0;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--ink);
+    border-radius: 0;
+    font-size: 19px;
+    font-weight: 300;
+    transition: border-color 0.2s ease;
+  }
+
+  .cf-f input::placeholder {
+    color: #a09882;
+  }
+
+  .cf-f input:focus {
+    outline: none;
+    border-bottom-color: var(--red);
+  }
+
+  .cf-hp {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .cf-consent {
+    display: flex;
+    gap: 11px;
+    align-items: flex-start;
+    font-size: 13px;
+    line-height: 1.5;
+    cursor: pointer;
+  }
+
+  .cf-consent input {
+    margin-top: 2px;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--red);
+    flex-shrink: 0;
+  }
+
+  .cf-consent a {
+    border-bottom: 1px solid currentColor;
+  }
+
+  .cf-submit {
+    padding: 14px 20px;
+    background: var(--ink);
+    border: 1px solid var(--ink);
+    color: var(--paper);
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s var(--ease);
+  }
+
+  .cf-submit:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .cf-submit:not(:disabled):hover {
+      background: var(--red);
+      border-color: var(--red);
+    }
+  }
+
+  /* Без согласия кнопка контурная: понятно, что неактивна */
+  .cf-submit:disabled {
+    background: transparent;
+    border-color: #6b6556;
+    color: #6b6556;
+    cursor: not-allowed;
+  }
+
+  .cf-status {
+    min-height: 0;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .cf-status:empty {
+    display: none;
+  }
+
+  .cf-status[data-state='error'] {
+    color: var(--red);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chat:not([hidden]),
+    .chat :global(.msg),
+    .chat-replies:not([hidden]),
+    .chat-form:not([hidden]) {
+      animation: none;
+    }
+
+    .chat :global(.msg--typing i) {
+      animation: none;
+      opacity: 0.6;
+    }
+  }
+</style>
+
+<script define:vars={{ telegramHref: contacts.telegramHref }}>
+  (function () {
+    var SESSION_START_KEY = 'yaropolov_session_start';
+    var CHAT_SHOWN_KEY = 'yaropolov_chat_shown';
+    var AD_SHOWN_KEY = 'yaropolov_ad_popup_shown';
+    var LEAD_SENT_KEY = 'yaropolov_lead_sent';
+    var SHOW_AFTER_MS = 20000;
+    var YM_COUNTER_ID = 112339088;
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Темп переписки: при «уменьшить движение» пауз меньше, но порядок тот же
+    var pace = reduce ? 0.35 : 1;
+
+    function get(key) {
+      try {
+        return sessionStorage.getItem(key);
+      } catch (e) {
+        return null;
+      }
+    }
+    function set(key, value) {
+      try {
+        sessionStorage.setItem(key, value || '1');
+      } catch (e) {
+        /* sessionStorage может быть недоступен */
+      }
+    }
+    function goal(name) {
+      try {
+        if (typeof window.ym === 'function') window.ym(YM_COUNTER_ID, 'reachGoal', name);
+      } catch (e) {
+        /* аналитика не должна ронять чат */
+      }
+    }
+
+    // На странице брифа (data-no-chat) человек заполняет большую форму: чат не мешаем
+    if (document.body.hasAttribute('data-no-chat')) return;
+
+    var chat = document.getElementById('chat');
+    if (!chat) return;
+    var bodyEl = document.getElementById('chat-body');
+    var replies = document.getElementById('chat-replies');
+    var form = document.getElementById('chat-form');
+    var closeBtn = chat.querySelector('.chat-close');
+    var consent = document.getElementById('cf-consent');
+    var submitBtn = document.getElementById('cf-submit');
+    var statusEl = document.getElementById('cf-status');
+    var phoneInput = document.getElementById('cf-phone');
+    var chosenAnswer = '';
+    var timers = [];
+    var selfSubmit = false; // событие об отправке, которое чат разослал сам
+
+    // Любая успешно отправленная заявка (основная форма, попап Директа) отключает чат
+    window.addEventListener('lead-form-submitted', function () {
+      set(LEAD_SENT_KEY);
+      if (selfSubmit) return; // свою заявку обрабатывает сам чат: сначала покажет «Спасибо»
+      hide();
+    });
+
+    function later(fn, ms) {
+      var id = window.setTimeout(fn, ms * pace);
+      timers.push(id);
+      return id;
+    }
+
+    function hide() {
+      timers.forEach(function (id) {
+        window.clearTimeout(id);
+      });
+      timers = [];
+      chat.hidden = true;
+    }
+
+    function scrollDown() {
+      bodyEl.scrollTop = bodyEl.scrollHeight;
+    }
+
+    function addMsg(text, cls) {
+      var el = document.createElement('div');
+      el.className = 'msg ' + cls;
+      el.textContent = text;
+      bodyEl.appendChild(el);
+      scrollDown();
+      return el;
+    }
+
+    // «Павел печатает…» -> через паузу превращается в реплику
+    function pavelSays(text, delay, then) {
+      var typing = document.createElement('div');
+      typing.className = 'msg msg--pavel msg--typing';
+      typing.setAttribute('aria-label', 'Павел печатает');
+      typing.innerHTML = '<i></i><i></i><i></i>';
+      bodyEl.appendChild(typing);
+      scrollDown();
+      later(function () {
+        typing.remove();
+        addMsg(text, 'msg--pavel');
+        if (then) later(then, 350);
+      }, delay);
+    }
+
+    function show() {
+      if (get(CHAT_SHOWN_KEY) || get(LEAD_SENT_KEY) || get(AD_SHOWN_KEY)) return;
+      // Не перебиваем человека, который прямо сейчас заполняет другую форму
+      var active = document.activeElement;
+      if (active && /^(INPUT|TEXTAREA)$/.test(active.tagName) && !chat.contains(active)) {
+        window.setTimeout(show, 6000);
+        return;
+      }
+      set(CHAT_SHOWN_KEY);
+      chat.hidden = false;
+      goal('chat_popup_shown');
+      pavelSays('Здравствуйте! Жду Вашу заявку, хотите обсудить детали?', 1400, function () {
+        replies.hidden = false;
+        scrollDown();
+      });
+    }
+
+    // Отсчёт 20 секунд идёт от первого захода в сессии, а не от каждой страницы
+    if (!get(SESSION_START_KEY)) set(SESSION_START_KEY, String(Date.now()));
+    var started = parseInt(get(SESSION_START_KEY) || '0', 10) || Date.now();
+    var wait = Math.max(0, SHOW_AFTER_MS - (Date.now() - started));
+    if (!get(CHAT_SHOWN_KEY) && !get(LEAD_SENT_KEY)) window.setTimeout(show, wait);
+
+    closeBtn.addEventListener('click', hide);
+    chat.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') hide();
+    });
+
+    // Выбор готового ответа
+    replies.addEventListener('click', function (e) {
+      var btn = e.target.closest('.chat-btn');
+      if (!btn) return;
+      chosenAnswer = btn.dataset.answer || '';
+      replies.hidden = true;
+      addMsg(chosenAnswer, 'msg--' + (btn.dataset.tone === 'red' ? 'red' : 'ink'));
+      goal('chat_popup_answer');
+      pavelSays('Отлично! Оставьте имя и номер телефона, и я свяжусь с вами в течение дня.', 1100, function () {
+        form.hidden = false;
+        var nameInput = document.getElementById('cf-name');
+        if (nameInput) nameInput.focus({ preventScroll: true });
+        scrollDown();
+      });
+    });
+
+    consent.addEventListener('change', function () {
+      submitBtn.disabled = !consent.checked;
+    });
+
+    // Маска номера телефона: +7 (XXX) XXX-XX-XX
+    function formatPhone(raw) {
+      var digits = raw.replace(/\D/g, '');
+      if (digits.charAt(0) === '7' || digits.charAt(0) === '8') digits = digits.slice(1);
+      digits = digits.slice(0, 10);
+      var out = '+7';
+      if (digits.length > 0) out += ' (' + digits.slice(0, 3);
+      if (digits.length >= 3) out += ')';
+      if (digits.length > 3) out += ' ' + digits.slice(3, 6);
+      if (digits.length > 6) out += '-' + digits.slice(6, 8);
+      if (digits.length > 8) out += '-' + digits.slice(8, 10);
+      return out;
+    }
+    phoneInput.addEventListener('input', function () {
+      phoneInput.value = formatPhone(phoneInput.value);
+    });
+    phoneInput.addEventListener('focus', function () {
+      if (!phoneInput.value) phoneInput.value = '+7 (';
+    });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      var fd = new FormData(form);
+      var payload = {
+        name: String(fd.get('name') || ''),
+        method: 'phone',
+        contact: String(fd.get('phone') || ''),
+        comment: 'Онлайн-чат: выбран ответ «' + chosenAnswer + '»',
+        consent: consent.checked ? 'true' : 'false',
+        hp: String(fd.get('hp') || ''),
+        source: 'chat_popup',
+      };
+
+      submitBtn.disabled = true;
+      statusEl.textContent = 'Отправляю...';
+      statusEl.removeAttribute('data-state');
+
+      fetch('/api/send-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+        .then(function (res) {
+          if (!res.ok) throw new Error('request failed');
+          form.hidden = true;
+          set(LEAD_SENT_KEY);
+          goal('chat_popup_lead');
+          // Другие окна (попап Директа) узнают, что заявка уже есть
+          selfSubmit = true;
+          window.dispatchEvent(new CustomEvent('lead-form-submitted'));
+          selfSubmit = false;
+          pavelSays('Спасибо! Заявка отправлена, отвечу в ближайшее время.', 900, function () {
+            later(hide, 6000);
+          });
+        })
+        .catch(function () {
+          statusEl.textContent = 'Не получилось отправить. Напишите в Telegram напрямую: ' + telegramHref;
+          statusEl.dataset.state = 'error';
+          submitBtn.disabled = !consent.checked;
+        });
+    });
+  })();
+</script>

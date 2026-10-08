@@ -1,0 +1,79 @@
+<style is:global>
+  /* Классы добавляются скриптом на лету, поэтому стили глобальные.
+     Без JS и при prefers-reduced-motion блоки просто видны сразу. */
+  body .reveal-init {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.6s ease var(--reveal-delay, 0ms),
+      transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) var(--reveal-delay, 0ms);
+  }
+
+  body .reveal-init.reveal-in {
+    opacity: 1;
+    transform: none;
+  }
+</style>
+
+<script>
+  const selector = '.problem-row, .service-card, .how-item, .faq-item, .case-block, .article-card';
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!reduceMotion && 'IntersectionObserver' in window) {
+    const STAGGER_MS = 70;
+    const MAX_STEPS = 4;
+    const viewportH = window.innerHeight;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const el = entry.target as HTMLElement;
+          io.unobserve(el);
+          el.classList.add('reveal-in');
+          // После показа снимаем служебные классы, иначе их transform/transition
+          // мешают собственным hover-эффектам карточек.
+          setTimeout(() => {
+            el.classList.remove('reveal-init', 'reveal-in');
+            el.style.removeProperty('--reveal-delay');
+          }, 1300);
+        }
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    const stepByParent = new Map<Element, number>();
+
+    document.querySelectorAll<HTMLElement>(selector).forEach((el) => {
+      // Всё, что уже в первом экране, не прячем — иначе вспышка при загрузке.
+      if (el.getBoundingClientRect().top < viewportH) return;
+
+      const parent = el.parentElement as Element;
+      const step = stepByParent.get(parent) ?? 0;
+      stepByParent.set(parent, step + 1);
+
+      el.style.setProperty('--reveal-delay', `${Math.min(step, MAX_STEPS) * STAGGER_MS}ms`);
+      el.classList.add('reveal-init');
+      io.observe(el);
+    });
+
+    // Журнальные заголовки: слово проявляется маской слева направо.
+    // Наблюдаем за родителем, а не за самим заголовком: IntersectionObserver
+    // учитывает clip-path цели, и скрытый маской заголовок «не пересекается».
+    const headIo = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          headIo.unobserve(entry.target);
+          entry.target.querySelectorAll('h2.ph-init').forEach((h) => h.classList.add('ph-in'));
+        }
+      },
+      { rootMargin: '0px 0px -18% 0px' }
+    );
+    document.querySelectorAll<HTMLElement>('h2.poster-h').forEach((el) => {
+      if (el.getBoundingClientRect().top < viewportH * 0.8) return;
+      el.classList.add('ph-init');
+      headIo.observe(el.parentElement as Element);
+    });
+  }
+</script>

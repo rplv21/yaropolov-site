@@ -1,0 +1,156 @@
+---
+import { approach } from '../../data/brand';
+---
+
+<section class="about" id="about" aria-labelledby="about-title">
+  <div class="wrap about-grid">
+    <div class="about-badge" aria-hidden="true">
+      <svg viewBox="0 0 200 200" class="badge-svg">
+        <defs>
+          <path id="circ" d="M100,100 m-82,0 a82,82 0 1,1 164,0 a82,82 0 1,1 -164,0" />
+        </defs>
+        <text class="badge-t">
+          <textPath href="#circ" startOffset="0">
+            Работаю самостоятельно · без агентства · без наценок ·
+          </textPath>
+        </text>
+      </svg>
+      <p class="badge-c">5<small>лет</small></p>
+    </div>
+
+    <div class="about-text">
+      <p class="mono tag">{approach.title}</p>
+      <h2 id="about-title" class="sr-only">Обо мне</h2>
+      <p class="giant about-quote" data-lit>«{approach.quote}»</p>
+      <div class="about-cols">
+        <p class="about-lead" data-lit>{approach.lead}</p>
+        <div class="about-more">
+          {approach.paras.map((p) => <p>{p}</p>)}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about {
+    background: var(--paper);
+    color: var(--ink);
+    padding-block: clamp(72px, 10vw, 160px);
+  }
+
+  .about .tag {
+    color: var(--ink);
+  }
+
+  .about-grid {
+    display: grid;
+    gap: 48px;
+  }
+
+  @media (min-width: 1000px) {
+    .about-grid {
+      grid-template-columns: 3fr 8fr;
+      gap: clamp(40px, 6vw, 120px);
+      align-items: start;
+    }
+  }
+
+  .about-badge {
+    position: relative;
+    width: min(320px, 70vw);
+    aspect-ratio: 1;
+    justify-self: start;
+  }
+
+  @media (min-width: 1000px) {
+    .about-badge {
+      position: sticky;
+      top: calc(var(--mast) + 32px);
+      width: 100%;
+      max-width: 360px;
+    }
+  }
+
+  .badge-svg {
+    width: 100%;
+    height: 100%;
+    animation: spin 28s linear infinite;
+  }
+
+  .badge-t {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    fill: var(--ink);
+  }
+
+  .badge-c {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    text-align: center;
+    font-weight: 200;
+    font-size: clamp(72px, 9vw, 140px);
+    line-height: 0.85;
+    letter-spacing: -0.06em;
+    color: var(--red);
+  }
+
+  .badge-c small {
+    display: block;
+    margin-top: 6px;
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .badge-svg {
+      animation: none;
+    }
+  }
+
+  .about-quote {
+    margin-top: clamp(24px, 3vw, 48px);
+    font-size: clamp(34px, 6.2vw, 116px);
+    letter-spacing: -0.055em;
+    line-height: 1;
+    text-wrap: balance;
+  }
+
+  .about-cols {
+    margin-top: clamp(32px, 5vw, 80px);
+    display: grid;
+    gap: 28px;
+  }
+
+  @media (min-width: 900px) {
+    .about-cols {
+      grid-template-columns: 1fr 1fr;
+      column-gap: clamp(24px, 4vw, 64px);
+    }
+  }
+
+  .about-lead {
+    font-weight: 600;
+    font-size: clamp(18px, 1.6vw, 26px);
+    line-height: 1.35;
+  }
+
+  .about-more {
+    display: grid;
+    gap: 16px;
+    max-width: 48ch;
+  }
+</style>

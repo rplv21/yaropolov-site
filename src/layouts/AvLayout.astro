@@ -1,0 +1,160 @@
+---
+import '../styles/av.css';
+import PrivacyContent from '../components/PrivacyContent.astro';
+import AdPopup from '../components/av/AdPopup.astro';
+import ChatPopup from '../components/av/ChatPopup.astro';
+import { contacts, brand } from '../data/brand';
+
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+  noChat?: boolean;
+}
+
+const { title = brand.title, description = brand.description, noindex = false, noChat = false } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL('/og-cover.png', Astro.site);
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: contacts.name,
+  jobTitle: 'Интернет-маркетолог',
+  url: 'https://yaropolov.ru',
+  telephone: contacts.phone,
+  address: { '@type': 'PostalAddress', addressLocality: 'Ярославль', addressCountry: 'RU' },
+};
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Настройка и ведение контекстной рекламы, создание сайтов',
+  provider: { '@type': 'Person', name: contacts.name },
+  areaServed: ['Ярославль', 'Иваново', 'Владимир', 'Кострома', 'Тверь', 'Вологда'],
+};
+
+const localBusinessSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  name: 'Ярополов Павел — интернет-маркетолог',
+  image: ogImage.toString(),
+  telephone: contacts.phone,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Ярославль',
+    addressRegion: 'Ярославская область',
+    addressCountry: 'RU',
+  },
+  areaServed: 'Ярославль и область',
+};
+
+const links = [
+  { label: 'Кейсы', href: '/#cases' },
+  { label: 'Услуги', href: '/#services' },
+  { label: 'Обо мне', href: '/#about' },
+  { label: 'Вопросы', href: '/#faq' },
+  { label: 'Статьи', href: '/articles' },
+];
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonicalURL} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0f0d0a" />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <slot name="head" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="ru_RU" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Метка JS: скрытые начальные состояния анимаций включаются только с ним -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(serviceSchema)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(localBusinessSchema)} />
+
+    <!-- Яндекс.Метрика: согласие на cookie подразумевается использованием сайта -->
+    <!-- Счётчик грузится только на боевом домене: localhost и превью не засоряют статистику -->
+    <script is:inline>
+      if (location.hostname === 'yaropolov.ru' || location.hostname === 'www.yaropolov.ru') {
+        (function(m,e,t,r,i,k,a){
+          m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+          m[i].l=1*new Date();
+          for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+          k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=112339088', 'ym');
+
+        ym(112339088, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+      }
+    </script>
+    {(Astro.url.hostname === 'yaropolov.ru' || Astro.url.hostname === 'www.yaropolov.ru') && (
+      <noscript><div><img src="https://mc.yandex.ru/watch/112339088" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    )}
+  </head>
+  <body data-no-chat={noChat ? "" : undefined}>
+    <div class="prog" aria-hidden="true"></div>
+
+    <a href="#main" class="sr-only">Перейти к содержимому</a>
+
+    <header class="mast">
+      <a href="/" class="mast-logo" aria-label="Ярополов, на главную" data-scr>ЯРОПОЛОВ</a>
+      <nav class="mast-nav mono" aria-label="Разделы">
+        {links.map((l) => <a href={l.href} data-scr>{l.label}</a>)}
+      </nav>
+      <a href="/#contact" class="mast-cta mono" data-contact-link>Написать</a>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="foot">
+      <div class="foot-in">
+        <p class="foot-name">{contacts.name}</p>
+        <p class="mono dim">{contacts.status}, ИНН {contacts.inn}</p>
+        <nav class="foot-links mono" aria-label="Служебные ссылки">
+          <a href="/articles">Статьи</a>
+          <a href="#" class="privacy-open">Политика конфиденциальности</a>
+          <a href="#main">Наверх</a>
+        </nav>
+      </div>
+      <p class="foot-note">
+        Используя сайт, вы даёте согласие на обработку файлов cookie и пользовательских данных.
+        Если вы не хотите, чтобы ваши данные обрабатывались, пожалуйста, покиньте сайт.
+      </p>
+    </footer>
+
+    <AdPopup />
+    <ChatPopup />
+
+    <dialog id="privacy" class="privacy">
+      <div class="privacy-bar">
+        <h2>Политика конфиденциальности</h2>
+        <button type="button" class="privacy-close" aria-label="Закрыть">×</button>
+      </div>
+      <div class="privacy-body"><PrivacyContent /></div>
+    </dialog>
+
+    <script>
+      import '../scripts/av.ts';
+    </script>
+  </body>
+</html>

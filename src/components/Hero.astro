@@ -5,214 +5,189 @@ import { heroStats } from '../data/site';
 ---
 
 <section class="hero" id="hero">
-  <div class="hero-inner section">
+  <div class="hero-spread">
     <div class="hero-copy">
-      <p class="mono-label">Интернет-маркетолог · Ярославль</p>
+      <p class="mono-label hero-kicker">Интернет-маркетолог · Ярославль</p>
       <h1 class="hero-title">
-        Настраиваю Яндекс.Директ<br />
-        и создаю сайты,<br />
-        которые продают
+        <span class="hero-lead">Настраиваю Яндекс.Директ<br />и создаю сайты,</span>
+        <span class="hero-giant">
+          <span class="hero-giant-line">которые</span>
+          <span class="hero-giant-line hero-giant-red">продают</span>
+        </span>
       </h1>
 
-      <p class="hero-subtitle">
-        Реклама, за которую я отвечаю лично.<br />
-        Ни один рубль бюджета не проходит мимо отчёта.
-      </p>
-
-      <div class="hero-actions">
-        <a href="#contact" class="btn btn-primary">Получить медиаплан</a>
-        <a href="#cases" class="btn btn-ghost">Смотреть кейсы</a>
-        <a href="https://yaropolov.ru/articles/" class="btn btn-ghost">Статьи</a>
+      <div class="hero-foot">
+        <p class="hero-subtitle">
+          Реклама, за которую я отвечаю лично.<br />
+          Ни один рубль бюджета не проходит мимо отчёта.
+        </p>
+        <div class="hero-actions">
+          <a href="#contact" class="btn btn-primary">Получить медиаплан</a>
+          <a href="#cases" class="btn btn-ghost">Смотреть кейсы</a>
+          <a href="https://yaropolov.ru/articles/" class="btn btn-ghost">Статьи</a>
+        </div>
       </div>
     </div>
 
-    <div class="hero-photo-wrap">
-      <div class="blueprint-grid hero-blueprint" aria-hidden="true"></div>
-      <div class="hero-photo panel">
-        <div class="hero-photo-layer hero-photo-sharp">
-          <Picture
-            src={pavel1}
-            formats={['webp']}
-            fallbackFormat="jpeg"
-            alt="Ярополов Павел, интернет-маркетолог"
-            width={640}
-            height={800}
-            class="hero-photo-img"
-            loading="eager"
-            fetchpriority="high"
-          />
-        </div>
-        <div class="hero-photo-layer hero-photo-blur">
-          <Picture
-            src={pavel1}
-            formats={['webp']}
-            fallbackFormat="jpeg"
-            alt=""
-            aria-hidden="true"
-            width={640}
-            height={800}
-            class="hero-photo-img hero-photo-img-blur"
-            loading="eager"
-          />
-        </div>
-        <div class="hero-photo-layer hero-photo-edge">
-          <Picture
-            src={pavel1}
-            formats={['webp']}
-            fallbackFormat="jpeg"
-            alt=""
-            aria-hidden="true"
-            width={640}
-            height={800}
-            class="hero-photo-img"
-            loading="eager"
-          />
-        </div>
-        <div class="hero-photo-grain" aria-hidden="true"></div>
-      </div>
-      <p class="hero-caption">
-        <span class="marginalia" aria-hidden="true">это я →</span>
+    <figure class="hero-photo">
+      <Picture
+        src={pavel1}
+        formats={['webp']}
+        fallbackFormat="jpeg"
+        alt="Ярополов Павел, интернет-маркетолог"
+        width={900}
+        height={1125}
+        class="hero-photo-img"
+        loading="eager"
+        fetchpriority="high"
+      />
+      <div class="hero-photo-grain" aria-hidden="true"></div>
+      <figcaption class="hero-caption">
+        <span class="marginalia" aria-hidden="true">это я</span>
         Ярополов Павел, 5 лет в маркетинге
-      </p>
-    </div>
+      </figcaption>
+    </figure>
   </div>
 
-  <div class="hero-stats section">
-    {heroStats.map((stat) => (
-      <div class="hero-stat">
-        <p class="hero-stat-value">{stat.value}</p>
-        <p class="hero-stat-label mono-label">{stat.label}</p>
-      </div>
-    ))}
+  <div class="hero-stats-band">
+    <div class="hero-stats section">
+      {heroStats.map((stat) => (
+        <div class="hero-stat">
+          <p class="hero-stat-value">{stat.value}</p>
+          <p class="hero-stat-label mono-label">{stat.label}</p>
+        </div>
+      ))}
+    </div>
   </div>
 </section>
 
 <style>
   .hero {
     position: relative;
-    padding-top: 56px;
+    padding-top: 32px;
+    overflow-x: clip;
   }
 
-  .hero-inner {
+  /* Разворот: текст слева, фото вплотную к правому краю экрана. Гигантские
+     слова заходят на фото — приём журнальных разворотов. */
+  .hero-spread {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 56px;
-    align-items: center;
-    padding-bottom: 64px;
   }
 
   @media (min-width: 960px) {
-    .hero-inner {
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 64px;
+    .hero-spread {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.62fr);
+      min-height: min(820px, calc(100dvh - 140px));
     }
   }
 
   .hero-copy {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 36px;
+    padding: 24px 20px 40px;
     min-width: 0;
   }
 
+  @media (min-width: 960px) {
+    .hero-copy {
+      padding: 24px 0 48px max(40px, calc((100vw - var(--page-max)) / 2 + 40px));
+    }
+  }
+
   .hero-title {
-    font-size: 34px;
+    margin: 0;
     font-weight: 200;
-    line-height: 1.08;
     letter-spacing: -0.02em;
-    margin-top: 22px;
-    max-width: 780px;
-    overflow-wrap: break-word;
   }
 
-  @media (min-width: 640px) {
-    .hero-title {
-      font-size: 52px;
+  .hero-lead {
+    display: block;
+    font-size: clamp(20px, 2.1vw, 32px);
+    line-height: 1.2;
+    font-weight: 300;
+    color: var(--color-text-muted);
+    margin-bottom: 14px;
+  }
+
+  .hero-giant {
+    display: block;
+    font-family: var(--font-poster);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: clamp(72px, 21vw, 250px);
+    line-height: 0.84;
+    letter-spacing: -0.01em;
+    width: max-content;
+  }
+
+  @media (min-width: 960px) {
+    .hero-giant {
+      font-size: clamp(76px, 15.5vw, 250px);
     }
   }
 
-  @media (min-width: 1200px) {
-    .hero-title {
-      font-size: 68px;
-    }
+  .hero-giant-line {
+    display: block;
+  }
+
+  .hero-giant-red {
+    color: var(--color-accent);
+  }
+
+  .hero-foot {
+    display: grid;
+    gap: 28px;
+    max-width: 560px;
   }
 
   .hero-subtitle {
-    margin-top: 28px;
-    font-size: 19px;
+    font-size: 18px;
     line-height: 1.55;
     color: var(--color-text-muted);
-    max-width: 520px;
   }
 
   .hero-actions {
-    margin-top: 40px;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 14px;
-  }
-
-  .hero-photo-wrap {
-    position: relative;
-    justify-self: center;
-    max-width: 400px;
-    width: 100%;
-  }
-
-  .hero-blueprint {
-    position: absolute;
-    inset: -12%;
-    z-index: -1;
+    gap: 12px;
   }
 
   .hero-photo {
     position: relative;
-    aspect-ratio: 4 / 5;
-    width: 100%;
+    margin: 0;
+    min-height: 460px;
     overflow: hidden;
-    padding: 0;
+    background: var(--color-surface);
   }
 
-  /* Маска и фильтр намеренно на разных элементах: наложение mask-image
-     и filter на один и тот же узел иногда не прорисовывается при первом
-     заходе на страницу (баг компоновки в части браузеров на Chromium) —
-     разнеся их по обёртке и картинке, получаем надёжную отрисовку. */
-  .hero-photo-layer {
+  /* Красный квадрат в углу — метка из баухаус-языка сайта */
+  .hero-photo::after {
+    content: '';
     position: absolute;
-    inset: 0;
-    overflow: hidden;
+    top: 0;
+    left: 0;
+    width: 56px;
+    height: 56px;
+    background: var(--color-accent);
+    z-index: 3;
   }
 
   .hero-photo-img {
-    display: block;
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: url(#photo-mono) contrast(1.1);
+    object-position: 50% 18%;
+    filter: url(#photo-mono) contrast(1.15);
   }
 
-  .hero-photo-img-blur {
-    filter: url(#photo-mono) contrast(1.1);
-  }
-
-  .hero-photo-sharp {
-    -webkit-mask-image: radial-gradient(ellipse 72% 88% at 50% 40%, black 0%, black 64%, transparent 87%), linear-gradient(to top, black 0%, black 5%, transparent 24%);
-    mask-image: radial-gradient(ellipse 72% 88% at 50% 40%, black 0%, black 64%, transparent 87%), linear-gradient(to top, black 0%, black 5%, transparent 24%);
-  }
-
-  .hero-photo-blur {
-    -webkit-mask-image: radial-gradient(ellipse 72% 82% at 50% 38%, transparent 0%, transparent 58%, black 72%, black 84%, transparent 96%);
-    mask-image: radial-gradient(ellipse 72% 82% at 50% 38%, transparent 0%, transparent 58%, black 72%, black 84%, transparent 96%);
-  }
-
-  /* Отдельный резкий слой поверх всего — гарантирует небольшую нерасплывчатую
-     полосу у самого нижнего края, независимо от того, что творится с блюром выше. */
-  .hero-photo-edge {
-    -webkit-mask-image: linear-gradient(to top, black 0%, black 6%, transparent 16%);
-    mask-image: linear-gradient(to top, black 0%, black 6%, transparent 16%);
-  }
-
-  /* Плёночное зерно поверх фото — генерируется SVG-турбулентностью,
-     а не текстурной картинкой, чтобы не тянуть лишний файл и не
-     размножать его на каждое фото на сайте. */
   .hero-photo-grain {
     position: absolute;
     inset: 0;
@@ -223,21 +198,32 @@ import { heroStats } from '../data/site';
   }
 
   .hero-caption {
-    margin-top: 16px;
+    position: absolute;
+    left: 20px;
+    bottom: 16px;
+    z-index: 3;
     display: flex;
     align-items: center;
     gap: 10px;
+    padding: 6px 10px;
+    background: var(--color-canvas);
     font-family: var(--font-mono);
     font-size: 12px;
     letter-spacing: 0.02em;
-    color: var(--color-text-dim);
+    color: var(--color-text-muted);
+  }
+
+  /* Полоса статистики — на всю ширину экрана, от края до края: линии и
+     заливка идут за пределы контейнера, а сами цифры остаются в его сетке. */
+  .hero-stats-band {
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border-strong);
+    border-bottom: 1px solid var(--color-border-strong);
   }
 
   .hero-stats {
     display: grid;
     grid-template-columns: 1fr;
-    border-top: 1px solid var(--color-border);
-    border-bottom: 1px solid var(--color-border);
   }
 
   @media (min-width: 1024px) {

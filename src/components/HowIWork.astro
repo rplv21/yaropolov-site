@@ -5,7 +5,7 @@ import { howIWork, honestNote } from '../data/site';
 <section class="how-it-works light-surface" id="how">
   <div class="section section-gap">
     <p class="mono-label mono-label-dark">Как я работаю</p>
-    <h2 class="how-title">От прогноза до отчёта —<br />без сюрпризов</h2>
+    <h2 class="how-title poster-h">Как я<br />работаю<small>От прогноза до отчёта — без сюрпризов</small></h2>
 
     <div class="how-grid">
       {howIWork.map((item) => (
@@ -37,6 +37,10 @@ import { howIWork, honestNote } from '../data/site';
 
   .mono-label-dark::before {
     background: var(--color-invert-accent);
+  }
+
+  .how-title :global(small) {
+    color: var(--color-invert-text-muted);
   }
 
   .how-title {

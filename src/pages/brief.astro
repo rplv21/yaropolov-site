@@ -1,0 +1,937 @@
+---
+export const prerender = true;
+
+import AvLayout from '../layouts/AvLayout.astro';
+import { briefSections, briefItems } from '../data/brief';
+
+const total = briefItems.length;
+const stepsCount = briefSections.length + 1; // последний шаг: отправка
+
+// Пояснение разбиваем на строки по предложениям; точку в конце последней убираем
+const hintLines = (h: string) => {
+  const parts = h.split(/(?<=[.!?])\s+/);
+  parts[parts.length - 1] = parts[parts.length - 1].replace(/\.$/, '');
+  return parts;
+};
+---
+
+<AvLayout
+  title="Бриф на создание сайта — Ярополов Павел"
+  description="Бриф на создание сайта: расскажите о компании, клиентах и целях, и я подготовлю предложение со сроками и стоимостью."
+  noindex
+  noChat
+>
+  <header class="bhead">
+    <div class="wrap">
+      <p class="mono tag">Бриф</p>
+      <h1 class="giant bhead-h" data-split>Бриф на <em>создание</em> сайта</h1>
+      <p class="bhead-lead">
+        {total} вопросов, 10–15 минут. Можно писать коротко, «не знаю» тоже ответ.
+      </p>
+    </div>
+  </header>
+
+  <section class="bmain">
+    <div class="wrap bgrid">
+      <aside class="bside" aria-label="Навигация по брифу">
+        <p class="bside-count mono" id="b-count">Заполнено 0 из {total}</p>
+        <div class="bbar" aria-hidden="true"><span class="bbar-fill" id="b-bar"></span></div>
+        <p class="bside-step" id="b-step-label">Шаг 1 из {stepsCount}</p>
+
+        <ol class="bnav-list">
+          {
+            briefSections.map((s, i) => (
+              <li>
+                <button type="button" class="bs-btn" data-go={i}>
+                  <span class="bs-n mono">{s.n}</span>
+                  <span class="bs-t">{s.title}</span>
+                  <span class="bs-mark" aria-hidden="true"></span>
+                </button>
+              </li>
+            ))
+          }
+          <li>
+            <button type="button" class="bs-btn" data-go={briefSections.length}>
+              <span class="bs-n mono">{stepsCount}</span>
+              <span class="bs-t">Отправка</span>
+              <span class="bs-mark" aria-hidden="true"></span>
+            </button>
+          </li>
+        </ol>
+        <p class="bside-note">Черновик сохраняется на этом устройстве, можно закрыть страницу и вернуться.</p>
+      </aside>
+
+      <div class="bwrap">
+        <form id="brief" novalidate>
+          {
+            briefSections.map((s, si) => (
+              <fieldset class:list={['bstep', { 'is-active': si === 0 }]} data-step={si}>
+                <legend class="bstep-legend">
+                  <span class="mono bstep-no">Шаг {s.n} из {stepsCount}</span>
+                  <span class="bstep-t">{s.title}</span>
+                </legend>
+
+                {s.items.map((it) => {
+                  if (it.type === 'radio' || it.type === 'checks') {
+                    const kind = it.type === 'radio' ? 'radio' : 'checkbox';
+                    return (
+                      <div class="bq" role="group" aria-labelledby={`l-${it.id}`}>
+                        <p class="bq-t" id={`l-${it.id}`}>
+                          <span class="bq-n mono">{it.n}</span>
+                          {it.q}
+                        </p>
+                        {it.h && <p class="bq-h">{hintLines(it.h).map((l) => <span>{l}</span>)}</p>}
+                        <div class="opts">
+                          {it.options!.map((o) => (
+                            <label class="opt">
+                              <input type={kind} name={it.id} value={o} data-id={it.id} />
+                              <span>{o}</span>
+                            </label>
+                          ))}
+                        </div>
+                        <input
+                          class="bq-x"
+                          type="text"
+                          name={`${it.id}_x`}
+                          data-extra={it.id}
+                          placeholder="Уточнение (необязательно)"
+                          aria-label={`Уточнение к вопросу ${it.n}`}
+                        />
+                      </div>
+                    );
+                  }
+                  return (
+                    <label class="bq">
+                      <span class="bq-t">
+                        <span class="bq-n mono">{it.n}</span>
+                        {it.q}
+                        {it.required && <b class="bq-req" title="Обязательное поле"> *</b>}
+                      </span>
+                      {it.h && <span class="bq-h">{hintLines(it.h).map((l) => <span>{l}</span>)}</span>}
+                      {it.type === 'long' || (!it.required && !it.mask && !it.inputType) ? (
+                        <textarea name={it.id} data-id={it.id} rows="2" required={it.required}></textarea>
+                      ) : (
+                        <input
+                          type={it.inputType ?? 'text'}
+                          name={it.id}
+                          data-id={it.id}
+                          required={it.required}
+                          data-mask={it.mask}
+                          autocomplete={it.mask === 'phone' ? 'tel' : it.inputType === 'email' ? 'email' : undefined}
+                        />
+                      )}
+                    </label>
+                  );
+                })}
+              </fieldset>
+            ))
+          }
+
+          <fieldset class="bstep" data-step={briefSections.length} data-final>
+            <legend class="bstep-legend">
+              <span class="mono bstep-no">Шаг {stepsCount} из {stepsCount}</span>
+              <span class="bstep-t">Отправка</span>
+            </legend>
+
+            <p class="bfinal-text" id="b-final-text">
+              Проверьте ответы: вернуться можно кнопкой «Назад» или через меню слева. После отправки бриф придёт мне
+              в виде PDF. Обязательны только название компании, имя и телефон.
+            </p>
+
+            <div class="b-hp" aria-hidden="true">
+              <label for="b-hp">Оставьте пустым</label>
+              <input type="text" id="b-hp" name="hp" tabindex="-1" autocomplete="off" />
+            </div>
+
+            <label class="b-consent">
+              <input type="checkbox" id="b-consent" name="consent" required />
+              <span>
+                Согласен на обработку персональных данных.<br />
+                <a href="#" class="privacy-open">Политика конфиденциальности</a>
+              </span>
+            </label>
+
+            <p class="b-status" id="b-status" role="status" aria-live="polite"></p>
+          </fieldset>
+
+          <div class="bactions">
+            <button type="button" class="b-btn b-btn--ghost" id="b-back" disabled>Назад</button>
+            <button type="button" class="b-btn" id="b-next">Далее</button>
+            <button type="submit" class="b-btn b-btn--red" id="b-submit" hidden disabled>Отправить бриф</button>
+          </div>
+        </form>
+
+        <div class="bdone" id="b-done" hidden>
+          <p class="mono tag">Бриф отправлен</p>
+          <h2 class="giant bdone-h">Спасибо!</h2>
+          <p class="bdone-text">
+            Бриф у меня. Я изучу ответы, уточню детали и подготовлю предложение со сроками и стоимостью.
+          </p>
+          <a href="/" class="b-btn">На главную</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</AvLayout>
+
+<style>
+  /* ───────── Шапка ───────── */
+  .bhead {
+    padding-top: calc(var(--mast) + clamp(40px, 6vw, 96px));
+    padding-bottom: clamp(40px, 6vw, 88px);
+  }
+
+  .bhead-h {
+    margin-top: clamp(20px, 3vw, 40px);
+    max-width: 14ch;
+    font-size: clamp(40px, 8vw, 150px);
+  }
+
+  .bhead-lead {
+    margin-top: clamp(24px, 3vw, 44px);
+    max-width: 52ch;
+    font-weight: 300;
+    font-size: clamp(18px, 1.7vw, 26px);
+    line-height: 1.4;
+    color: #cfc8b4;
+  }
+
+  /* ───────── Основная часть: светлая, чтобы длинную форму читать было удобно ───────── */
+  .bmain {
+    background: var(--paper);
+    color: var(--ink);
+    padding-block: clamp(40px, 6vw, 96px) clamp(72px, 9vw, 150px);
+  }
+
+  .bgrid {
+    display: grid;
+    gap: 32px;
+  }
+
+  @media (min-width: 1000px) {
+    .bgrid {
+      grid-template-columns: 3fr 8fr;
+      column-gap: clamp(32px, 5vw, 96px);
+      align-items: start;
+    }
+  }
+
+  /* Боковая навигация: прогресс и список шагов */
+  .bside {
+    display: grid;
+    gap: 14px;
+  }
+
+  @media (min-width: 1000px) {
+    .bside {
+      position: sticky;
+      top: calc(var(--mast) + 24px);
+    }
+  }
+
+  .bside-count {
+    color: #6b6556;
+  }
+
+  .bbar {
+    height: 3px;
+    background: rgba(15, 13, 10, 0.14);
+    overflow: hidden;
+  }
+
+  .bbar-fill {
+    display: block;
+    height: 100%;
+    background: var(--red);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform 0.45s var(--ease);
+  }
+
+  .bside-step {
+    font-weight: 600;
+    font-size: 15px;
+  }
+
+  .bnav-list {
+    display: none;
+  }
+
+  @media (min-width: 1000px) {
+    .bnav-list {
+      display: grid;
+      margin-top: 6px;
+      border-top: 1px solid var(--ink);
+    }
+  }
+
+  .bs-btn {
+    display: grid;
+    grid-template-columns: 34px 1fr 14px;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 11px 0;
+    background: none;
+    border: 0;
+    border-bottom: 1px solid rgba(15, 13, 10, 0.18);
+    color: #6b6556;
+    text-align: left;
+    font-size: 15px;
+    cursor: pointer;
+    transition: color 0.2s ease, padding 0.3s var(--ease);
+  }
+
+  .bs-btn[aria-current='step'] {
+    color: var(--ink);
+    font-weight: 600;
+    padding-left: 8px;
+  }
+
+  .bs-btn[aria-current='step'] .bs-n {
+    color: var(--red);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .bs-btn:hover {
+      color: var(--ink);
+    }
+  }
+
+  .bs-mark {
+    width: 10px;
+    height: 10px;
+    border: 1px solid #a09882;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .bs-btn.is-done .bs-mark {
+    background: var(--red);
+    border-color: var(--red);
+  }
+
+  .bside-note {
+    display: none;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #6b6556;
+  }
+
+  @media (min-width: 1000px) {
+    .bside-note {
+      display: block;
+    }
+  }
+
+  /* ───────── Шаги и вопросы ───────── */
+  .bwrap {
+    min-width: 0;
+    max-width: 860px;
+  }
+
+  .bstep {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+
+  /* Без JS видны все шаги подряд; с JS только активный */
+  :global(.js) .bstep:not(.is-active) {
+    display: none;
+  }
+
+  :global(.js) .bstep.is-active {
+    animation: step-in 0.5s var(--ease) both;
+  }
+
+  @keyframes step-in {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .js .bstep.is-active {
+      animation: none;
+    }
+  }
+
+  .bstep-legend {
+    display: grid;
+    gap: 14px;
+    padding: 0;
+    margin-bottom: clamp(24px, 3vw, 40px);
+  }
+
+  .bstep-no {
+    color: #6b6556;
+  }
+
+  .bstep-t {
+    font-weight: 200;
+    font-size: clamp(34px, 4.6vw, 72px);
+    line-height: 1;
+    letter-spacing: -0.05em;
+  }
+
+  .bq {
+    display: grid;
+    gap: 8px;
+    padding-block: clamp(20px, 2.2vw, 30px);
+  }
+
+  .bq-t {
+    display: block;
+    text-wrap: balance;
+    font-weight: 600;
+    font-size: clamp(17px, 1.4vw, 20px);
+    line-height: 1.3;
+  }
+
+  .bq-n {
+    display: inline-block;
+    margin-right: 10px;
+    color: var(--red);
+    font-size: 11px;
+    vertical-align: 0.15em;
+  }
+
+  .bq-req {
+    color: var(--red);
+  }
+
+  .bq-h {
+    display: grid;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #6b6556;
+    max-width: 62ch;
+  }
+
+  .bq input[type='text'],
+  .bq input[type='tel'],
+  .bq input[type='email'],
+  .bq textarea {
+    width: 100%;
+    margin-top: 6px;
+    padding: 11px 0;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--ink);
+    border-radius: 0;
+    font-size: 21px;
+    font-weight: 300;
+    line-height: 1.35;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+  }
+
+  .bq textarea {
+    display: block;
+    resize: none;
+    overflow: hidden;
+  }
+
+  .bq input:focus,
+  .bq textarea:focus {
+    outline: none;
+    border-bottom-color: var(--red);
+  }
+
+  .bq input[aria-invalid='true'] {
+    border-bottom-color: var(--red);
+  }
+
+  /* Варианты ответа: крупные плитки; выбранная заливается чёрным */
+  .opts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .opt {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .opt input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+  }
+
+  .opt span {
+    display: block;
+    padding: 10px 16px;
+    border: 1px solid var(--ink);
+    font-size: 15px;
+    line-height: 1.3;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s var(--ease);
+  }
+
+  .opt input:checked + span {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .opt input:focus-visible + span {
+    outline: 2px solid var(--red);
+    outline-offset: 2px;
+  }
+
+  .opt input:active + span {
+    transform: scale(0.97);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .opt:hover span {
+      border-color: var(--red);
+    }
+
+    .opt:hover input:checked + span {
+      background: var(--red);
+    }
+  }
+
+  .bq .bq-x {
+    margin-top: 10px;
+    font-size: 16px;
+  }
+
+  .bq .bq-x::placeholder {
+    color: #a09882;
+  }
+
+  /* ───────── Финальный шаг ───────── */
+  .bfinal-text {
+    max-width: 58ch;
+    margin-bottom: 28px;
+    font-size: clamp(16px, 1.3vw, 19px);
+    line-height: 1.55;
+    color: #3a352c;
+  }
+
+  .b-hp {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .b-consent {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding-block: 20px;
+    border-block: 1px solid rgba(15, 13, 10, 0.16);
+    font-size: 15px;
+    line-height: 1.5;
+    cursor: pointer;
+  }
+
+  .b-consent input {
+    margin-top: 3px;
+    width: 20px;
+    height: 20px;
+    accent-color: var(--red);
+    flex-shrink: 0;
+  }
+
+  .b-consent a {
+    border-bottom: 1px solid currentColor;
+  }
+
+  .b-status {
+    margin-top: 18px;
+    min-height: 1.5em;
+    font-weight: 600;
+  }
+
+  .b-status[data-state='error'] {
+    color: var(--red);
+  }
+
+  /* ───────── Кнопки ───────── */
+  .bactions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: clamp(24px, 3vw, 40px);
+    padding-top: 0;
+  }
+
+  .b-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 17px 32px;
+    background: var(--ink);
+    color: var(--paper);
+    border: 1px solid var(--ink);
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s var(--ease);
+  }
+
+  .b-btn[hidden] {
+    display: none;
+  }
+
+  .b-btn:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  .b-btn--ghost {
+    background: transparent;
+    color: var(--ink);
+  }
+
+  .b-btn--red {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+  }
+
+  .b-btn:disabled {
+    background: transparent;
+    border-color: #a09882;
+    color: #a09882;
+    cursor: not-allowed;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .b-btn:not(:disabled):hover {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff;
+    }
+
+    .b-btn--red:not(:disabled):hover {
+      background: var(--ink);
+      border-color: var(--ink);
+    }
+  }
+
+  /* ───────── Готово ───────── */
+  .bdone {
+    display: grid;
+    gap: clamp(20px, 3vw, 36px);
+    justify-items: start;
+  }
+
+  .bdone[hidden] {
+    display: none;
+  }
+
+  .bdone-h {
+    font-size: clamp(56px, 11vw, 200px);
+  }
+
+  .bdone-text {
+    max-width: 46ch;
+    font-size: clamp(18px, 1.6vw, 24px);
+    line-height: 1.45;
+    font-weight: 300;
+  }
+</style>
+
+<script>
+  const form = document.getElementById('brief') as HTMLFormElement;
+  const steps = Array.from(form.querySelectorAll<HTMLElement>('.bstep'));
+  const navBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('.bs-btn'));
+  const backBtn = document.getElementById('b-back') as HTMLButtonElement;
+  const nextBtn = document.getElementById('b-next') as HTMLButtonElement;
+  const submitBtn = document.getElementById('b-submit') as HTMLButtonElement;
+  const consent = document.getElementById('b-consent') as HTMLInputElement;
+  const statusEl = document.getElementById('b-status') as HTMLElement;
+  const countEl = document.getElementById('b-count') as HTMLElement;
+  const barEl = document.getElementById('b-bar') as HTMLElement;
+  const stepLabel = document.getElementById('b-step-label') as HTMLElement;
+  const doneEl = document.getElementById('b-done') as HTMLElement;
+  const DRAFT_KEY = 'brief_draft_v1';
+  const YM_ID = 112339088;
+  const last = steps.length - 1;
+  const questions = Array.from(form.querySelectorAll<HTMLElement>('[data-id]')).reduce<Set<string>>((s, el) => {
+    s.add((el as HTMLElement).dataset.id!);
+    return s;
+  }, new Set());
+  const stepTitles = navBtns.map((b) => b.querySelector('.bs-t')?.textContent || '');
+
+  let current = 0;
+
+  /* ───────── Поля ответа растут вместе с текстом ───────── */
+  function grow(el: HTMLTextAreaElement) {
+    el.style.height = 'auto';
+    if (el.scrollHeight > 0) el.style.height = el.scrollHeight + 'px';
+  }
+  const areas = Array.from(form.querySelectorAll<HTMLTextAreaElement>('textarea'));
+  const growAll = () => areas.forEach(grow);
+  form.addEventListener('input', (e) => {
+    if (e.target instanceof HTMLTextAreaElement) grow(e.target);
+  });
+
+  /* ───────── Данные формы ───────── */
+  function collect() {
+    const values: Record<string, string | string[]> = {};
+    const extras: Record<string, string> = {};
+    questions.forEach((id) => {
+      const els = Array.from(form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(`[data-id="${id}"]`));
+      if (!els.length) return;
+      const kind = els[0].type;
+      if (kind === 'checkbox') {
+        const list = els.filter((e) => (e as HTMLInputElement).checked).map((e) => e.value);
+        if (list.length) values[id] = list;
+      } else if (kind === 'radio') {
+        const picked = els.find((e) => (e as HTMLInputElement).checked);
+        if (picked) values[id] = picked.value;
+      } else if (els[0].value.trim()) {
+        values[id] = els[0].value.trim();
+      }
+    });
+    form.querySelectorAll<HTMLInputElement>('[data-extra]').forEach((el) => {
+      if (el.value.trim()) extras[el.dataset.extra!] = el.value.trim();
+    });
+    return { values, extras };
+  }
+
+  /* ───────── Прогресс ───────── */
+  function refreshProgress() {
+    const { values, extras } = collect();
+    const answered = Array.from(questions).filter((id) => values[id] !== undefined || extras[id]).length;
+    countEl.textContent = `Заполнено ${answered} из ${questions.size}`;
+    barEl.style.transform = `scaleX(${(answered / questions.size).toFixed(3)})`;
+    // Отметка у шага, где есть хотя бы один ответ
+    steps.forEach((st, i) => {
+      if (i === last) return;
+      const has = Array.from(st.querySelectorAll<HTMLElement>('[data-id]')).some((el) => {
+        const id = el.dataset.id!;
+        return values[id] !== undefined || extras[id];
+      });
+      navBtns[i]?.classList.toggle('is-done', has);
+    });
+  }
+
+  /* ───────── Черновик на этом устройстве ───────── */
+  let saveTimer = 0;
+  let sent = false;
+  function saveDraft() {
+    if (sent) return;
+    window.clearTimeout(saveTimer);
+    saveTimer = window.setTimeout(() => {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...collect(), step: current }));
+      } catch {
+        /* localStorage может быть недоступен */
+      }
+    }, 500);
+  }
+
+  function restoreDraft() {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw) as { values?: Record<string, string | string[]>; extras?: Record<string, string>; step?: number };
+      Object.entries(d.values ?? {}).forEach(([id, v]) => {
+        const els = Array.from(form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(`[data-id="${id}"]`));
+        els.forEach((el) => {
+          const input = el as HTMLInputElement;
+          if (input.type === 'checkbox') input.checked = Array.isArray(v) && v.includes(input.value);
+          else if (input.type === 'radio') {
+            input.checked = v === input.value;
+            input.dataset.checked = input.checked ? 'true' : 'false';
+          } else input.value = String(v);
+        });
+      });
+      Object.entries(d.extras ?? {}).forEach(([id, v]) => {
+        const el = form.querySelector<HTMLInputElement>(`[data-extra="${id}"]`);
+        if (el) el.value = v;
+      });
+      if (typeof d.step === 'number' && d.step >= 0 && d.step <= last) current = d.step;
+    } catch {
+      /* битый черновик игнорируем */
+    }
+  }
+
+  /* ───────── Шаги ───────── */
+  function show(i: number, scroll = true) {
+    current = Math.max(0, Math.min(last, i));
+    steps.forEach((s, k) => s.classList.toggle('is-active', k === current));
+    navBtns.forEach((b, k) => (k === current ? b.setAttribute('aria-current', 'step') : b.removeAttribute('aria-current')));
+    stepLabel.textContent = `Шаг ${current + 1} из ${steps.length}: ${stepTitles[current]}`;
+    backBtn.disabled = current === 0;
+    const isLast = current === last;
+    nextBtn.hidden = isLast;
+    submitBtn.hidden = !isLast;
+    if (scroll) {
+      const top = form.getBoundingClientRect().top + window.scrollY - 120;
+      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    }
+    growAll();
+    saveDraft();
+  }
+
+  // Обязательные поля проверяем вручную: форма с novalidate и скрытыми шагами
+  function firstInvalidIn(step: HTMLElement) {
+    return Array.from(step.querySelectorAll<HTMLInputElement>('input[required], textarea[required]')).find((el) => {
+      if (el.type === 'checkbox') return !el.checked;
+      if (el.dataset.mask === 'phone') return el.value.replace(/\D/g, '').length < 11;
+      return !el.value.trim();
+    });
+  }
+
+  function flag(el: HTMLInputElement, message: string) {
+    el.setAttribute('aria-invalid', 'true');
+    el.setCustomValidity(message);
+    el.reportValidity();
+    el.addEventListener(
+      'input',
+      () => {
+        el.removeAttribute('aria-invalid');
+        el.setCustomValidity('');
+      },
+      { once: true }
+    );
+  }
+
+  nextBtn.addEventListener('click', () => {
+    const bad = firstInvalidIn(steps[current]);
+    if (bad) {
+      flag(bad, bad.dataset.mask === 'phone' ? 'Введите телефон полностью' : 'Заполните это поле');
+      return;
+    }
+    show(current + 1);
+  });
+  backBtn.addEventListener('click', () => show(current - 1));
+  navBtns.forEach((b) => b.addEventListener('click', () => show(Number(b.dataset.go))));
+
+  /* ───────── Маска телефона и повторный клик по radio ───────── */
+  function formatPhone(raw: string) {
+    let d = raw.replace(/\D/g, '');
+    if (d.startsWith('7') || d.startsWith('8')) d = d.slice(1);
+    d = d.slice(0, 10);
+    let out = '+7';
+    if (d.length > 0) out += ' (' + d.slice(0, 3);
+    if (d.length >= 3) out += ')';
+    if (d.length > 3) out += ' ' + d.slice(3, 6);
+    if (d.length > 6) out += '-' + d.slice(6, 8);
+    if (d.length > 8) out += '-' + d.slice(8, 10);
+    return out;
+  }
+  form.querySelectorAll<HTMLInputElement>('[data-mask="phone"]').forEach((el) => {
+    el.addEventListener('input', () => (el.value = formatPhone(el.value)));
+    el.addEventListener('focus', () => {
+      if (!el.value) el.value = '+7 (';
+    });
+  });
+
+  // Radio можно снять повторным нажатием: ответ необязателен
+  form.addEventListener('click', (e) => {
+    const t = e.target as HTMLInputElement;
+    if (t.type !== 'radio') return;
+    if (t.dataset.checked === 'true') {
+      t.checked = false;
+      t.dataset.checked = 'false';
+    } else {
+      form.querySelectorAll<HTMLInputElement>(`input[type="radio"][name="${t.name}"]`).forEach((r) => (r.dataset.checked = 'false'));
+      t.dataset.checked = 'true';
+    }
+    refreshProgress();
+    saveDraft();
+  });
+
+  form.addEventListener('input', () => {
+    refreshProgress();
+    saveDraft();
+  });
+  form.addEventListener('change', () => {
+    refreshProgress();
+    saveDraft();
+  });
+
+  consent.addEventListener('change', () => (submitBtn.disabled = !consent.checked));
+
+  /* ───────── Отправка ───────── */
+  function goal(name: string) {
+    try {
+      const ym = (window as unknown as { ym?: (id: number, a: string, g: string) => void }).ym;
+      if (typeof ym === 'function') ym(YM_ID, 'reachGoal', name);
+    } catch {
+      /* аналитика не должна ломать форму */
+    }
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Находим первую незаполненную обязательную позицию и ведём к ней
+    for (let i = 0; i < last; i++) {
+      const bad = firstInvalidIn(steps[i]);
+      if (bad) {
+        show(i);
+        window.setTimeout(() => flag(bad, bad.dataset.mask === 'phone' ? 'Введите телефон полностью' : 'Заполните это поле'), 400);
+        return;
+      }
+    }
+    if (!consent.checked) {
+      flag(consent, 'Нужно согласие на обработку данных');
+      return;
+    }
+
+    const { values, extras } = collect();
+    const hp = (document.getElementById('b-hp') as HTMLInputElement).value;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Отправляю...';
+    statusEl.textContent = '';
+    statusEl.removeAttribute('data-state');
+
+    try {
+      const res = await fetch('/api/send-brief', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ values, extras, consent: 'true', hp }),
+      });
+      if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(err.error || 'request failed');
+      }
+      goal('brief_sent');
+      sent = true;
+      window.clearTimeout(saveTimer);
+      try {
+        localStorage.removeItem(DRAFT_KEY);
+      } catch {
+        /* ignore */
+      }
+      form.hidden = true;
+      document.querySelector('.bside')?.setAttribute('hidden', '');
+      doneEl.hidden = false;
+      window.scrollTo({ top: Math.max(0, doneEl.getBoundingClientRect().top + window.scrollY - 160), behavior: 'smooth' });
+    } catch (err) {
+      const code = (err as Error).message;
+      statusEl.textContent =
+        code === 'rate_limited'
+          ? 'Слишком много отправок подряд. Попробуйте через час или напишите мне в Telegram @pavelyaropolov.'
+          : 'Не получилось отправить. Повторите попытку или напишите мне в Telegram @pavelyaropolov: ответы сохранены в этом браузере.';
+      statusEl.dataset.state = 'error';
+      submitBtn.disabled = !consent.checked;
+      submitBtn.textContent = 'Отправить бриф';
+    }
+  });
+
+  /* ───────── Старт ───────── */
+  restoreDraft();
+  refreshProgress();
+  show(current, false);
+</script>

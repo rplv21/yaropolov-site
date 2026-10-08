@@ -1,29 +1,26 @@
 ---
 export const prerender = true;
 
-import Layout from '../layouts/Layout.astro';
-import Hero from '../components/Hero.astro';
-import Problem from '../components/Problem.astro';
-import Cases from '../components/Cases.astro';
-import Services from '../components/Services.astro';
-import HowIWork from '../components/HowIWork.astro';
-import Calculator from '../components/Calculator.astro';
-import About from '../components/About.astro';
-import Faq from '../components/Faq.astro';
-import LeadForm from '../components/LeadForm.astro';
+import AvLayout from '../layouts/AvLayout.astro';
+import Hero from '../components/av/Hero.astro';
+import Manifesto from '../components/av/Manifesto.astro';
+import Pain from '../components/av/Pain.astro';
+import Cases from '../components/av/Cases.astro';
+import Services from '../components/av/Services.astro';
+import Process from '../components/av/Process.astro';
+import About from '../components/av/About.astro';
+import Faq from '../components/av/Faq.astro';
+import Contact from '../components/av/Contact.astro';
 ---
 
-<Layout
-  title="Ярополов Павел — Ваш Директолог"
-  description="Настраиваю и веду Яндекс.Директ, делаю сайты для бизнеса в Ярославле и области. Работаю сам, без агентства и менеджеров. Бесплатный медиаплан перед стартом."
->
+<AvLayout>
   <Hero />
-  <Problem />
+  <Manifesto />
+  <Pain />
   <Cases />
   <Services />
-  <HowIWork />
-  <Calculator />
+  <Process />
   <About />
   <Faq />
-  <LeadForm />
-</Layout>
+  <Contact />
+</AvLayout>

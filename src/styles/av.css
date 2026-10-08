@@ -1,0 +1,412 @@
+@import '@fontsource/onest/cyrillic-200.css';
+@import '@fontsource/onest/cyrillic-400.css';
+@import '@fontsource/onest/cyrillic-600.css';
+@import '@fontsource/onest/cyrillic-800.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+
+/* ───────────────────────────────────────────────
+   Авангард: кинетическая типографика на чёрном и бумаге.
+   Палитра бренда: чёрный, бумага, красный. Заголовки сверхтонкие
+   и огромные, акценты красные. Всё движение собрано в av.ts.
+   ─────────────────────────────────────────────── */
+:root {
+  --ink: #0f0d0a;
+  --ink-2: #1a1814;
+  --paper: #f6f0dc;
+  --red: #d0222e;
+  --dim: #8a8370;
+  --line: rgba(246, 240, 220, 0.18);
+  --line-ink: rgba(15, 13, 10, 0.2);
+
+  --f: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --pad: clamp(20px, 4vw, 72px);
+  --mast: 64px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--ink);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--f);
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+dl,
+dd,
+figure,
+blockquote {
+  margin: 0;
+  padding: 0;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 4px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ───────── Служебные классы ───────── */
+.mono {
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.dim {
+  color: var(--dim);
+}
+
+.red {
+  color: var(--red);
+}
+
+.giant {
+  font-weight: 200;
+  letter-spacing: -0.055em;
+  line-height: 0.94;
+}
+
+.giant em,
+.giant .red {
+  font-style: normal;
+  font-weight: 500;
+  color: var(--red);
+}
+
+.wrap {
+  padding-inline: var(--pad);
+  max-width: 1840px;
+  margin-inline: auto;
+}
+
+/* Разделитель-заголовок раздела: метка + линия */
+.tag {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--dim);
+}
+
+.tag::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.35;
+}
+
+.tag::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background: var(--red);
+}
+
+/* ───────── Разрезанный текст (см. av.ts) ───────── */
+.w {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding: 0.1em 0.04em 0.14em;
+  margin: -0.1em -0.04em -0.14em;
+  white-space: nowrap;
+}
+
+.c {
+  display: inline-block;
+  will-change: transform;
+}
+
+.lw {
+  display: inline-block;
+  white-space: pre-wrap;
+}
+
+/* ───────── Кнопки ───────── */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px 34px;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: var(--paper);
+  overflow: hidden;
+  isolation: isolate;
+  transition: color 0.35s var(--ease), border-color 0.35s var(--ease);
+}
+
+/* Заливка, выезжающая снизу */
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--paper);
+  transform: translateY(101%);
+  transition: transform 0.45s var(--ease);
+}
+
+.btn--red {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+}
+
+.btn--red::before {
+  background: var(--paper);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover::before {
+    transform: none;
+  }
+
+  .btn:hover {
+    color: var(--ink);
+    border-color: var(--paper);
+  }
+}
+
+.btn:active {
+  scale: 0.97;
+}
+
+/* ───────── Шапка и курсор ───────── */
+.mast {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  height: var(--mast);
+  padding-inline: var(--pad);
+  color: #fff;
+  mix-blend-mode: difference;
+  pointer-events: none;
+}
+
+.mast > * {
+  pointer-events: auto;
+}
+
+.mast-logo {
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.14em;
+}
+
+.mast-nav {
+  display: none;
+  gap: 36px;
+}
+
+@media (min-width: 900px) {
+  .mast-nav {
+    display: flex;
+  }
+}
+
+.mast-nav a,
+.mast-cta {
+  position: relative;
+}
+
+.mast-cta {
+  padding: 9px 18px;
+  border: 1px solid currentColor;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mast-cta:hover {
+    background: #fff;
+    color: #000;
+  }
+}
+
+.prog {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 70;
+  height: 3px;
+  background: var(--red);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+/* ───────── Подвал ───────── */
+.foot {
+  background: var(--ink);
+  padding: 56px var(--pad) 40px;
+  border-top: 1px solid var(--line);
+}
+
+.foot-in {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px 40px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--line);
+}
+
+.foot-name {
+  font-weight: 200;
+  font-size: clamp(28px, 4vw, 64px);
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.foot a {
+  transition: color 0.2s ease;
+}
+
+.foot a:hover {
+  color: var(--red);
+}
+
+.foot-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.foot-note {
+  margin-top: 22px;
+  max-width: 72ch;
+  font-size: 13px;
+  color: var(--dim);
+}
+
+/* ───────── Диалог политики ───────── */
+.privacy {
+  width: min(760px, calc(100vw - 32px));
+  max-height: 86dvh;
+  padding: 0;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.privacy::backdrop {
+  background: rgba(15, 13, 10, 0.7);
+}
+
+.privacy-bar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.privacy-bar h2 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.privacy-close {
+  background: none;
+  border: 0;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.privacy-body {
+  padding: 8px 24px 28px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.privacy-body h2 {
+  margin: 22px 0 8px;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.privacy-body p,
+.privacy-body ul {
+  margin-bottom: 8px;
+}
+
+.privacy-body ul {
+  padding-left: 20px;
+  list-style: disc;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn::before {
+    transition: none;
+  }
+}

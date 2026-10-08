@@ -1,0 +1,421 @@
+---
+import { case1, case2, case3, hall } from '../../data/brand';
+
+// Процент с одним знаком и запятой: 604 из 726 = 83,2
+// Схема зала рисуется на canvas: одна сетка 33 места в ряд
+const hallCols = 33;
+const hallRows = Math.ceil(hall.total / hallCols);
+const pct = (b: number) => ((b / hall.total) * 100).toFixed(1).replace('.', ',');
+
+
+const fmt = (n: number) => n.toLocaleString('ru-RU').replace(/ /g, ' ');
+const lines = (s: string) => s.replace(/\n/g, ' ');
+
+// Иллюстративные формы кривых: без осей и значений, цифры стоят рядом.
+const rise = 'M4,84 C50,86 90,60 140,50 S230,30 296,6';
+const climb = 'M4,92 C60,90 100,86 150,76 S230,40 296,6';
+---
+
+<section class="cases" id="cases" aria-labelledby="cases-title">
+  <div class="wrap cases-head">
+    <p class="mono tag">Кейсы</p>
+    <h2 id="cases-title" class="giant cases-h" data-split>Три проекта, <em>разобранных</em> подробно</h2>
+  </div>
+
+  <div class="hz-pin">
+    <div class="hz-track">
+      <!-- Кейс 1. NDA: имя заказчика и число обращений не раскрываются. -->
+      <article class="panel" aria-labelledby="case1-title">
+        <div class="panel-text">
+          <p class="mono dim">{case1.label} · {case1.period}</p>
+          <h3 id="case1-title" class="panel-title">{case1.title}</h3>
+          <p class="panel-ctx">{lines(case1.context)}</p>
+          <ul class="panel-acts">
+            {case1.actions.map((a) => <li>{lines(a)}</li>)}
+          </ul>
+        </div>
+
+        <div class="panel-fig">
+          <p class="panel-big red" data-count>+{case1.growth.value}%</p>
+          <p class="panel-big-l">{case1.growth.label}</p>
+          <p class="mono dim">{case1.growth.description}</p>
+          <svg class="trend red" viewBox="0 0 300 100" aria-hidden="true" focusable="false">
+            <line class="t-base" x1="0" y1="96" x2="300" y2="96" />
+            <path class="t-line" d={rise} pathLength="1" />
+            <circle class="t-dot" cx="296" cy="6" r="5" />
+          </svg>
+          <dl class="stats">
+            {[...case1.statsRow1, ...case1.statsRow2].map((s) => (
+              <div>
+                <dt class="mono dim">{s.label}</dt>
+                <dd data-count>{fmt(s.num)}{s.suffix}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </article>
+
+      <article class="panel panel--red" aria-labelledby="case2-title">
+        <div class="panel-text">
+          <p class="mono">{case2.label} · {case2.period}</p>
+          <h3 id="case2-title" class="panel-title">{case2.title}</h3>
+          <p class="panel-ctx">{case2.context}</p>
+          <ul class="panel-acts">
+            {case2.actions.map((a) => <li>{a}</li>)}
+          </ul>
+        </div>
+
+        <div class="panel-fig">
+          <div class="duo">
+            <div>
+              <p class="panel-big" data-count>{case2.headline[0].num}</p>
+              <p class="panel-big-l">{case2.headline[0].label}</p>
+            </div>
+            <div>
+              <p class="panel-big" data-count>{case2.headline[1].num}%</p>
+              <p class="panel-big-l">{case2.headline[1].label}</p>
+            </div>
+          </div>
+          <svg class="trend" viewBox="0 0 300 100" aria-hidden="true" focusable="false">
+            <line class="t-base" x1="0" y1="96" x2="300" y2="96" />
+            <path class="t-line" d={climb} pathLength="1" />
+            <circle class="t-dot" cx="296" cy="6" r="5" />
+          </svg>
+          <dl class="stats">
+            {[...case2.statsRow1, ...case2.statsRow2].map((s) => (
+              <div>
+                <dt class="mono">{s.label}</dt>
+                <dd data-count>{fmt(s.num)}{s.suffix}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </article>
+
+      <article class="panel panel--paper" aria-labelledby="case3-title">
+        <div class="panel-text">
+          <p class="mono">{case3.label} · {case3.period}</p>
+          <h3 id="case3-title" class="panel-title">{case3.title}</h3>
+          <p class="panel-ctx">{case3.context}</p>
+          <ul class="panel-acts">
+            {case3.actions.map((a) => <li>{a}</li>)}
+          </ul>
+        </div>
+
+        <div class="panel-fig">
+          <p class="panel-big red" data-count>{case3.big}</p>
+          <p class="panel-big-l">{case3.bigLabel}</p>
+
+          <dl class="stats">
+            {case3.stats.map((s) => (
+              <div>
+                <dt class="mono">{s.label}</dt>
+                <dd data-count={s.count ? '' : undefined}>{s.value}</dd>
+              </div>
+            ))}
+          </dl>
+
+          <div class="occ">
+            <p class="mono occ-h">Занятость мест в зале</p>
+            <div class="occ-grid">
+              {hall.days.map((d) => (
+                <div class="occ-day">
+                  <canvas
+                    class="occ-canvas"
+                    data-total={hall.total}
+                    data-booked={d.booked ?? 0}
+                    data-cols={hallCols}
+                    style={`aspect-ratio: ${hallCols} / ${hallRows}`}
+                    role="img"
+                    aria-label={`Схема зала на ${d.label}: занято ${d.booked ?? 0} из ${hall.total} мест`}
+                  ></canvas>
+                  <p class="occ-d">{d.label}</p>
+                  <p class="occ-v">
+                    {d.booked === null ? (
+                      <span>{hall.total} мест, бронь открыта</span>
+                    ) : (
+                      <span>
+                        <b>{pct(d.booked)}%</b> занято, {d.booked} из {hall.total}
+                      </span>
+                    )}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cases {
+    background: var(--ink-2);
+    padding-top: clamp(72px, 10vw, 160px);
+  }
+
+  .cases-h {
+    margin-top: clamp(20px, 3vw, 40px);
+    max-width: 14ch;
+    font-size: clamp(44px, 8.4vw, 160px);
+  }
+
+  .hz-pin {
+    margin-top: clamp(40px, 6vw, 96px);
+    padding-bottom: clamp(40px, 6vw, 96px);
+  }
+
+  @media (min-width: 1000px) {
+    .hz-pin {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      margin-top: 0;
+      padding-bottom: 0;
+    }
+  }
+
+  .hz-track {
+    /* Своя композитная сетка: сдвиг дорожки не перерисовывает панели */
+    will-change: transform;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding-inline: var(--pad);
+  }
+
+  @media (min-width: 1000px) {
+    .hz-track {
+      flex-direction: row;
+      gap: 40px;
+      width: max-content;
+      padding-inline: var(--pad);
+    }
+  }
+
+  .panel {
+    display: grid;
+    gap: 40px;
+    padding: clamp(24px, 3.4vw, 56px);
+    border: 1px solid var(--line);
+    background: var(--ink);
+  }
+
+  .panel--red {
+    background: var(--red);
+    color: var(--ink);
+    border-color: var(--red);
+  }
+
+  .panel--paper .dim {
+    color: #6b6556;
+  }
+
+  .panel--paper {
+    background: var(--paper);
+    color: var(--ink);
+    border-color: var(--paper);
+  }
+
+  .panel-note {
+    margin-top: 16px;
+    text-transform: none;
+    letter-spacing: 0.02em;
+    font-size: 11px;
+  }
+
+  .occ {
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px solid var(--ink);
+  }
+
+  .occ-grid {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  /* Схема зала: один canvas на день, 726 мест рисуются разом (красные забронированы) */
+  .occ-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .occ-d {
+    margin-top: 10px;
+    font-weight: 600;
+  }
+
+  .occ-v {
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .occ-v b {
+    font-weight: 600;
+    color: var(--red);
+    font-size: 1.15em;
+  }
+
+  .panel--paper .panel-acts li::before {
+    background: var(--red);
+  }
+
+  /* Мини-схема зала: точки-места, красные заняты */
+  .hall {
+    display: grid;
+    gap: 7px;
+    justify-items: center;
+    margin-top: 28px;
+  }
+
+  .hall-row {
+    display: flex;
+    gap: 7px;
+  }
+
+  .seat {
+    width: clamp(10px, 1.1vw, 16px);
+    height: clamp(10px, 1.1vw, 16px);
+    border: 1px solid var(--ink);
+    border-radius: 3px 3px 5px 5px;
+  }
+
+  .seat--taken {
+    background: var(--red);
+    border-color: var(--red);
+  }
+
+  @media (min-width: 1000px) {
+    .panel {
+      width: min(1180px, 82vw);
+      grid-template-columns: 5fr 6fr;
+      gap: clamp(32px, 4vw, 72px);
+      min-height: min(74vh, 700px);
+    }
+  }
+
+  .panel-title {
+    margin-top: 18px;
+    font-weight: 200;
+    font-size: clamp(26px, 3vw, 52px);
+    line-height: 1.04;
+    letter-spacing: -0.045em;
+  }
+
+  .panel-ctx {
+    margin-top: 16px;
+    max-width: 44ch;
+    opacity: 0.85;
+  }
+
+  .panel-acts {
+    margin-top: 24px;
+    max-width: 48ch;
+  }
+
+  .panel-acts li {
+    position: relative;
+    padding: 12px 0 12px 26px;
+    border-top: 1px solid currentColor;
+    border-top-color: color-mix(in srgb, currentColor 30%, transparent);
+    font-size: 15px;
+  }
+
+  .panel-acts li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 21px;
+    width: 8px;
+    height: 8px;
+    background: var(--red);
+  }
+
+  .panel--red .panel-acts li::before {
+    background: var(--ink);
+  }
+
+  .panel-big {
+    font-weight: 200;
+    font-size: clamp(72px, 11vw, 190px);
+    line-height: 0.9;
+    letter-spacing: -0.07em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .panel-big-l {
+    margin-top: 10px;
+    font-weight: 600;
+    font-size: 17px;
+  }
+
+  .duo {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  .duo .panel-big {
+    font-size: clamp(54px, 7.4vw, 128px);
+  }
+
+  .trend {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-top: 20px;
+    overflow: visible;
+  }
+
+  .t-base {
+    stroke: currentColor;
+    stroke-opacity: 0.3;
+  }
+
+  .t-line {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3.5;
+    stroke-linecap: square;
+    stroke-dasharray: 1;
+  }
+
+  .t-dot {
+    fill: currentColor;
+  }
+
+  .stats {
+    margin: 24px 0 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 1px solid currentColor;
+    border-top-color: color-mix(in srgb, currentColor 40%, transparent);
+  }
+
+  @media (min-width: 640px) {
+    .stats {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .stats div {
+    padding: 14px 12px 14px 0;
+    border-bottom: 1px solid currentColor;
+    border-bottom-color: color-mix(in srgb, currentColor 20%, transparent);
+  }
+
+  .stats dd {
+    margin: 4px 0 0;
+    font-weight: 200;
+    font-size: clamp(22px, 2vw, 34px);
+    letter-spacing: -0.04em;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+</style>
