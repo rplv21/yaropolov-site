@@ -1,0 +1,376 @@
+---
+import { stageTracks } from '../../data/stages';
+
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<section class="st" id="process" aria-labelledby="st-title">
+  <div class="wrap">
+    <p class="mono tag">Этапы работы</p>
+    <h2 id="st-title" class="giant st-h" data-split>Как мы <em>работаем</em></h2>
+
+    <div class="st-grid">
+      <div class="st-side">
+        <div class="st-tabs" role="tablist" aria-label="Тип работы">
+          {
+            stageTracks.map((t, i) => (
+              <button
+                type="button"
+                class:list={['st-tab', 'mono', { 'is-on': i === 0 }]}
+                role="tab"
+                id={`st-tab-${t.id}`}
+                aria-selected={i === 0 ? 'true' : 'false'}
+                aria-controls={`st-panel-${t.id}`}
+                data-track={t.id}
+              >
+                {t.tab}
+              </button>
+            ))
+          }
+        </div>
+
+        <div class="st-cur" aria-hidden="true">
+          <p class="st-cur-num giant"><span class="st-cur-n">01</span></p>
+          <div class="st-cur-meta">
+            <p class="st-cur-of mono">из <span class="st-cur-t">13</span></p>
+            <p class="st-cur-phase mono">Знакомство</p>
+            <p class="st-cur-title">Заявка</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="st-main">
+        {
+          stageTracks.map((t, ti) => {
+            let n = 0;
+            return (
+              <div
+                class="st-panel"
+                role="tabpanel"
+                id={`st-panel-${t.id}`}
+                aria-labelledby={`st-tab-${t.id}`}
+                hidden={ti !== 0}
+              >
+                <p class="st-sub">{t.heading}</p>
+                <span class="st-rail" aria-hidden="true"><span class="st-fill"></span></span>
+                <ol class="st-list">
+                  {t.phases.map((ph) => (
+                    <>
+                      <li class="st-phase mono" aria-hidden="true">
+                        {ph.name}
+                      </li>
+                      {ph.steps.map((s) => {
+                        n++;
+                        return (
+                          <li class="st-step" data-n={pad(n)} data-phase={ph.name} data-title={s.title}>
+                            <span class="st-dot" aria-hidden="true"></span>
+                            <p class="st-no mono">{pad(n)}</p>
+                            <div class="st-body">
+                              <h3 class="st-t">{s.title}</h3>
+                              <p class="st-x">{s.text}</p>
+                              {(s.chip || s.link) && (
+                                <p class="st-meta">
+                                  {s.chip && <span class="st-chip mono">{s.chip}</span>}
+                                  {s.link && (
+                                    <a class="st-link mono" href={s.link.href} target="_blank" rel="noopener">
+                                      {s.link.label} →
+                                    </a>
+                                  )}
+                                </p>
+                              )}
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </>
+                  ))}
+                </ol>
+              </div>
+            );
+          })
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .st {
+    background: var(--ink);
+    padding-block: clamp(72px, 10vw, 160px);
+  }
+
+  .st-h {
+    margin-top: clamp(20px, 3vw, 40px);
+    max-width: 12ch;
+    font-size: clamp(44px, 8.4vw, 160px);
+  }
+
+  .st-grid {
+    display: grid;
+    margin-top: clamp(40px, 6vw, 96px);
+    gap: 0;
+  }
+
+  @media (min-width: 900px) {
+    .st-grid {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+      column-gap: clamp(32px, 6vw, 112px);
+      align-items: start;
+    }
+
+    .st-side {
+      position: sticky;
+      top: calc(var(--mast) + 28px);
+    }
+  }
+
+  /* На телефоне колонка слева «рассыпается»: вкладки сверху, счётчик липнет к шапке */
+  @media (max-width: 899px) {
+    .st-side {
+      display: contents;
+    }
+  }
+
+  /* ───────── Вкладки ───────── */
+  .st-tabs {
+    display: inline-flex;
+    border: 1px solid var(--line);
+    margin-bottom: clamp(24px, 3vw, 48px);
+    justify-self: start;
+  }
+
+  .st-tab {
+    padding: 14px 24px;
+    background: transparent;
+    border: 0;
+    color: var(--dim);
+    cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
+
+  .st-tab.is-on {
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .st-tab:not(.is-on):hover {
+      color: var(--paper);
+    }
+  }
+
+  .st-tab:focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: 2px;
+  }
+
+  /* ───────── Текущий этап (липкий счётчик) ───────── */
+  .st-cur {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: end;
+    gap: 6px 20px;
+  }
+
+  .st-cur-num {
+    overflow: hidden;
+    font-size: clamp(88px, 13vw, 240px);
+    line-height: 0.85;
+    color: var(--red);
+  }
+
+  .st-cur-n {
+    display: inline-block;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .st-cur-meta {
+    display: grid;
+    gap: 6px;
+    padding-bottom: 6px;
+    min-width: 0;
+  }
+
+  .st-cur-of,
+  .st-cur-phase {
+    color: var(--dim);
+  }
+
+  .st-cur-title {
+    font-weight: 200;
+    font-size: clamp(20px, 2vw, 32px);
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+
+  @media (max-width: 899px) {
+    .st-cur {
+      position: sticky;
+      top: var(--mast);
+      z-index: 5;
+      grid-template-columns: auto 1fr;
+      padding: 12px 0;
+      margin-bottom: 12px;
+      background: var(--ink);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .st-cur-num {
+      font-size: 64px;
+    }
+
+    .st-cur-title {
+      font-size: 20px;
+    }
+  }
+
+  /* ───────── Список этапов ───────── */
+  .st-panel[hidden] {
+    display: none;
+  }
+
+  .st-panel {
+    position: relative;
+  }
+
+  .st-sub {
+    font-weight: 200;
+    font-size: clamp(22px, 2.4vw, 38px);
+    letter-spacing: -0.04em;
+    color: var(--dim);
+    margin-bottom: clamp(24px, 3vw, 44px);
+  }
+
+  .st-rail {
+    position: absolute;
+    left: 6px;
+    top: calc(clamp(22px, 2.4vw, 38px) * 1.4 + clamp(24px, 3vw, 44px));
+    bottom: 0;
+    width: 2px;
+    background: var(--line);
+  }
+
+  .st-fill {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--red);
+    transform: scaleY(0);
+    transform-origin: 50% 0;
+  }
+
+  .st-list {
+    margin: 0;
+    padding: 0 0 0 clamp(36px, 4vw, 60px);
+    list-style: none;
+  }
+
+  .st-phase {
+    padding-top: clamp(32px, 4vw, 56px);
+    padding-bottom: 6px;
+    color: var(--dim);
+  }
+
+  .st-phase:first-child {
+    padding-top: 0;
+  }
+
+  .st-step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 4px 16px;
+    padding-block: clamp(20px, 2.6vw, 36px);
+    border-top: 1px solid var(--line);
+    opacity: 0.3;
+    transition: opacity 0.45s ease;
+  }
+
+  .st-step.is-on {
+    opacity: 1;
+  }
+
+  .st-step.is-past {
+    opacity: 0.6;
+  }
+
+  .st-dot {
+    position: absolute;
+    left: calc(-1 * clamp(36px, 4vw, 60px) + 1px);
+    top: calc(clamp(20px, 2.6vw, 36px) + 6px);
+    width: 12px;
+    height: 12px;
+    background: var(--ink);
+    border: 2px solid var(--dim);
+    transition: background 0.35s ease, border-color 0.35s ease, transform 0.35s var(--ease);
+  }
+
+  .st-step.is-on .st-dot,
+  .st-step.is-past .st-dot {
+    background: var(--red);
+    border-color: var(--red);
+  }
+
+  .st-step.is-on .st-dot {
+    transform: scale(1.5);
+  }
+
+  .st-no {
+    padding-top: 8px;
+    color: var(--dim);
+    transition: color 0.35s ease;
+  }
+
+  .st-step.is-on .st-no {
+    color: var(--red);
+  }
+
+  .st-t {
+    font-weight: 200;
+    font-size: clamp(24px, 3vw, 46px);
+    letter-spacing: -0.05em;
+    line-height: 1.05;
+    text-wrap: balance;
+  }
+
+  .st-x {
+    margin-top: 10px;
+    color: #cfc8b4;
+    line-height: 1.55;
+    white-space: pre-line;
+  }
+
+  .st-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    margin-top: 14px;
+  }
+
+  .st-chip {
+    padding: 6px 10px;
+    border: 1px solid var(--red);
+    color: var(--red);
+  }
+
+  .st-link {
+    color: var(--paper);
+    border-bottom: 1px solid currentColor;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .st-link:hover {
+      color: var(--red);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .st-step,
+    .st-dot,
+    .st-no {
+      transition: none;
+    }
+  }
+</style>

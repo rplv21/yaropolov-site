@@ -132,6 +132,7 @@ if (reduce) {
   document.querySelectorAll<HTMLElement>('.wipe').forEach((e) => (e.style.clipPath = 'none'));
   document.querySelectorAll('.svc').forEach((s, i) => s.classList.toggle('is-open', i === 0));
   initFaq();
+  initStages(false);
   initHall(); // при «уменьшении движения» схема зала сразу в конечном виде
 } else {
   boot();
@@ -186,6 +187,7 @@ function initScroll() {
   initCases();
   initServices();
   initTimeline();
+  initStages(true);
   initFaq();
   initWipe();
   initHeadlines();
@@ -552,6 +554,9 @@ function initServices() {
         c.style.textAlign = 'center';
       }
       gsap.killTweensOf(c);
+      // Буква меняется не каждый кадр, а раз в ~90 мс (как в скремблере шапки),
+      // и возвращается к настоящей, когда долетела примерно на две трети пути
+      let swappedAt = 0;
       gsap.fromTo(
         c,
         { x: m.dx, y: m.dy, rotate: -90 },
@@ -559,12 +564,20 @@ function initServices() {
           x: 0,
           y: 0,
           rotate: 0,
-          duration: 0.8,
-          ease: 'expo.out',
-          delay: i * 0.016,
+          duration: 0.85,
+          ease: 'power4.out',
+          delay: i * 0.025,
           onUpdate: function () {
             if (!isLetter) return;
-            c.textContent = this.progress() < 0.5 ? glyphs[Math.floor(Math.random() * glyphs.length)] : ch;
+            if (this.time() >= 0.75) {
+              if (c.textContent !== ch) c.textContent = ch;
+              return;
+            }
+            const now = performance.now();
+            if (now - swappedAt > 90) {
+              swappedAt = now;
+              c.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+            }
           },
           onComplete: () => {
             c.textContent = ch;
@@ -614,6 +627,105 @@ function initTimeline() {
       scrollTrigger: { trigger: step, start: 'top 90%', end: 'top 55%', scrub: true },
     });
   });
+}
+
+// Этапы работы: вкладки «Сайт» / «Реклама», красная линия растёт, шаги зажигаются
+function initStages(animated: boolean) {
+  const root = document.querySelector<HTMLElement>('.st');
+  if (!root) return;
+  const tabs = $$('.st-tab', root) as HTMLButtonElement[];
+  const panels = $$('.st-panel', root);
+  const numEl = root.querySelector<HTMLElement>('.st-cur-n');
+  const totEl = root.querySelector<HTMLElement>('.st-cur-t');
+  const phaseEl = root.querySelector<HTMLElement>('.st-cur-phase');
+  const titleEl = root.querySelector<HTMLElement>('.st-cur-title');
+  let triggers: ScrollTrigger[] = [];
+
+  const setCurrent = (step: HTMLElement, swap = true) => {
+    if (!numEl || !phaseEl || !titleEl) return;
+    if (numEl.textContent === step.dataset.n && titleEl.textContent === step.dataset.title) return;
+    numEl.textContent = step.dataset.n || '';
+    phaseEl.textContent = step.dataset.phase || '';
+    titleEl.textContent = step.dataset.title || '';
+    if (animated && swap) {
+      gsap.fromTo(numEl, { yPercent: 70, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.6, ease: 'expo.out', overwrite: true });
+      gsap.fromTo([phaseEl, titleEl], { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out', overwrite: true });
+    }
+  };
+
+  const build = (panel: HTMLElement) => {
+    triggers.forEach((t) => t.kill());
+    triggers = [];
+    const steps = $$('.st-step', panel);
+    if (totEl) totEl.textContent = String(steps.length).padStart(2, '0');
+    if (steps[0]) setCurrent(steps[0], false);
+    steps.forEach((st) => st.classList.remove('is-on', 'is-past'));
+    if (!animated) {
+      steps.forEach((st) => st.classList.add('is-on'));
+      return;
+    }
+
+    const fill = panel.querySelector<HTMLElement>('.st-fill');
+    const list = panel.querySelector<HTMLElement>('.st-list');
+    if (fill && list) {
+      const tween = gsap.fromTo(
+        fill,
+        { scaleY: 0 },
+        { scaleY: 1, ease: 'none', scrollTrigger: { trigger: list, start: 'top 60%', end: 'bottom 60%', scrub: true } }
+      );
+      if (tween.scrollTrigger) triggers.push(tween.scrollTrigger);
+    }
+    steps.forEach((st) => {
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: st,
+          start: 'top 62%',
+          end: 'bottom 62%',
+          onEnter: () => {
+            st.classList.add('is-on');
+            st.classList.remove('is-past');
+            setCurrent(st);
+          },
+          onLeave: () => {
+            st.classList.remove('is-on');
+            st.classList.add('is-past');
+          },
+          onEnterBack: () => {
+            st.classList.add('is-on');
+            st.classList.remove('is-past');
+            setCurrent(st);
+          },
+          onLeaveBack: () => st.classList.remove('is-on'),
+        })
+      );
+    });
+  };
+
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      if (tab.classList.contains('is-on')) return;
+      tabs.forEach((t) => {
+        const on = t === tab;
+        t.classList.toggle('is-on', on);
+        t.setAttribute('aria-selected', String(on));
+      });
+      let shown: HTMLElement | undefined;
+      panels.forEach((p) => {
+        const on = p.id === 'st-panel-' + tab.dataset.track;
+        p.hidden = !on;
+        if (on) shown = p;
+      });
+      if (!shown) return;
+      build(shown);
+      if (animated) {
+        gsap.fromTo(shown, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: 'expo.out', clearProps: 'transform' });
+        ScrollTrigger.refresh();
+      }
+    });
+  });
+
+  const first = panels.find((p) => !p.hidden);
+  if (first) build(first);
 }
 
 // Вопросы: плавное раскрытие
