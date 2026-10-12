@@ -1,0 +1,253 @@
+---
+import { contacts, contact } from '../../data/brand';
+
+const channels = [
+  { label: 'Телефон', text: contacts.phone, href: contacts.phoneHref },
+  { label: 'Telegram', text: contacts.telegram, href: contacts.telegramHref },
+  { label: 'ВКонтакте', text: contacts.vk, href: contacts.vkHref },
+  { label: 'Макс', text: contacts.max, href: contacts.maxHref },
+  { label: 'Почта', text: contacts.email, href: contacts.emailHref },
+];
+---
+
+<section class="sec sec--ink" id="contact" aria-labelledby="contact-title">
+  <div class="row">
+    <p class="lab">Заявка</p>
+    <div class="body contact-body">
+      <div>
+        <h2 id="contact-title" class="h1">{contact.title}</h2>
+        <p class="lead contact-sub">{contact.sub}</p>
+
+        <ul class="channels">
+          {channels.map((c) => (
+            <li>
+              <span class="small">{c.label}</span>
+              <a href={c.href} rel="noopener">{c.text}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <form id="lead-form" class="form" novalidate>
+          <label class="f">
+            <span class="small">Имя</span>
+            <input type="text" name="name" required autocomplete="name" />
+          </label>
+          <label class="f">
+            <span class="small">Телефон</span>
+            <input type="tel" id="lf-phone" name="phone" required autocomplete="tel" inputmode="tel" />
+          </label>
+          <label class="f">
+            <span class="small">Комментарий, необязательно</span>
+            <textarea name="comment" id="lf-comment" rows="3"></textarea>
+          </label>
+
+          <input type="text" name="hp" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true" />
+
+          <label class="chk small">
+            <input type="checkbox" id="lf-consent" />
+            <span>
+              Согласен на обработку персональных данных.
+              <a href="#" class="privacy-open link">Политика конфиденциальности</a>
+            </span>
+          </label>
+
+          <button type="submit" id="lf-submit" class="btn btn--red send" disabled>Отправить заявку</button>
+        </form>
+        <p id="lf-status" class="status" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact-body {
+    display: grid;
+    gap: 48px;
+  }
+
+  @media (min-width: 1100px) {
+    .contact-body {
+      grid-template-columns: 6fr 5fr;
+      column-gap: calc(var(--gap) * 2);
+    }
+  }
+
+  .contact-sub {
+    margin-top: 18px;
+    color: #cfc8b4;
+  }
+
+  .channels {
+    margin-top: clamp(24px, 3.4vw, 48px);
+    border-top: 1px solid #3a352c;
+    max-width: 560px;
+  }
+
+  .channels li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid #3a352c;
+  }
+
+  .channels li span {
+    color: #a49d8a;
+  }
+
+  .channels a {
+    font-weight: 500;
+    font-size: clamp(17px, 1.5vw, 22px);
+    transition: color 0.2s ease;
+  }
+
+  .channels a:hover {
+    color: var(--red);
+  }
+
+  .form {
+    display: grid;
+    gap: 22px;
+  }
+
+  .f {
+    display: grid;
+    gap: 6px;
+  }
+
+  .f span {
+    color: #a49d8a;
+  }
+
+  .f input,
+  .f textarea {
+    width: 100%;
+    padding: 12px 0;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--paper);
+    border-radius: 0;
+    font-size: 20px;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+  }
+
+  .f input:focus,
+  .f textarea:focus {
+    outline: none;
+    border-bottom-color: var(--red);
+  }
+
+  .hp {
+    position: absolute;
+    left: -9999px;
+    opacity: 0;
+  }
+
+  .chk {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    color: #cfc8b4;
+  }
+
+  .chk input {
+    margin-top: 3px;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--red);
+    flex-shrink: 0;
+  }
+
+  .send {
+    justify-self: start;
+  }
+
+  .send:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .status {
+    margin-top: 16px;
+    min-height: 1.5em;
+    font-weight: 500;
+  }
+
+  .status[data-state='error'] {
+    color: #ff6b75;
+  }
+</style>
+
+<script>
+  const form = document.getElementById('lead-form') as HTMLFormElement | null;
+  const consent = document.getElementById('lf-consent') as HTMLInputElement | null;
+  const submitBtn = document.getElementById('lf-submit') as HTMLButtonElement | null;
+  const statusEl = document.getElementById('lf-status');
+  const phone = document.getElementById('lf-phone') as HTMLInputElement | null;
+
+  consent?.addEventListener('change', () => {
+    if (submitBtn) submitBtn.disabled = !consent.checked;
+  });
+
+  // Маска номера: +7 (XXX) XXX-XX-XX
+  function formatPhone(raw: string) {
+    let d = raw.replace(/\D/g, '');
+    if (d.startsWith('7') || d.startsWith('8')) d = d.slice(1);
+    d = d.slice(0, 10);
+    let out = '+7';
+    if (d.length > 0) out += ' (' + d.slice(0, 3);
+    if (d.length >= 3) out += ')';
+    if (d.length > 3) out += ' ' + d.slice(3, 6);
+    if (d.length > 6) out += '-' + d.slice(6, 8);
+    if (d.length > 8) out += '-' + d.slice(8, 10);
+    return out;
+  }
+  phone?.addEventListener('input', () => (phone.value = formatPhone(phone.value)));
+  phone?.addEventListener('focus', () => {
+    if (!phone.value) phone.value = '+7 (';
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    const fd = new FormData(form);
+    const payload = {
+      name: String(fd.get('name') || ''),
+      method: 'phone',
+      contact: String(fd.get('phone') || ''),
+      comment: String(fd.get('comment') || ''),
+      consent: consent?.checked ? 'true' : 'false',
+      hp: String(fd.get('hp') || ''),
+    };
+
+    if (submitBtn) submitBtn.disabled = true;
+    if (statusEl) {
+      statusEl.textContent = 'Отправляем...';
+      statusEl.removeAttribute('data-state');
+    }
+
+    try {
+      const res = await fetch('/api/send-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('request failed');
+      form.hidden = true;
+      if (statusEl) statusEl.textContent = 'Заявка отправлена. Ответ придёт в ближайшее время.';
+    } catch {
+      if (submitBtn) submitBtn.disabled = false;
+      if (statusEl) {
+        statusEl.textContent = 'Не удалось отправить. Попробуйте ещё раз или позвоните.';
+        statusEl.dataset.state = 'error';
+      }
+    }
+  });
+</script>

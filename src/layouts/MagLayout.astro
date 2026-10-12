@@ -1,0 +1,319 @@
+---
+import '../styles/mag.css';
+import PrivacyContent from '../components/PrivacyContent.astro';
+import { contacts, brand } from '../data/brand';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = brand.title, description = brand.description } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL('/og-cover.png', Astro.site);
+
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: contacts.name,
+  jobTitle: 'Интернет-маркетолог',
+  url: 'https://yaropolov.ru',
+  telephone: contacts.phone,
+  address: { '@type': 'PostalAddress', addressLocality: 'Ярославль', addressCountry: 'RU' },
+};
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Настройка и ведение контекстной рекламы, создание сайтов',
+  provider: { '@type': 'Person', name: contacts.name },
+  areaServed: ['Ярославль', 'Иваново', 'Владимир', 'Кострома', 'Тверь', 'Вологда'],
+};
+
+const localBusinessSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  name: 'Ярополов Павел — интернет-маркетолог',
+  image: ogImage.toString(),
+  telephone: contacts.phone,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Ярославль',
+    addressRegion: 'Ярославская область',
+    addressCountry: 'RU',
+  },
+  areaServed: 'Ярославль и область',
+};
+
+const links = [
+  { label: 'Услуги', href: '#services' },
+  { label: 'Кейсы', href: '#cases' },
+  { label: 'Обо мне', href: '#about' },
+  { label: 'Вопросы', href: '#faq' },
+  { label: 'Статьи', href: '/articles' },
+];
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonicalURL} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f6f2e6" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="ru_RU" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(serviceSchema)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(localBusinessSchema)} />
+
+    <!-- Яндекс.Метрика: согласие на cookie подразумевается использованием сайта -->
+    <script is:inline>
+      (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+      })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=112339088', 'ym');
+
+      ym(112339088, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/112339088" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+  </head>
+  <body>
+    <a href="#main" class="sr-only">Перейти к содержимому</a>
+
+    <header class="mast">
+      <a href="/" class="mast-logo" aria-label="Ярополов, на главную">
+        <span class="mast-sq" aria-hidden="true"></span>ЯРОПОЛОВ
+      </a>
+      <nav class="mast-nav" aria-label="Разделы">
+        {links.map((l) => <a href={l.href}>{l.label}</a>)}
+      </nav>
+      <a href="#contact" class="mast-cta">Написать</a>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="colophon">
+      <div class="colophon-in">
+        <p class="colophon-name">{contacts.name}</p>
+        <p class="colophon-req small">{contacts.status}, ИНН {contacts.inn}</p>
+        <nav class="colophon-links small" aria-label="Служебные ссылки">
+          <a href="/articles">Статьи</a>
+          <a href="#" class="privacy-open">Политика конфиденциальности</a>
+          <a href="#main">Наверх</a>
+        </nav>
+      </div>
+      <p class="colophon-note small">
+        Используя сайт, вы даёте согласие на обработку файлов cookie и пользовательских данных.
+        Если вы не хотите, чтобы ваши данные обрабатывались, пожалуйста, покиньте сайт.
+      </p>
+    </footer>
+
+    <dialog id="privacy" class="privacy">
+      <div class="privacy-bar">
+        <h2>Политика конфиденциальности</h2>
+        <button type="button" class="privacy-close" aria-label="Закрыть">×</button>
+      </div>
+      <div class="privacy-body"><PrivacyContent /></div>
+    </dialog>
+
+    <script>
+      const dlg = document.getElementById('privacy') as HTMLDialogElement | null;
+      document.querySelectorAll('.privacy-open').forEach((a) =>
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          dlg?.showModal();
+        })
+      );
+      dlg?.querySelector('.privacy-close')?.addEventListener('click', () => dlg.close());
+      dlg?.addEventListener('click', (e) => {
+        if (e.target === dlg) dlg.close();
+      });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  .mast {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 14px var(--pad);
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .mast-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+  }
+
+  .mast-sq {
+    width: 12px;
+    height: 12px;
+    background: var(--red);
+  }
+
+  .mast-nav {
+    display: none;
+    gap: 32px;
+    font-size: 14px;
+  }
+
+  @media (min-width: 820px) {
+    .mast-nav {
+      display: flex;
+    }
+  }
+
+  .mast-nav a {
+    padding-block: 4px;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .mast-nav a:hover {
+    color: var(--red);
+    border-color: var(--red);
+  }
+
+  .mast-cta {
+    padding: 10px 20px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s ease;
+  }
+
+  .mast-cta:hover {
+    background: var(--red);
+  }
+
+  .colophon {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 48px var(--pad) 36px;
+    border-top: 1px solid #3a352c;
+  }
+
+  .colophon-in {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px 40px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid #3a352c;
+  }
+
+  .colophon-name {
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+  }
+
+  .colophon-req,
+  .colophon-note {
+    color: #a49d8a;
+  }
+
+  .colophon-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .colophon-links a:hover {
+    color: var(--red);
+  }
+
+  .colophon-note {
+    margin-top: 22px;
+    max-width: 72ch;
+  }
+
+  .privacy {
+    width: min(760px, calc(100vw - 32px));
+    max-height: 86dvh;
+    padding: 0;
+    border: 1px solid var(--ink);
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  .privacy::backdrop {
+    background: rgba(16, 14, 11, 0.6);
+  }
+
+  .privacy-bar {
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .privacy-bar h2 {
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .privacy-close {
+    background: none;
+    border: 0;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .privacy-body {
+    padding: 8px 24px 28px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .privacy-body h2 {
+    margin: 22px 0 8px;
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .privacy-body p,
+  .privacy-body ul {
+    margin-bottom: 8px;
+  }
+
+  .privacy-body ul {
+    padding-left: 20px;
+    list-style: disc;
+  }
+</style>

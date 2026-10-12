@@ -27,15 +27,30 @@ const articleSchema = {
   headline: article.title,
   description: article.description,
   datePublished: article.datePublished,
+  dateModified: article.dateModified ?? article.datePublished,
+  inLanguage: 'ru-RU',
   mainEntityOfPage: canonical,
   author: { '@type': 'Person', name: 'Ярополов Павел Алексеевич' },
   publisher: { '@type': 'Person', name: 'Ярополов Павел Алексеевич' },
 };
+
+const faqSchema = article.faq?.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: article.faq.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    }
+  : null;
 ---
 
 <AvLayout title={`${article.title} — Ярополов Павел`} description={article.description}>
   <Fragment slot="head">
     <script is:inline type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+    {faqSchema && <script is:inline type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
   </Fragment>
 
   <header class="ahd">
@@ -60,6 +75,20 @@ const articleSchema = {
 
       <div class="abody-text">
         {article.body.map((block) => (block.type === 'h2' ? <h2>{block.text}</h2> : <p set:html={block.html} />))}
+
+        {
+          article.faq && (
+            <section class="faq-block" aria-labelledby="faq-title">
+              <h2 id="faq-title">Частые вопросы</h2>
+              {article.faq.map((f) => (
+                <div class="faq-item">
+                  <h3>{f.q}</h3>
+                  <p>{f.a}</p>
+                </div>
+              ))}
+            </section>
+          )
+        }
 
         <div class="author">
           <p class="mono author-tag">Автор</p>
@@ -178,6 +207,22 @@ const articleSchema = {
     font-size: clamp(17px, 1.3vw, 20px);
     line-height: 1.7;
     color: #2a261f;
+  }
+
+  .faq-block {
+    display: grid;
+    gap: 22px;
+  }
+
+  .faq-item {
+    display: grid;
+    gap: 8px;
+  }
+
+  .faq-item h3 {
+    font-weight: 600;
+    font-size: clamp(18px, 1.5vw, 22px);
+    line-height: 1.3;
   }
 
   .abody-text :global(strong) {

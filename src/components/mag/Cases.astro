@@ -1,0 +1,174 @@
+---
+import { case1, case2 } from '../../data/brand';
+
+const fmt = (n: number) => n.toLocaleString('ru-RU').replace(/ /g, ' ');
+const lines = (s: string) => s.replace(/\n/g, ' ');
+---
+
+<section class="sec" id="cases" aria-labelledby="cases-title">
+  <div class="row">
+    <p class="lab">Кейсы</p>
+    <div class="body">
+      <h2 id="cases-title" class="h2 rise">Два проекта, разобранных подробно</h2>
+    </div>
+  </div>
+
+  <!-- Кейс 1. NDA: имя заказчика и число обращений не раскрываются. -->
+  <article class="row case" aria-labelledby="case1-title">
+    <p class="lab case-lab">{case1.label}<br />{case1.period}</p>
+    <div class="body case-body">
+      <div class="case-text">
+        <h3 id="case1-title" class="h3">{case1.title}</h3>
+        <p class="muted case-ctx">{lines(case1.context)}</p>
+        <ul class="case-acts">
+          {case1.actions.map((a) => <li>{lines(a)}</li>)}
+        </ul>
+      </div>
+
+      <div class="case-fig">
+        <p class="num case-big red">+{case1.growth.value}%</p>
+        <p class="case-big-l">{case1.growth.label}</p>
+        <p class="small muted">{case1.growth.description}</p>
+
+        <dl class="case-stats">
+          {[...case1.statsRow1, ...case1.statsRow2].map((s) => (
+            <div>
+              <dt class="small muted">{s.label}</dt>
+              <dd class="num">{fmt(s.num)}{s.suffix}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </div>
+  </article>
+
+  <article class="row case" aria-labelledby="case2-title">
+    <p class="lab case-lab">{case2.label}<br />{case2.period}</p>
+    <div class="body case-body">
+      <div class="case-text">
+        <h3 id="case2-title" class="h3">{case2.title}</h3>
+        <p class="muted case-ctx">{case2.context}</p>
+        <ul class="case-acts">
+          {case2.actions.map((a) => <li>{a}</li>)}
+        </ul>
+      </div>
+
+      <div class="case-fig">
+        <div class="case-duo">
+          <div>
+            <p class="num case-big red">{case2.headline[0].num}</p>
+            <p class="case-big-l">{case2.headline[0].label}</p>
+          </div>
+          <div>
+            <p class="num case-big">{case2.headline[1].num}%</p>
+            <p class="case-big-l">{case2.headline[1].label}</p>
+          </div>
+        </div>
+
+        <dl class="case-stats">
+          {[...case2.statsRow1, ...case2.statsRow2].map((s) => (
+            <div>
+              <dt class="small muted">{s.label}</dt>
+              <dd class="num">{fmt(s.num)}{s.suffix}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </div>
+  </article>
+</section>
+
+<style>
+  .case {
+    margin-top: clamp(40px, 6vw, 96px);
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .case-lab::before {
+    display: none;
+  }
+
+  .case-body {
+    display: grid;
+    gap: 40px;
+  }
+
+  @media (min-width: 1100px) {
+    .case-body {
+      grid-template-columns: 5fr 6fr;
+      column-gap: calc(var(--gap) * 2);
+    }
+  }
+
+  .case-ctx {
+    margin-top: 14px;
+    max-width: 44ch;
+  }
+
+  .case-acts {
+    margin-top: 20px;
+    max-width: 48ch;
+  }
+
+  .case-acts li {
+    position: relative;
+    padding: 11px 0 11px 22px;
+    border-top: 1px solid var(--hair);
+    font-size: 15px;
+  }
+
+  .case-acts li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 20px;
+    width: 8px;
+    height: 8px;
+    background: var(--red);
+  }
+
+  .case-big {
+    font-size: clamp(64px, 9vw, 150px);
+  }
+
+  .case-big-l {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  .case-duo {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gap);
+  }
+
+  .case-duo .case-big {
+    font-size: clamp(52px, 6.4vw, 110px);
+  }
+
+  .case-stats {
+    margin: clamp(24px, 3vw, 44px) 0 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 1px solid var(--rule);
+  }
+
+  @media (min-width: 640px) {
+    .case-stats {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .case-stats div {
+    padding: 14px 12px 14px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+
+  .case-stats dd {
+    margin-top: 4px;
+    font-size: clamp(20px, 1.8vw, 30px);
+    white-space: nowrap;
+  }
+</style>

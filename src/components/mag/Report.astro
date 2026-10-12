@@ -1,0 +1,38 @@
+---
+import { report } from '../../data/brand';
+---
+
+<section class="sec" aria-labelledby="report-title">
+  <div class="row">
+    <p class="lab">Принцип</p>
+    <div class="body">
+      <h2 id="report-title" class="h1 rise">Каждый рубль <span class="red">в&nbsp;отчёте</span></h2>
+
+      <div class="report-cols rise">
+        <p class="h3">{report.bold}</p>
+        <p class="muted">{report.text}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .report-cols {
+    margin-top: clamp(32px, 5vw, 72px);
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    display: grid;
+    gap: 20px;
+  }
+
+  @media (min-width: 900px) {
+    .report-cols {
+      grid-template-columns: 5fr 7fr;
+      column-gap: var(--gap);
+    }
+  }
+
+  .report-cols p:last-child {
+    max-width: 60ch;
+  }
+</style>

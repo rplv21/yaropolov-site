@@ -1,0 +1,85 @@
+---
+import { cover, heroStats } from '../../data/brand';
+---
+
+<section class="sec cover" id="top" style="border-top: 0">
+  <div class="row">
+    <p class="lab">{cover.kicker}</p>
+
+    <div class="body">
+      <div class="cover-text">
+        <h1 class="h1">
+          Настраиваю Яндекс.Директ и создаю сайты, <span class="red">которые продают</span>
+        </h1>
+
+        <p class="lead cover-lead">{cover.sub}</p>
+        <div class="cover-cta">
+          <a href="#contact" class="btn btn--red">Получить медиаплан</a>
+          <a href="#cases" class="link">Смотреть кейсы</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="row cover-stats">
+    <p class="lab">В цифрах</p>
+    <ul class="body stats">
+      {heroStats.map((s) => (
+        <li>
+          <p class="num stat-n">{s.value}</p>
+          <p class="small muted">{s.label}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .cover {
+    padding-top: clamp(40px, 6vw, 96px);
+  }
+
+  .cover .h1 {
+    font-size: clamp(34px, 5.2vw, 96px);
+    max-width: 20ch;
+  }
+
+  .cover-lead {
+    margin-top: clamp(24px, 3vw, 48px);
+  }
+
+  .cover-cta {
+    margin-top: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 28px;
+  }
+
+  .cover-stats {
+    margin-top: clamp(56px, 8vw, 128px);
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  @media (min-width: 700px) {
+    .stats {
+      grid-template-columns: repeat(3, max-content);
+      justify-content: space-between;
+      column-gap: 32px;
+    }
+  }
+
+  .stat-n {
+    font-size: clamp(30px, 3.4vw, 60px);
+    white-space: nowrap;
+    margin-bottom: 8px;
+  }
+</style>

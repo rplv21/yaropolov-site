@@ -1,0 +1,49 @@
+---
+import { approach, brand } from '../../data/brand';
+---
+
+<section class="sec" id="about" aria-labelledby="approach-title">
+  <div class="row">
+    <p class="lab">{approach.title}</p>
+    <div class="body">
+      <h2 id="approach-title" class="h1 rise">{brand.name}</h2>
+
+      <div class="approach-cols rise">
+        <p class="h2 approach-quote red">«{approach.quote}»</p>
+
+        <div class="approach-text">
+          <p class="lead">{approach.lead}</p>
+          {approach.paras.map((p) => <p class="muted">{p}</p>)}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .approach-cols {
+    margin-top: clamp(32px, 5vw, 72px);
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    display: grid;
+    gap: 32px;
+  }
+
+  @media (min-width: 1000px) {
+    .approach-cols {
+      grid-template-columns: 6fr 5fr;
+      column-gap: calc(var(--gap) * 2);
+      align-items: start;
+    }
+  }
+
+  .approach-text {
+    display: grid;
+    gap: 18px;
+    max-width: 52ch;
+  }
+
+  .approach-quote {
+    max-width: 14ch;
+  }
+</style>

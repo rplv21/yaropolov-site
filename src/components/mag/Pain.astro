@@ -1,0 +1,58 @@
+---
+import { problems } from '../../data/brand';
+---
+
+<section class="sec" aria-labelledby="pain-title">
+  <div class="row">
+    <p class="lab">Типовые ситуации</p>
+    <div class="body">
+      <h2 id="pain-title" class="h2 rise">Узнаёте себя?</h2>
+
+      <ul class="pain-list">
+        {problems.map((p) => (
+          <li class="pain-row rise">
+            <p class="h3 pain-q">{p.quote}</p>
+            <p class="muted small pain-c">{p.comment.replace(/\n/g, ' ')}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .pain-list {
+    margin-top: clamp(28px, 4vw, 56px);
+    border-top: 1px solid var(--rule);
+  }
+
+  .pain-row {
+    display: grid;
+    gap: 10px;
+    padding-block: 22px;
+    border-bottom: 1px solid var(--hair);
+  }
+
+  @media (min-width: 900px) {
+    .pain-row {
+      grid-template-columns: 7fr 5fr;
+      column-gap: var(--gap);
+      align-items: baseline;
+    }
+  }
+
+  .pain-q {
+    font-size: clamp(20px, 2.2vw, 36px);
+    transition: color 0.2s ease;
+  }
+
+  .pain-c {
+    max-width: 46ch;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .pain-row:hover .pain-q {
+      color: var(--red);
+    }
+  }
+</style>

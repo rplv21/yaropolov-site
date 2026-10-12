@@ -1,0 +1,109 @@
+---
+import { faq } from '../../data/brand';
+---
+
+<section class="sec" id="faq" aria-labelledby="faq-title">
+  <div class="row">
+    <p class="lab">Вопросы</p>
+    <div class="body">
+      <h2 id="faq-title" class="h2 rise">Отвечаю честно</h2>
+
+      <div class="faq-list">
+        {faq.map((f) => (
+          <details class="q">
+            <summary>
+              <span class="q-t h3">{f.question}</span>
+              <span class="q-i" aria-hidden="true"></span>
+            </summary>
+            <div class="q-body">
+              <p>{f.answer.replace(/\n/g, ' ')}</p>
+              {f.articleSlug && (
+                <a class="link small" href={`/articles/${f.articleSlug}`}>Читать: {f.articleLabel}</a>
+              )}
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq-list {
+    margin-top: clamp(28px, 4vw, 56px);
+    border-top: 1px solid var(--rule);
+  }
+
+  .q {
+    border-bottom: 1px solid var(--hair);
+  }
+
+  .q summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding-block: 22px;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .q summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .q-t {
+    transition: color 0.2s ease;
+  }
+
+  .q-i {
+    position: relative;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+  }
+
+  .q-i::before,
+  .q-i::after {
+    content: '';
+    position: absolute;
+    background: var(--ink);
+    transition: transform 0.25s var(--ease), background 0.2s ease;
+  }
+
+  .q-i::before {
+    left: 0;
+    right: 0;
+    top: 8.5px;
+    height: 1px;
+  }
+
+  .q-i::after {
+    top: 0;
+    bottom: 0;
+    left: 8.5px;
+    width: 1px;
+  }
+
+  .q[open] .q-i::after {
+    transform: scaleY(0);
+  }
+
+  .q-body {
+    display: grid;
+    gap: 12px;
+    padding: 0 0 24px;
+    max-width: 70ch;
+    color: var(--ink-soft);
+  }
+
+  .q-body .link {
+    justify-self: start;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .q summary:hover .q-t {
+      color: var(--red);
+    }
+  }
+</style>

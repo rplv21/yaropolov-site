@@ -1,0 +1,63 @@
+---
+import { howIWork } from '../../data/brand';
+---
+
+<section class="sec" aria-labelledby="process-title">
+  <div class="row">
+    <p class="lab">Процесс</p>
+    <div class="body">
+      <h2 id="process-title" class="h2 rise">От прогноза до отчёта, без сюрпризов</h2>
+
+      <ol class="steps">
+        {howIWork.map((s) => (
+          <li class="step">
+            <p class="step-n num red" aria-hidden="true">{s.number}</p>
+            <h3 class="h3">{s.title}</h3>
+            <p class="small muted">{s.text.replace(/\n/g, ' ')}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .steps {
+    margin-top: clamp(28px, 4vw, 56px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0 var(--gap);
+  }
+
+  @media (min-width: 700px) {
+    .steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .steps {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .step {
+    padding: 18px 0 32px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .step-n {
+    margin-bottom: 40px;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  .step .h3 {
+    margin-bottom: 10px;
+  }
+
+  .step p:last-child {
+    max-width: 32ch;
+  }
+</style>

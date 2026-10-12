@@ -1,0 +1,17 @@
+---
+interface Props {
+  class?: string;
+  /** Тонкая версия для крупных графических элементов */
+  thin?: boolean;
+}
+const { class: cls, thin = false } = Astro.props;
+---
+
+<svg class={cls} viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+  <path
+    d="M5 19 19 5M8 5h11v11"
+    stroke="currentColor"
+    stroke-width={thin ? 0.7 : 2.6}
+    stroke-linecap="square"
+  />
+</svg>

@@ -1,0 +1,296 @@
+@import '@fontsource/onest/cyrillic-300.css';
+@import '@fontsource/onest/cyrillic-400.css';
+@import '@fontsource/onest/cyrillic-500.css';
+@import '@fontsource/onest/cyrillic-600.css';
+
+/* ───────────────────────────────────────────────
+   НАПРАВЛЕНИЕ. Швейцарский стиль: один гротеск (Onest),
+   светлая бумага, чёрный текст, один красный акцент.
+   Сетка 12 колонок: слева подпись раздела, справа содержание.
+   ─────────────────────────────────────────────── */
+:root {
+  --paper: #f6f2e6;
+  --paper-2: #ece6d3;
+  --ink: #100e0b;
+  --ink-soft: #3a352c;
+  --muted: #6f6858;
+  --rule: #100e0b;
+  --hair: #cfc7ae;
+  --red: #c8232f;
+
+  --f: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --pad: clamp(20px, 4vw, 64px);
+  --gap: clamp(16px, 2vw, 32px);
+  --sec: clamp(64px, 9vw, 144px);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f);
+  font-size: 17px;
+  line-height: 1.55;
+  font-feature-settings: 'tnum' 1;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+dl,
+dd,
+figure,
+blockquote {
+  margin: 0;
+  padding: 0;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ───────── Раздел: подпись слева, содержание справа ───────── */
+.sec {
+  padding: var(--sec) var(--pad);
+  border-top: 1px solid var(--rule);
+}
+
+.sec--ink {
+  background: var(--ink);
+  color: var(--paper);
+  border-top-color: var(--ink);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: var(--gap);
+  row-gap: 24px;
+  max-width: 1760px;
+  margin-inline: auto;
+}
+
+@media (min-width: 900px) {
+  .row {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  .lab {
+    grid-column: 1 / span 3;
+  }
+
+  .body {
+    grid-column: 4 / -1;
+  }
+}
+
+.lab {
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+.lab::before {
+  content: '';
+  display: block;
+  width: 10px;
+  height: 10px;
+  margin-bottom: 14px;
+  background: var(--red);
+}
+
+.sec--ink .lab {
+  color: #a49d8a;
+}
+
+/* ───────── Типографика ───────── */
+.h1 {
+  font-weight: 500;
+  font-size: clamp(36px, 6.2vw, 112px);
+  line-height: 1;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+.h2 {
+  font-weight: 500;
+  font-size: clamp(28px, 3.8vw, 64px);
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+.h3 {
+  font-weight: 500;
+  font-size: clamp(20px, 1.9vw, 30px);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.lead {
+  font-size: clamp(18px, 1.5vw, 24px);
+  line-height: 1.4;
+  max-width: 36ch;
+}
+
+.small {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.red {
+  color: var(--red);
+}
+
+.num {
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ───────── Кнопки и ссылки ───────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 28px;
+  font-weight: 500;
+  font-size: 16px;
+  background: var(--ink);
+  color: var(--paper);
+  border: 1px solid var(--ink);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s var(--ease);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn--red {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+}
+
+.btn--line {
+  background: transparent;
+  color: inherit;
+  border-color: currentColor;
+}
+
+.link {
+  font-weight: 500;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover {
+    background: var(--red);
+    border-color: var(--red);
+  }
+
+  .btn--red:hover {
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+
+  .btn--line:hover {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+
+  .sec--ink .btn--line:hover {
+    background: var(--paper);
+    border-color: var(--paper);
+    color: var(--ink);
+  }
+
+  .link:hover {
+    color: var(--red);
+  }
+}
+
+/* ───────── Единственное движение: мягкое появление ───────── */
+@supports (animation-timeline: view()) {
+  .rise {
+    animation: rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 40%;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none !important;
+  }
+}
