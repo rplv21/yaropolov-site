@@ -4,8 +4,10 @@ export const prerender = true;
 import AvLayout from '../../layouts/AvLayout.astro';
 import { articles } from '../../data/articles';
 
-// Новые статьи сверху
-const sorted = [...articles].sort((a, b) => b.datePublished.localeCompare(a.datePublished));
+// По умолчанию подборка «Рекомендуем»; остальные порядки переключает скрипт ниже
+const sorted = [...articles].sort(
+  (a, b) => (a.featured ?? 99) - (b.featured ?? 99) || b.datePublished.localeCompare(a.datePublished)
+);
 ---
 
 <AvLayout
@@ -22,9 +24,9 @@ const sorted = [...articles].sort((a, b) => b.datePublished.localeCompare(a.date
   <section class="alist" aria-label="Список статей">
     <div class="wrap">
       <div class="sort" role="tablist" aria-label="Порядок статей">
-        <button type="button" class="sort-btn mono is-on" role="tab" aria-selected="true" data-sort="new">Сначала новые</button>
+        <button type="button" class="sort-btn mono is-on" role="tab" aria-selected="true" data-sort="featured">Рекомендуем</button>
+        <button type="button" class="sort-btn mono" role="tab" aria-selected="false" data-sort="new">Сначала новые</button>
         <button type="button" class="sort-btn mono" role="tab" aria-selected="false" data-sort="old">Сначала старые</button>
-        <button type="button" class="sort-btn mono" role="tab" aria-selected="false" data-sort="featured">Рекомендуем</button>
       </div>
       <p class="sort-note mono" id="sort-note" role="status" hidden></p>
 
