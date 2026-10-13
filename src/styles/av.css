@@ -310,27 +310,35 @@ button {
   transition: border-color 0.25s ease;
 }
 
+.dstatus {
+  --dot: #d0222e;
+}
+
+.dstatus[data-state='up'] {
+  --dot: #2fbf71;
+}
+
 .dstatus-dot {
   position: relative;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #d0222e;
+  background: var(--dot);
   flex-shrink: 0;
 }
 
-.dstatus[data-state='up'] .dstatus-dot {
-  background: #2fbf71;
-}
-
-/* Красный огонёк мигает кольцом, зелёный стоит спокойно */
-.dstatus[data-state='down'] .dstatus-dot::after {
+/* Оба огонька пульсируют кольцом: красный быстрее и тревожнее, зелёный медленнее и спокойнее */
+.dstatus-dot::after {
   content: '';
   position: absolute;
   inset: -5px;
   border-radius: 50%;
-  border: 1px solid #d0222e;
+  border: 1px solid var(--dot);
   animation: dstatus-pulse 1.8s ease-out infinite;
+}
+
+.dstatus[data-state='up'] .dstatus-dot::after {
+  animation-duration: 2.8s;
 }
 
 @keyframes dstatus-pulse {
