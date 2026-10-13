@@ -1,11 +1,11 @@
 ---
 import { case1, case2, case3, hall } from '../../data/brand';
 
-// Процент с одним знаком и запятой: 604 из 726 = 83,2
+// Процент с одним знаком и запятой (604 из 726 = 83,2); полный зал показываем как «100»
 // Схема зала рисуется на canvas: одна сетка 33 места в ряд
 const hallCols = 33;
 const hallRows = Math.ceil(hall.total / hallCols);
-const pct = (b: number) => ((b / hall.total) * 100).toFixed(1).replace('.', ',');
+const pct = (b: number) => (b >= hall.total ? '100' : ((b / hall.total) * 100).toFixed(1).replace('.', ','));
 
 
 const fmt = (n: number) => n.toLocaleString('ru-RU').replace(/ /g, ' ');

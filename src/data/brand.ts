@@ -63,8 +63,8 @@ export const case3 = {
 export const hall = {
   total: 726,
   days: [
-    { label: '16 октября', booked: 604 as number | null },
-    { label: '17 октября', booked: 585 as number | null },
+    { label: '16 октября', booked: 726 as number | null },
+    { label: '17 октября', booked: 726 as number | null },
   ],
 };
 
