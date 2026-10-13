@@ -87,6 +87,22 @@ const sorted = [...articles].sort(
     }
   }
 
+  /* Телефон: три кнопки в одну строку на всю ширину */
+  @media (max-width: 639px) {
+    .sort {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      width: 100%;
+    }
+
+    .sort-btn {
+      padding: 14px 4px;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+  }
+
   .sort-note {
     margin: 0 0 24px;
     color: var(--dim);

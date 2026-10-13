@@ -381,6 +381,165 @@ button {
   }
 }
 
+/* ───────── Мобильное меню: бургер и панель ───────── */
+.burger {
+  display: none;
+  position: relative;
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+}
+
+.burger span {
+  position: absolute;
+  left: 11px;
+  right: 11px;
+  height: 1.5px;
+  background: currentColor;
+  transition: transform 0.5s var(--ease), top 0.5s var(--ease);
+}
+
+.burger span:nth-child(1) {
+  top: 18px;
+}
+
+.burger span:nth-child(2) {
+  top: 25px;
+}
+
+.burger[aria-expanded='true'] span:nth-child(1) {
+  top: 21.5px;
+  transform: rotate(45deg);
+}
+
+.burger[aria-expanded='true'] span:nth-child(2) {
+  top: 21.5px;
+  transform: rotate(-45deg);
+}
+
+.burger:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -4px;
+}
+
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 58;
+  display: none;
+  overflow-y: auto;
+  background: var(--ink);
+  color: var(--paper);
+  visibility: hidden;
+}
+
+.menu-in {
+  display: grid;
+  min-height: 100%;
+  grid-template-rows: auto 1fr auto;
+  padding: calc(var(--mast) + 16px) var(--pad) 32px;
+}
+
+/* Сюда «переплывает» индикатор статуса Директа */
+.menu-status-slot {
+  height: 36px;
+}
+
+.menu-nav {
+  display: grid;
+  align-content: center;
+  margin-block: 24px;
+}
+
+.menu-link {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding-block: 14px;
+  border-bottom: 1px solid var(--line);
+  font-weight: 200;
+  font-size: clamp(38px, 12vw, 60px);
+  letter-spacing: -0.05em;
+  line-height: 1.05;
+}
+
+.menu-link:first-child {
+  border-top: 1px solid var(--line);
+}
+
+.menu-n {
+  min-width: 26px;
+  color: var(--red);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+.menu-foot {
+  display: grid;
+  gap: 18px;
+  justify-items: start;
+}
+
+.menu-foot .btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.menu-tg {
+  color: var(--dim);
+}
+
+html.menu-open {
+  overflow: hidden;
+}
+
+@media (max-width: 899px) {
+  .burger {
+    display: block;
+  }
+
+  .mast-cta {
+    display: none;
+  }
+
+  .menu {
+    display: block;
+  }
+
+  /* Бургер занимает место кнопки «Написать»: огонёк сдвигаем к нему */
+  .dstatus {
+    right: calc(var(--pad) + 44px);
+  }
+
+  /* Шапка прячется при прокрутке вниз и возвращается при прокрутке вверх,
+     чтобы не накладываться на текст страницы */
+  .mast,
+  .dstatus {
+    transition: transform 0.45s var(--ease);
+  }
+
+  html.mast-away .mast,
+  html.mast-away .dstatus {
+    transform: translateY(-120%);
+  }
+
+  /* В меню подпись у индикатора раскрывается */
+  .dstatus.is-wide .dstatus-t {
+    display: inline;
+  }
+}
+
+@media (min-width: 900px) {
+  .menu {
+    display: none !important;
+  }
+}
+
 .prog {
   position: fixed;
   inset: 0 0 auto 0;

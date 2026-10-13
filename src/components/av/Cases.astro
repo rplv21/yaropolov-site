@@ -405,6 +405,19 @@ const climb = 'M4,92 C60,90 100,86 150,76 S230,40 296,6';
     }
   }
 
+  /* Узкие экраны: длинные подписи («Яндекс.Директа») не должны налезать на соседнюю колонку */
+  .stats dt {
+    overflow-wrap: anywhere;
+    hyphens: auto;
+  }
+
+  @media (max-width: 639px) {
+    .stats dt {
+      font-size: 10.5px;
+      letter-spacing: 0.08em;
+    }
+  }
+
   .stats div {
     padding: 14px 12px 14px 0;
     border-bottom: 1px solid currentColor;

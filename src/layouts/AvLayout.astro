@@ -122,6 +122,9 @@ const links = [
         {links.map((l) => <a href={l.href} data-scr>{l.label}</a>)}
       </nav>
       <a href="/#contact" class="mast-cta mono" data-contact-link>Написать</a>
+      <button type="button" class="burger" aria-label="Открыть меню" aria-expanded="false" aria-controls="menu">
+        <span></span><span></span>
+      </button>
     </header>
 
     <!-- Временный индикатор статуса Яндекс.Директа (src/data/status.ts).
@@ -138,6 +141,24 @@ const links = [
       <span class="dstatus-dot" aria-hidden="true"></span>
       <span class="dstatus-t">Статус Яндекс.Директа</span>
     </a>
+
+    <div class="menu" id="menu" aria-hidden="true">
+      <div class="menu-in">
+        <div class="menu-status-slot" aria-hidden="true"></div>
+        <nav class="menu-nav" aria-label="Меню сайта">
+          {links.map((l, i) => (
+            <a href={l.href} class="menu-link">
+              <span class="menu-n mono">{String(i + 1).padStart(2, '0')}</span>
+              <span>{l.label}</span>
+            </a>
+          ))}
+        </nav>
+        <div class="menu-foot">
+          <a href="/#contact" class="btn btn--red" data-contact-link>Написать</a>
+          <a href={contacts.telegramHref} class="menu-tg mono" target="_blank" rel="noopener">{contacts.telegram}</a>
+        </div>
+      </div>
+    </div>
 
     <main id="main">
       <slot />

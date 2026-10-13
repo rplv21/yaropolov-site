@@ -790,7 +790,7 @@ function initParticles() {
     cv.height = h * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     tgt.x = w * (w > 900 ? 0.8 : 0.72);
-    tgt.y = h * 0.5;
+    tgt.y = h * (w > 900 ? 0.5 : 0.8); // на телефоне воронка ниже, чтобы не лежать на тексте и кнопках
     const count = Math.min(240, Math.round((w * h) / 8000));
     ps = Array.from({ length: count }, () => {
       const p = spawn();
@@ -950,3 +950,139 @@ function initScramble() {
     });
   });
 }
+
+/* ───────── Мобильное меню: бургер, панель, «переплывающий» индикатор статуса ───────── */
+function initMenu() {
+  const burger = document.querySelector<HTMLButtonElement>('.burger');
+  const menu = document.getElementById('menu');
+  const pill = document.querySelector<HTMLElement>('.dstatus');
+  const slot = document.querySelector<HTMLElement>('.menu-status-slot');
+  if (!burger || !menu) return;
+
+  const root = document.documentElement;
+  const mobile = matchMedia('(max-width: 899px)');
+  const links = Array.from(menu.querySelectorAll<HTMLElement>('.menu-link, .menu-foot > *'));
+  let open = false;
+  let home: DOMRect | null = null;
+  let busy = false;
+
+  const setInert = (on: boolean) => {
+    if (on) menu.setAttribute('inert', '');
+    else menu.removeAttribute('inert');
+    menu.setAttribute('aria-hidden', String(on));
+  };
+  setInert(true);
+
+  const burgerPoint = () => {
+    const r = burger.getBoundingClientRect();
+    return `${Math.round(r.left + r.width / 2)}px ${Math.round(r.top + r.height / 2)}px`;
+  };
+
+  function openMenu() {
+    if (open || busy) return;
+    open = true;
+    root.classList.remove('mast-away');
+    root.classList.add('menu-open');
+    burger.setAttribute('aria-expanded', 'true');
+    burger.setAttribute('aria-label', 'Закрыть меню');
+    setInert(false);
+    menu.style.visibility = 'visible';
+
+    // Индикатор: фиксируем по left/top и ведём в слот вверху панели
+    let flyTo: DOMRect | null = null;
+    if (pill && slot) {
+      home = pill.getBoundingClientRect();
+      flyTo = slot.getBoundingClientRect();
+      pill.style.right = 'auto';
+      pill.style.left = home.left + 'px';
+      pill.style.top = home.top + 'px';
+    }
+
+    if (reduce) {
+      menu.style.clipPath = 'none';
+      if (pill && flyTo) {
+        pill.classList.add('is-wide');
+        pill.style.left = flyTo.left + 'px';
+        pill.style.top = flyTo.top + 'px';
+      }
+      return;
+    }
+
+    busy = true;
+    const at = burgerPoint();
+    gsap.fromTo(
+      menu,
+      { clipPath: `circle(0px at ${at})` },
+      { clipPath: `circle(160% at ${at})`, duration: 0.85, ease: 'expo.inOut', onComplete: () => (busy = false) }
+    );
+    gsap.fromTo(links, { y: 36, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: 'expo.out', stagger: 0.05, delay: 0.3 });
+    if (pill && flyTo) {
+      gsap.delayedCall(0.2, () => pill.classList.add('is-wide'));
+      gsap.to(pill, { left: flyTo.left, top: flyTo.top, duration: 0.85, ease: 'expo.inOut', delay: 0.1 });
+    }
+    // Фокус на первую ссылку, когда панель раскрылась
+    gsap.delayedCall(0.6, () => menu.querySelector<HTMLElement>('.menu-link')?.focus({ preventScroll: true }));
+  }
+
+  function closeMenu(returnFocus = true) {
+    if (!open) return;
+    open = false;
+    burger.setAttribute('aria-expanded', 'false');
+    burger.setAttribute('aria-label', 'Открыть меню');
+    if (returnFocus) burger.focus({ preventScroll: true });
+
+    const finish = () => {
+      menu.style.visibility = 'hidden';
+      menu.style.clipPath = '';
+      setInert(true);
+      root.classList.remove('menu-open');
+      if (pill) {
+        pill.classList.remove('is-wide');
+        pill.style.left = '';
+        pill.style.top = '';
+        pill.style.right = '';
+      }
+      busy = false;
+    };
+
+    if (reduce) {
+      finish();
+      return;
+    }
+
+    busy = true;
+    const at = burgerPoint();
+    gsap.to(links, { y: -16, opacity: 0, duration: 0.3, ease: 'power2.in', stagger: 0.02 });
+    gsap.to(menu, { clipPath: `circle(0px at ${at})`, duration: 0.7, ease: 'expo.inOut', delay: 0.1, onComplete: finish });
+    if (pill && home) {
+      pill.classList.remove('is-wide');
+      gsap.to(pill, { left: home.left, top: home.top, duration: 0.7, ease: 'expo.inOut', delay: 0.05 });
+    }
+  }
+
+  burger.addEventListener('click', () => (open ? closeMenu() : openMenu()));
+  menu.querySelectorAll<HTMLElement>('.menu-link, .menu-foot a').forEach((a) =>
+    a.addEventListener('click', () => closeMenu(false))
+  );
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && open) closeMenu();
+  });
+  mobile.addEventListener('change', () => {
+    if (!mobile.matches && open) closeMenu(false);
+  });
+
+  // Шапка уходит вверх при прокрутке вниз и возвращается при прокрутке вверх (только телефон)
+  let lastY = scrollY;
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!mobile.matches || open) return;
+      const y = scrollY;
+      if (y > lastY + 6 && y > 140) root.classList.add('mast-away');
+      else if (y < lastY - 6 || y < 80) root.classList.remove('mast-away');
+      lastY = y;
+    },
+    { passive: true }
+  );
+}
+initMenu();
