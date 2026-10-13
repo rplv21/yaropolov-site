@@ -131,6 +131,8 @@ const links = [
       class="dstatus mono"
       data-state={directStatus.state}
       title={directStatus.text[directStatus.state]}
+      data-text-down={directStatus.text.down}
+      data-text-up={directStatus.text.up}
       aria-label={`Статус Яндекс.Директа: ${directStatus.text[directStatus.state]}`}
     >
       <span class="dstatus-dot" aria-hidden="true"></span>
@@ -170,6 +172,25 @@ const links = [
 
     <script>
       import '../scripts/av.ts';
+    </script>
+  <script>
+      // Актуальный статус Директа (меняется в Cloudflare KV без деплоя)
+      (function () {
+        var el = document.querySelector('.dstatus') as HTMLElement | null;
+        if (!el) return;
+        fetch('/api/status')
+          .then(function (r) {
+            return r.ok ? r.json() : null;
+          })
+          .then(function (d) {
+            if (!d || (d.state !== 'up' && d.state !== 'down')) return;
+            var text = (d.state === 'up' ? el!.dataset.textUp : el!.dataset.textDown) || '';
+            el!.dataset.state = d.state;
+            el!.title = text;
+            el!.setAttribute('aria-label', 'Статус Яндекс.Директа: ' + text);
+          })
+          .catch(function () {});
+      })();
     </script>
   </body>
 </html>

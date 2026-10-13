@@ -12,6 +12,7 @@
 //   {"action":"brief_get", token}         -> read it back
 //   {"action":"view_inc", slug}           -> +1 article view
 //   {"action":"views_get"}                -> all article view counts
+//   {"action":"status_get"}               -> Direct status: value of KV key "status:direct" (up/down)
 //
 // Variables: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, RELAY_SECRET
 // KV binding: BRIEFS (briefs and view counters share the namespace)
@@ -42,6 +43,13 @@ export default {
       payload = await request.json();
     } catch {
       return new Response('Bad Request', { status: 400 });
+    }
+
+    // Direct status indicator: edit the KV key "status:direct" (value up or down) in the dashboard
+    if (payload.action === 'status_get') {
+      if (!env.BRIEFS) return json({ error: 'kv_not_bound' }, 500);
+      const value = ((await env.BRIEFS.get('status:direct')) || '').trim().toLowerCase();
+      return json({ state: value === 'up' || value === 'down' ? value : null });
     }
 
     // Article views
