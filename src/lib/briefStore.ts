@@ -49,7 +49,7 @@ function relay() {
   return url && secret ? { url: String(url), secret: String(secret) } : null;
 }
 
-async function relayCall(body: Record<string, unknown>) {
+export async function relayCall(body: Record<string, unknown>) {
   const r = relay();
   if (!r) return null;
   try {

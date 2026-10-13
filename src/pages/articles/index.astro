@@ -21,10 +21,17 @@ const sorted = [...articles].sort((a, b) => b.datePublished.localeCompare(a.date
 
   <section class="alist" aria-label="Список статей">
     <div class="wrap">
-      <ul>
+      <div class="sort" role="tablist" aria-label="Порядок статей">
+        <button type="button" class="sort-btn mono is-on" role="tab" aria-selected="true" data-sort="new">Сначала новые</button>
+        <button type="button" class="sort-btn mono" role="tab" aria-selected="false" data-sort="old">Сначала старые</button>
+        <button type="button" class="sort-btn mono" role="tab" aria-selected="false" data-sort="popular">Популярные</button>
+      </div>
+      <p class="sort-note mono" id="sort-note" role="status" hidden></p>
+
+      <ul id="alist">
         {
           sorted.map((a) => (
-            <li>
+            <li data-slug={a.slug} data-date={a.datePublished}>
               <a href={`/articles/${a.slug}`} class="arow">
                 <p class="mono arow-date">{a.dateDisplay}</p>
                 <div class="arow-main">
@@ -46,6 +53,43 @@ const sorted = [...articles].sort((a, b) => b.datePublished.localeCompare(a.date
 </AvLayout>
 
 <style>
+  .sort {
+    display: inline-flex;
+    flex-wrap: wrap;
+    margin-bottom: clamp(20px, 3vw, 40px);
+    border: 1px solid var(--line);
+  }
+
+  .sort-btn {
+    padding: 14px 22px;
+    background: transparent;
+    border: 0;
+    color: var(--dim);
+    cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
+
+  .sort-btn.is-on {
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  .sort-btn:focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: 2px;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .sort-btn:not(.is-on):hover {
+      color: var(--paper);
+    }
+  }
+
+  .sort-note {
+    margin: 0 0 24px;
+    color: var(--dim);
+  }
+
   .ahead {
     padding-top: calc(var(--mast) + clamp(40px, 6vw, 96px));
     padding-bottom: clamp(40px, 6vw, 96px);
@@ -141,3 +185,52 @@ const sorted = [...articles].sort((a, b) => b.datePublished.localeCompare(a.date
     }
   }
 </style>
+
+<script>
+  const list = document.getElementById('alist') as HTMLUListElement;
+  const note = document.getElementById('sort-note') as HTMLElement;
+  const btns = Array.from(document.querySelectorAll<HTMLButtonElement>('.sort-btn'));
+  const items = Array.from(list.querySelectorAll<HTMLLIElement>('li'));
+  const byDate = (a: HTMLLIElement, b: HTMLLIElement) => (b.dataset.date || '').localeCompare(a.dataset.date || '');
+  let views: Record<string, number> | null = null;
+
+  const render = (arr: HTMLLIElement[]) => arr.forEach((li) => list.appendChild(li));
+
+  async function loadViews() {
+    if (views) return views;
+    try {
+      const res = await fetch('/api/views');
+      views = res.ok ? ((await res.json()) as Record<string, number>) : {};
+    } catch {
+      views = {};
+    }
+    return views;
+  }
+
+  async function apply(mode: string) {
+    note.hidden = true;
+    if (mode === 'old') return render([...items].sort((a, b) => -byDate(a, b)));
+    if (mode === 'popular') {
+      const v = await loadViews();
+      const total = Object.values(v).reduce((s, n) => s + n, 0);
+      render([...items].sort((a, b) => (v[b.dataset.slug || ''] || 0) - (v[a.dataset.slug || ''] || 0) || byDate(a, b)));
+      if (total < 1) {
+        note.textContent = 'Просмотры только начали считаться: пока статьи идут по дате';
+        note.hidden = false;
+      }
+      return;
+    }
+    render([...items].sort(byDate));
+  }
+
+  btns.forEach((b) =>
+    b.addEventListener('click', () => {
+      btns.forEach((x) => {
+        const on = x === b;
+        x.classList.toggle('is-on', on);
+        x.setAttribute('aria-selected', String(on));
+      });
+      apply(b.dataset.sort || 'new');
+    })
+  );
+</script>

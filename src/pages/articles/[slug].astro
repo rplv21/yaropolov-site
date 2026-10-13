@@ -122,6 +122,25 @@ const faqSchema = article.faq?.length
   <Contact />
 </AvLayout>
 
+<script define:vars={{ slug: article.slug }}>
+  // Считаем просмотр один раз в сутки с одного браузера
+  try {
+    var key = 'view_' + slug;
+    var today = new Date().toISOString().slice(0, 10);
+    if (localStorage.getItem(key) !== today) {
+      localStorage.setItem(key, today);
+      fetch('/api/views', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug: slug }),
+        keepalive: true,
+      }).catch(function () {});
+    }
+  } catch (e) {
+    /* без localStorage просмотр не считаем */
+  }
+</script>
+
 <style>
   .ahd {
     padding-top: calc(var(--mast) + clamp(32px, 5vw, 80px));
