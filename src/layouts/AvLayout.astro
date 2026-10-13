@@ -4,6 +4,7 @@ import PrivacyContent from '../components/PrivacyContent.astro';
 import AdPopup from '../components/av/AdPopup.astro';
 import ChatPopup from '../components/av/ChatPopup.astro';
 import { contacts, brand } from '../data/brand';
+import { directStatus } from '../data/status';
 
 interface Props {
   title?: string;
@@ -122,6 +123,19 @@ const links = [
       </nav>
       <a href="/#contact" class="mast-cta mono" data-contact-link>Написать</a>
     </header>
+
+    <!-- Временный индикатор статуса Яндекс.Директа (src/data/status.ts).
+         Вынесен из .mast: там mix-blend-mode искажает цвета огонька. -->
+    <a
+      href={directStatus.href}
+      class="dstatus mono"
+      data-state={directStatus.state}
+      title={directStatus.text[directStatus.state]}
+      aria-label={`Статус Яндекс.Директа: ${directStatus.text[directStatus.state]}`}
+    >
+      <span class="dstatus-dot" aria-hidden="true"></span>
+      <span class="dstatus-t">Статус Яндекс.Директа</span>
+    </a>
 
     <main id="main">
       <slot />

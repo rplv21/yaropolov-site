@@ -291,6 +291,88 @@ button {
   }
 }
 
+/* Временный индикатор «Статус Яндекс.Директа»: свой тёмный фон, чтобы читаться на любой секции */
+.dstatus {
+  position: fixed;
+  top: calc((var(--mast) - 36px) / 2);
+  right: calc(var(--pad) + 144px);
+  z-index: 61;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+  padding-inline: 14px;
+  background: rgba(16, 14, 11, 0.92);
+  border: 1px solid rgba(242, 237, 224, 0.28);
+  color: #f2ede0;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  transition: border-color 0.25s ease;
+}
+
+.dstatus-dot {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #d0222e;
+  flex-shrink: 0;
+}
+
+.dstatus[data-state='up'] .dstatus-dot {
+  background: #2fbf71;
+}
+
+/* Красный огонёк мигает кольцом, зелёный стоит спокойно */
+.dstatus[data-state='down'] .dstatus-dot::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1px solid #d0222e;
+  animation: dstatus-pulse 1.8s ease-out infinite;
+}
+
+@keyframes dstatus-pulse {
+  from {
+    transform: scale(0.5);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dstatus:hover {
+    border-color: #f2ede0;
+  }
+}
+
+.dstatus:focus-visible {
+  outline: 2px solid #d0222e;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dstatus-dot::after {
+    animation: none !important;
+  }
+}
+
+/* Узкие экраны: только огонёк, подпись остаётся в aria-label и подсказке */
+@media (max-width: 899px) {
+  .dstatus {
+    right: calc(var(--pad) + 134px);
+    padding-inline: 12px;
+  }
+
+  .dstatus-t {
+    display: none;
+  }
+}
+
 .prog {
   position: fixed;
   inset: 0 0 auto 0;
