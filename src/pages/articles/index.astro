@@ -3,6 +3,9 @@ export const prerender = true;
 
 import AvLayout from '../../layouts/AvLayout.astro';
 import { articles } from '../../data/articles';
+
+// Новые статьи сверху
+const sorted = [...articles].sort((a, b) => b.datePublished.localeCompare(a.datePublished));
 ---
 
 <AvLayout
@@ -20,7 +23,7 @@ import { articles } from '../../data/articles';
     <div class="wrap">
       <ul>
         {
-          articles.map((a) => (
+          sorted.map((a) => (
             <li>
               <a href={`/articles/${a.slug}`} class="arow">
                 <p class="mono arow-date">{a.dateDisplay}</p>
