@@ -4,10 +4,15 @@
 
 ## Актуальное
 
-- [Яндекс.Директ после аварии в дата-центрах: что происходит и что делать бизнесу](https://yaropolov.ru/articles/yandeks-direkt-posle-avarii-v-data-centrah): кабинет Директа недоступен с 8 октября 2026 года, кампании продолжают работать, техподдержка может возобновить или остановить кампании, но не настроить их.
+- [Директ после восстановления: что проверить в кампаниях и как читать отчёты](https://yaropolov.ru/articles/yandeks-direkt-posle-vosstanovleniya-chto-proverit): на 20 октября 2026 года кабинет Директа доступен, основные функции восстановлены, статистика пока неполная.
+- [Метрика, Вебмастер и Яндекс Бизнес после аварии](https://yaropolov.ru/articles/metrika-vebmaster-yandeks-biznes-posle-avarii): что работает и что с ограничениями.
+- [Яндекс.Директ после аварии в дата-центрах: что происходит и что делать бизнесу](https://yaropolov.ru/articles/yandeks-direkt-posle-avarii-v-data-centrah): хроника аварии с 8 октября 2026 года; доступ к кабинету восстановлен 15 октября с ограничениями.
 
 ## Статьи
 
+- [Не держите все заявки в одном канале](https://yaropolov.ru/articles/ne-derzhite-vse-zayavki-v-odnom-kanale)
+- [Дизайн сайта, который приводит заявки](https://yaropolov.ru/articles/dizajn-sajta-kotoryj-privodit-zayavki)
+- [Как подготовиться к заказу сайта](https://yaropolov.ru/articles/kak-podgotovitsya-k-zakazu-sajta-brif)
 - [Сколько стоит реклама в Яндекс.Директе](https://yaropolov.ru/articles/skolko-stoit-reklama-v-yandeks-direkte)
 - [Сайт на конструкторе или обычный сайт](https://yaropolov.ru/articles/sajt-na-konstruktore-ili-obychnyj-sajt)
 - [Почему не работает Яндекс.Директ](https://yaropolov.ru/articles/pochemu-ne-rabotaet-yandeks-direkt)
