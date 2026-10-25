@@ -173,10 +173,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
     gap: 6px 20px;
   }
 
+  /* overflow нужен для выезда цифры при смене шага; запас сверху и снизу, чтобы контур цифр не обрезался */
   .st-cur-num {
     overflow: hidden;
     font-size: clamp(88px, 13vw, 240px);
-    line-height: 0.85;
+    line-height: 1;
+    padding-block: 0.06em;
+    margin-block: -0.1em;
     color: var(--red);
   }
 
