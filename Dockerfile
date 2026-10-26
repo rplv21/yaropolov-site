@@ -14,6 +14,7 @@ ENV PORT=8080
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
+COPY --from=build /app/proto-vault ./proto-vault
 
 EXPOSE 8080
 HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \

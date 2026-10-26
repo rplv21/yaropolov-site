@@ -24,3 +24,6 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 /data/
+
+# открытые (нерасшифрованные) прототипы никогда не коммитим: в репозитории только proto-vault/*.enc
+proto-sites/

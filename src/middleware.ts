@@ -4,8 +4,10 @@ import { typo } from './lib/typo';
 // Типографика для всего сайта: после рендера любой HTML-страницы ставим
 // неразрывные пробелы после предлогов и союзов (правило: «и», «в», «на»
 // и другие короткие слова не остаются в конце строки).
-export const onRequest = defineMiddleware(async (_context, next) => {
+export const onRequest = defineMiddleware(async (context, next) => {
   const response = await next();
+  // закрытые прототипы отдаём как есть, без правки текста
+  if (context.url.pathname.startsWith('/proto/')) return response;
   const type = response.headers.get('content-type') || '';
   if (!type.includes('text/html')) return response;
 
