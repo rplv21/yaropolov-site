@@ -34,8 +34,24 @@ const clientIp = (req: Request) =>
 const safeNext = (n: unknown, site: string, fallback: string) =>
   typeof n === 'string' && site && n.startsWith(`/proto/${site}/`) && !n.startsWith('//') ? n : fallback;
 
+// Форма входа принимается только с того же сайта. Сравниваем хост без протокола: за прокси сервер видит http://, браузер шлёт https://.
+function sameSite(request: Request, url: URL): boolean {
+  const origin = request.headers.get('origin');
+  if (origin) {
+    try {
+      const host = new URL(origin).host;
+      const mine = [url.host, request.headers.get('host'), request.headers.get('x-forwarded-host')?.split(',')[0].trim()];
+      return mine.includes(host);
+    } catch {
+      return false;
+    }
+  }
+  return request.headers.get('sec-fetch-site') === 'same-origin';
+}
+
 export const POST: APIRoute = async ({ request, url }) => {
   if (!configured()) return page('<!doctype html><meta charset="utf-8"><title>Раздел недоступен</title><p>Раздел временно недоступен.</p>', 503);
+  if (!sameSite(request, url)) return new Response('Запрос отклонён', { status: 403, headers: BASE_HEADERS });
   const ip = clientIp(request);
   const form = await request.formData().catch(() => null);
   const site = siteOf(url.pathname);

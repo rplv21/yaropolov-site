@@ -9,6 +9,10 @@ export default defineConfig({
   output: 'server',
   adapter: node({ mode: 'standalone' }),
   integrations: [sitemap({ filter: (page) => !page.includes('/brief') })],
+  // За прокси Astro считает свой адрес http:// и режет форму входа в /proto/ (Origin приходит с https://).
+  // Проверка источника для этой формы сделана вручную в src/pages/proto/[...path].ts (сравнение по хосту).
+  // Остальные POST сайта шлют JSON и этой проверкой не охватывались.
+  security: { checkOrigin: false },
   server: {
     host: true,
   },
