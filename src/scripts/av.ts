@@ -498,9 +498,11 @@ function initServices() {
         (node.textContent || '').split(/( +)/).forEach((part) => {
           if (!part) return;
           if (part.trim() === '') {
-            // Пробел остаётся обычным текстом, чтобы строка могла переноситься между словами
+            // Пробел остаётся обычным текстом, чтобы строка могла переноситься между словами.
+            // Он должен схлопываться на переносе, иначе в начале новой строки появляется отступ.
             const sp = mk(' ');
             sp.style.display = 'inline';
+            sp.style.whiteSpace = 'normal';
             frag.appendChild(sp);
             return;
           }
