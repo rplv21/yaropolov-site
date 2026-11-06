@@ -100,7 +100,7 @@ const climb = 'M4,92 C60,90 100,86 150,76 S230,40 296,6';
           <ul class="panel-acts">
             {case3.actions.map((a) => <li>{a}</li>)}
           </ul>
-          <a class="panel-link mono" href="https://www.kostum76.ru" target="_blank" rel="noopener">Смотреть сайт kostum76.ru ↗</a>
+          <p class="panel-avail mono">Сайт работает в период фестиваля</p>
         </div>
 
         <div class="panel-fig">
@@ -433,17 +433,7 @@ const climb = 'M4,92 C60,90 100,86 150,76 S230,40 296,6';
     font-variant-numeric: tabular-nums;
   }
 
-  .panel-link {
-    display: inline-block;
+  .panel-avail {
     margin-top: clamp(20px, 2.4vw, 32px);
-    padding-bottom: 4px;
-    border-bottom: 1px solid currentColor;
-    transition: color 0.2s ease;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .panel-link:hover {
-      color: var(--red);
-    }
   }
 </style>
