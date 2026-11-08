@@ -907,6 +907,8 @@ const hintLines = (h: string) => {
         throw new Error(err.error || 'request failed');
       }
       goal('brief_sent');
+      // Бриф — тоже заявка: считаем его в общей цели вместе с формами на главной
+      goal('lead');
       sent = true;
       window.clearTimeout(saveTimer);
       try {

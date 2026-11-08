@@ -105,6 +105,12 @@ const links = [
         })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=112339088', 'ym');
 
         ym(112339088, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+
+        // Единая цель «Заявка» для Директа: каждая форма заявки после успешной отправки
+        // шлёт событие lead-form-submitted (форма контактов, чат, попап для гостей из рекламы)
+        window.addEventListener('lead-form-submitted', function () {
+          ym(112339088, 'reachGoal', 'lead');
+        });
       }
     </script>
     {(Astro.url.hostname === 'yaropolov.ru' || Astro.url.hostname === 'www.yaropolov.ru') && (
