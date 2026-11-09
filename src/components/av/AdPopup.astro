@@ -412,6 +412,7 @@ import { contacts } from '../../data/brand';
       contact: phone,
       consent: consent?.checked ? 'true' : 'false',
       hp: String(formData.get('hp') || ''),
+      ab: window.ypAb ? window.ypAb() : null,
       source: 'ad_popup',
     };
 

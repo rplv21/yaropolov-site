@@ -89,6 +89,21 @@ const links = [
       document.documentElement.classList.add('js');
     </script>
 
+    <!-- Антиспам форм: сколько времени человек на странице и сколько раз реально нажимал/касался.
+         Спам-боты заполняют форму программно за секунды, без настоящих нажатий. -->
+    <script is:inline>
+      (function () {
+        var t0 = Date.now(), n = 0;
+        ['pointerdown', 'keydown', 'touchstart'].forEach(function (ev) {
+          window.addEventListener(ev, function (e) { if (e.isTrusted) n++; }, { capture: true, passive: true });
+        });
+        window.ypAb = function () {
+          var ms = Date.now() - t0;
+          return { ms: ms, n: n, ok: ms >= 4000 && n >= 2 };
+        };
+      })();
+    </script>
+
     <script is:inline type="application/ld+json" set:html={JSON.stringify(personSchema)} />
     <script is:inline type="application/ld+json" set:html={JSON.stringify(serviceSchema)} />
     <script is:inline type="application/ld+json" set:html={JSON.stringify(localBusinessSchema)} />
@@ -109,6 +124,7 @@ const links = [
         // Единая цель «Заявка» для Директа: каждая форма заявки после успешной отправки
         // шлёт событие lead-form-submitted (форма контактов, чат, попап для гостей из рекламы)
         window.addEventListener('lead-form-submitted', function () {
+          if (window.ypAb && !window.ypAb().ok) return;
           ym(112339088, 'reachGoal', 'lead');
         });
       }

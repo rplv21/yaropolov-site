@@ -621,6 +621,7 @@ import { contacts } from '../../data/brand';
         comment: 'Онлайн-чат: выбран ответ «' + chosenAnswer + '»',
         consent: consent.checked ? 'true' : 'false',
         hp: String(fd.get('hp') || ''),
+        ab: window.ypAb ? window.ypAb() : null,
         source: 'chat_popup',
       };
 

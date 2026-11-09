@@ -14,6 +14,7 @@ interface LeadPayload {
   consent?: string;
   hp?: string;
   source?: string;
+  ab?: { ms?: number; n?: number } | null;
 }
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -83,7 +84,16 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(JSON.stringify({ error: 'server_misconfigured' }), { status: 500 });
   }
 
+  // Антиспам: человек проводит на странице хотя бы несколько секунд и реально нажимает/касается.
+  // Подозрительные заявки не выбрасываем (вдруг живой человек), а помечаем в Telegram.
+  const abMs = Number(payload.ab?.ms ?? 0);
+  const abN = Number(payload.ab?.n ?? 0);
+  const suspicious = !payload.ab || abMs < 4000 || abN < 2;
+
   const lines = [
+    ...(suspicious
+      ? [`⚠️ <b>Похоже на бота</b>: ${Math.round(abMs / 1000)} с на странице, нажатий/касаний: ${abN}`]
+      : []),
     source && SOURCE_LABELS[source]
       ? `<b>Новая заявка с yaropolov.ru</b> (${escapeForTelegram(SOURCE_LABELS[source])})`
       : '<b>Новая заявка с yaropolov.ru</b>',

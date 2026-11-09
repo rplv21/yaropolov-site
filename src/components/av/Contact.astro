@@ -316,6 +316,7 @@ const channels = [
       comment: String(fd.get('comment') || ''),
       consent: consent?.checked ? 'true' : 'false',
       hp: String(fd.get('hp') || ''),
+      ab: (window as any).ypAb ? (window as any).ypAb() : null,
     };
 
     if (submitBtn) submitBtn.disabled = true;
