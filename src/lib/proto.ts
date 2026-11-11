@@ -99,23 +99,14 @@ export function loginPage(next: string, error: string): string {
   .grid-base { opacity:.12; -webkit-mask-image:radial-gradient(ellipse 80% 70% at 70% 50%,#000 30%,transparent 100%); mask-image:radial-gradient(ellipse 80% 70% at 70% 50%,#000 30%,transparent 100%); }
   .grid-spot { opacity:.55; --x:72%; --y:46%; -webkit-mask-image:radial-gradient(circle 220px at var(--x) var(--y),#000,transparent 100%); mask-image:radial-gradient(circle 220px at var(--x) var(--y),#000,transparent 100%); }
 
-  /* Композиция справа: красный диск, вращающаяся тень, орбита, стрелка-циферблат */
-  .comp { position:fixed; top:50%; right:max(-120px,calc(50vw - 660px)); width:min(64vmin,620px); aspect-ratio:1; transform:translateY(-50%); pointer-events:none; }
-  .comp > * { position:absolute; }
-  .disc { inset:18%; border-radius:50%; background:var(--red); animation:breathe 9s ease-in-out infinite; }
-  .half { inset:17.6%; border-radius:50%; background:linear-gradient(90deg,transparent 50%,var(--bg) 50%); animation:spin 28s linear infinite; opacity:.9; }
-  .ring { inset:4%; border-radius:50%; border:1px solid var(--line-strong); }
-  .ring2 { inset:-8%; border-radius:50%; border:1px dashed var(--line); animation:spin 90s linear infinite reverse; }
-  .ticks { inset:4%; border-radius:50%; background:repeating-conic-gradient(var(--line-strong) 0 .5deg,transparent .5deg 6deg); -webkit-mask:radial-gradient(circle,transparent 64%,#000 64.5%,#000 68%,transparent 68.5%); mask:radial-gradient(circle,transparent 64%,#000 64.5%,#000 68%,transparent 68.5%); }
-  .orbit { inset:4%; animation:spin 16s linear infinite; }
-  .orbit::before { content:''; position:absolute; top:-7px; left:50%; width:14px; height:14px; margin-left:-7px; background:var(--text); }
-  .hand { left:50%; top:50%; width:46%; height:1px; background:var(--text); transform-origin:0 50%; animation:tick 60s steps(60) infinite; opacity:.85; }
-  .hand::after { content:''; position:absolute; right:-4px; top:-4px; width:9px; height:9px; border-radius:50%; background:var(--text); }
-  .square { right:-2%; bottom:6%; width:16%; aspect-ratio:1; border:1px solid var(--text); animation:drift 14s ease-in-out infinite alternate; }
+  /* Маска в духе баухауса: глаза следят за курсором, при вводе пароля закрываются */
+  .mask { position:fixed; bottom:44px; right:max(24px,calc(50vw - 600px)); height:min(80vh,640px); aspect-ratio:400/480; pointer-events:none; }
+  .mask svg { display:block; width:100%; height:100%; overflow:visible; }
+  .lid { transform-box:fill-box; transform-origin:50% 0; transform:scaleY(0); transition:transform .18s ease-in; }
+  .shy .lid { transform:scaleY(1); }
+  .blink .lid { transform:scaleY(1); transition-duration:.08s; }
+  .halo { transform-box:fill-box; transform-origin:center; animation:spin 80s linear infinite; }
   @keyframes spin { to { transform:rotate(360deg); } }
-  @keyframes tick { from { transform:rotate(-90deg); } to { transform:rotate(270deg); } }
-  @keyframes breathe { 0%,100% { transform:scale(1); } 50% { transform:scale(.94); } }
-  @keyframes drift { from { transform:translate(0,0) rotate(0deg); } to { transform:translate(-18%,-30%) rotate(45deg); } }
 
   /* Бегущая строка внизу */
   .ticker { position:fixed; left:0; right:0; bottom:0; height:44px; border-top:1px solid var(--line); background:var(--abyss); overflow:hidden; font:500 12px/44px var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--dim); white-space:nowrap; }
@@ -150,7 +141,7 @@ export function loginPage(next: string, error: string): string {
   .foot a:hover { color:var(--text); border-color:var(--text); }
 
   @media (max-width:820px) {
-    .comp { right:-30vmin; top:24%; width:80vmin; opacity:.5; }
+    .mask { bottom:auto; top:16px; right:50%; transform:translateX(50%); height:min(30vh,300px); }
     main { align-items:flex-end; padding-inline:16px; }
     .card { padding:32px 24px 28px; }
   }
@@ -162,15 +153,28 @@ export function loginPage(next: string, error: string): string {
 <body>
 <div class="bg grid grid-base" aria-hidden="true"></div>
 <div class="bg grid grid-spot" id="spot" aria-hidden="true"></div>
-<div class="comp" aria-hidden="true">
-  <div class="ring2"></div>
-  <div class="ring"></div>
-  <div class="ticks"></div>
-  <div class="disc"></div>
-  <div class="half"></div>
-  <div class="orbit"></div>
-  <div class="hand"></div>
-  <div class="square"></div>
+<div class="mask" id="mask" aria-hidden="true">
+  <svg viewBox="0 0 400 480">
+    <defs>
+      <clipPath id="head"><path d="M60 480V220a140 140 0 0 1 280 0v260z"/></clipPath>
+      <clipPath id="eyeL"><circle cx="140" cy="250" r="30"/></clipPath>
+      <clipPath id="eyeR"><rect x="230" y="220" width="60" height="60"/></clipPath>
+    </defs>
+    <circle class="halo" cx="200" cy="220" r="186" fill="none" stroke="#2a2620" stroke-dasharray="2 10"/>
+    <path d="M60 480V220a140 140 0 0 1 280 0v260z" fill="#1c1b1a"/>
+    <g clip-path="url(#head)">
+      <rect x="200" y="0" width="200" height="480" fill="#0a0908"/>
+      <path d="M60 220a140 140 0 0 1 140-140v140z" fill="#c8232f"/>
+      <rect x="0" y="440" width="400" height="40" fill="#c8232f"/>
+    </g>
+    <path d="M60 480V220a140 140 0 0 1 280 0v260" fill="none" stroke="#4a4438" stroke-width="1.5"/>
+    <circle cx="140" cy="250" r="30" fill="#f2ede0"/>
+    <rect x="230" y="220" width="60" height="60" fill="#f2ede0"/>
+    <g clip-path="url(#eyeL)"><circle class="pupil" cx="140" cy="250" r="12" fill="#100e0b"/><rect class="lid" x="108" y="218" width="64" height="64" fill="#1c1b1a"/></g>
+    <g clip-path="url(#eyeR)"><circle class="pupil" cx="260" cy="250" r="12" fill="#100e0b"/><rect class="lid" x="228" y="218" width="64" height="64" fill="#0a0908"/></g>
+    <path d="M200 280l26 76h-26z" fill="#f2ede0"/>
+    <rect x="150" y="390" width="100" height="10" fill="#c8232f"/>
+  </svg>
 </div>
 <div class="ticker" aria-hidden="true"><span>Закрытый просмотр <b>●</b> прототип сайта <b>●</b> yaropolov.ru <b>●</b> сайты и реклама под заявки <b>●</b> Закрытый просмотр <b>●</b> прототип сайта <b>●</b> yaropolov.ru <b>●</b> сайты и реклама под заявки <b>●</b></span></div>
 
@@ -193,21 +197,46 @@ export function loginPage(next: string, error: string): string {
 </main>
 <script>
   (function () {
-    var s = document.getElementById('spot');
-    if (!s || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    var tx = innerWidth * .72, ty = innerHeight * .46, x = tx, y = ty, t0 = Date.now(), last = 0;
+    var spot = document.getElementById('spot'), mask = document.getElementById('mask');
+    var pupils = mask ? mask.querySelectorAll('.pupil') : [];
+    var pw = document.getElementById('pw');
+    var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var tx = innerWidth * .5, ty = innerHeight * .5, x = tx, y = ty, t0 = Date.now(), last = 0;
     if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
       addEventListener('mousemove', function (e) { tx = e.clientX; ty = e.clientY; last = Date.now(); }, { passive: true });
     }
+    // пока вводят пароль, маска закрывает глаза: «не подглядываю»
+    function shy() { mask && mask.classList.toggle('shy', document.activeElement === pw && pw.value.length > 0); }
+    if (pw) { pw.addEventListener('input', shy); pw.addEventListener('blur', shy); pw.addEventListener('focus', shy); }
+    // моргание раз в несколько секунд
+    (function blink() {
+      setTimeout(function () {
+        if (mask && !still) { mask.classList.add('blink'); setTimeout(function () { mask.classList.remove('blink'); }, 140); }
+        blink();
+      }, 3500 + Math.random() * 4000);
+    })();
+    function look(px, py) {
+      for (var i = 0; i < pupils.length; i++) {
+        var p = pupils[i], r = p.parentNode.getBoundingClientRect();
+        var k = r.width / 64, cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        var dx = (px - cx) / k, dy = (py - cy) / k, d = Math.hypot(dx, dy) || 1, m = Math.min(14, d / 6);
+        p.setAttribute('transform', 'translate(' + (dx / d * m).toFixed(2) + ' ' + (dy / d * m).toFixed(2) + ')');
+      }
+    }
     (function loop() {
       if (Date.now() - last > 2500) {
-        var k = (Date.now() - t0) / 1000;
-        tx = innerWidth * (.7 + .14 * Math.cos(k * .35));
-        ty = innerHeight * (.48 + .2 * Math.sin(k * .5));
+        if (pw && document.activeElement === pw) {
+          var b = pw.getBoundingClientRect(); tx = b.left + b.width * .6; ty = b.top + b.height / 2;
+        } else {
+          var k = (Date.now() - t0) / 1000;
+          tx = innerWidth * (.55 + .3 * Math.cos(k * .35));
+          ty = innerHeight * (.5 + .3 * Math.sin(k * .5));
+        }
       }
-      x += (tx - x) * .08; y += (ty - y) * .08;
-      s.style.setProperty('--x', x + 'px'); s.style.setProperty('--y', y + 'px');
-      setTimeout(loop, 16);
+      x += (tx - x) * .12; y += (ty - y) * .12;
+      if (spot) { spot.style.setProperty('--x', x + 'px'); spot.style.setProperty('--y', y + 'px'); }
+      look(x, y);
+      if (!still) setTimeout(loop, 16);
     })();
   })();
 </script>
