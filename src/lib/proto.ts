@@ -69,7 +69,84 @@ export function noteFail(ip: string) {
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 
+// Страница входа у каждого прототипа своя: обращение к клиенту и рисунок про его дело.
+// Прототипы без своей записи получают нейтральную страницу.
+type LoginLook = { eyebrow: string; title: [string, string]; lead: string; art: string; artCss: string };
+
+const HOUSE_ART = `<div class="art" aria-hidden="true">
+  <svg viewBox="0 0 640 440" fill="none">
+    <g class="sheet">
+      <text x="24" y="34" class="t">ФАСАД 1–4</text>
+      <text x="24" y="52" class="t dim">М 1:100 · ЛИСТ 01</text>
+      <path pathLength="1" class="ln" style="--d:.1s" d="M120 72h400"/>
+      <path pathLength="1" class="ln" style="--d:.15s" d="M120 64v16M520 64v16M116 76l8-8M516 76l8-8"/>
+      <text x="320" y="62" class="t c">14 400</text>
+      <path pathLength="1" class="ln" style="--d:.2s" d="M572 360V120"/>
+      <path pathLength="1" class="ln" style="--d:.25s" d="M564 360h16M564 120h16"/>
+      <text x="584" y="352" class="t">±0.000</text>
+      <text x="584" y="116" class="t">+7.200</text>
+    </g>
+    <path pathLength="1" class="ln strong" style="--d:.3s" d="M16 360h540"/>
+    <path pathLength="1" class="ln hatch" style="--d:.4s" d="M28 372l12-12M52 372l12-12M76 372l12-12M100 372l12-12M124 372l12-12M148 372l12-12M172 372l12-12M196 372l12-12M220 372l12-12M244 372l12-12M268 372l12-12M292 372l12-12M316 372l12-12M340 372l12-12M364 372l12-12M388 372l12-12M412 372l12-12M436 372l12-12M460 372l12-12M484 372l12-12M508 372l12-12M532 372l12-12"/>
+    <path pathLength="1" class="ln strong" style="--d:.5s" d="M120 360V210L300 120l120 60v180"/>
+    <path pathLength="1" class="ln strong" style="--d:.8s" d="M420 250h100v110"/>
+    <path pathLength="1" class="ln" style="--d:1s" d="M120 210l180-90 120 60"/>
+    <path pathLength="1" class="ln" style="--d:1.05s" d="M136 214l164-82 108 54" opacity=".5"/>
+    <rect pathLength="1" class="win" style="--d:1.2s;--w:0s" x="150" y="236" width="44" height="104"/>
+    <rect pathLength="1" class="win" style="--d:1.3s;--w:1.4s" x="222" y="196" width="72" height="92"/>
+    <path pathLength="1" class="win" style="--d:1.4s;--w:2.8s" d="M300 150l40 20v38h-40z"/>
+    <rect pathLength="1" class="win" style="--d:1.5s;--w:4.2s" x="350" y="226" width="46" height="62"/>
+    <rect pathLength="1" class="win red" style="--d:1.6s;--w:.7s" x="440" y="276" width="62" height="84"/>
+    <path pathLength="1" class="ln" style="--d:1.7s" d="M222 242h72M258 196v92M471 276v84"/>
+    <path pathLength="1" class="ln" style="--d:1.8s" d="M70 360v-56"/>
+    <circle pathLength="1" class="ln" style="--d:1.85s" cx="70" cy="268" r="42"/>
+    <circle pathLength="1" class="ln" style="--d:1.95s" cx="58" cy="258" r="20" opacity=".45"/>
+    <path pathLength="1" class="ln" style="--d:2s" d="M330 360v-40h40v40" opacity=".7"/>
+    <g class="sheet">
+      <path pathLength="1" class="ln" style="--d:2.1s" d="M412 396h212v32H412zM500 396v32"/>
+      <text x="424" y="417" class="t">Т. СИРОТИНА</text>
+      <text x="512" y="417" class="t dim">ПОРТФОЛИО</text>
+    </g>
+  </svg>
+</div>`;
+
+const HOUSE_CSS = `
+  .art { position:fixed; top:50%; right:max(16px,calc(50vw - 640px)); width:min(54vw,720px); transform:translateY(-52%); pointer-events:none; }
+  .art svg { display:block; width:100%; height:auto; overflow:visible; }
+  .ln { stroke:var(--muted); stroke-width:1; stroke-linecap:square; stroke-dasharray:1; stroke-dashoffset:1; animation:draw 1.4s cubic-bezier(.65,0,.35,1) var(--d,0s) forwards; }
+  .ln.strong { stroke:var(--text); stroke-width:1.6; }
+  .ln.hatch { stroke:var(--line-strong); }
+  .win { fill:var(--text); fill-opacity:0; stroke:var(--text); stroke-width:1; stroke-dasharray:1; stroke-dashoffset:1; animation:draw 1s ease var(--d,0s) forwards, glow 7s ease-in-out calc(var(--d,0s) + 1.6s + var(--w,0s)) infinite; }
+  .win.red { stroke:var(--red); fill:var(--red); }
+  .t { font:500 10px var(--mono); letter-spacing:.12em; fill:var(--muted); opacity:0; animation:fade .6s ease 2.2s forwards; }
+  .t.dim { fill:var(--dim); }
+  .t.c { text-anchor:middle; }
+  @keyframes draw { to { stroke-dashoffset:0; } }
+  @keyframes glow { 0%,100% { fill-opacity:0; } 35%,70% { fill-opacity:.85; } }
+  @keyframes fade { to { opacity:1; } }
+  @media (max-width:820px) { .art { top:16px; right:50%; width:min(100vw - 24px,520px); transform:translateX(50%); } }
+  @media (prefers-reduced-motion:reduce) { .ln,.win { stroke-dashoffset:0; } .t { opacity:1; } }`;
+
+const LOOKS: Record<string, LoginLook> = {
+  TASirotina: {
+    eyebrow: 'Для Татьяны Сиротиной',
+    title: ['Татьяна,', 'здравствуйте'],
+    lead: 'Здесь прототип вашего сайта‑портфолио: проекты, чертежи и&nbsp;галерея, на&nbsp;русском и&nbsp;английском. Пароль в&nbsp;моём сообщении.',
+    art: HOUSE_ART,
+    artCss: HOUSE_CSS,
+  },
+};
+
+const DEFAULT_LOOK: LoginLook = {
+  eyebrow: 'Прототип · yaropolov.ru',
+  title: ['Закрытый', 'просмотр'],
+  lead: 'Прототип открывается по паролю. Он&nbsp;в&nbsp;том же сообщении, что и&nbsp;ссылка.',
+  art: '',
+  artCss: '',
+};
+
 export function loginPage(next: string, error: string): string {
+  const look = LOOKS[siteOf(next)] ?? DEFAULT_LOOK;
   return `<!doctype html>
 <html lang="ru">
 <head>
@@ -98,15 +175,7 @@ export function loginPage(next: string, error: string): string {
   .grid { background-size:32px 32px; background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px); }
   .grid-base { opacity:.12; -webkit-mask-image:radial-gradient(ellipse 80% 70% at 70% 50%,#000 30%,transparent 100%); mask-image:radial-gradient(ellipse 80% 70% at 70% 50%,#000 30%,transparent 100%); }
   .grid-spot { opacity:.55; --x:72%; --y:46%; -webkit-mask-image:radial-gradient(circle 220px at var(--x) var(--y),#000,transparent 100%); mask-image:radial-gradient(circle 220px at var(--x) var(--y),#000,transparent 100%); }
-
-  /* Маска в духе баухауса: глаза следят за курсором, при вводе пароля закрываются */
-  .mask { position:fixed; bottom:44px; right:max(24px,calc(50vw - 600px)); height:min(80vh,640px); aspect-ratio:400/480; pointer-events:none; }
-  .mask svg { display:block; width:100%; height:100%; overflow:visible; }
-  .lid { transform-box:fill-box; transform-origin:50% 0; transform:scaleY(0); transition:transform .18s ease-in; }
-  .shy .lid { transform:scaleY(1); }
-  .blink .lid { transform:scaleY(1); transition-duration:.08s; }
-  .halo { transform-box:fill-box; transform-origin:center; animation:spin 80s linear infinite; }
-  @keyframes spin { to { transform:rotate(360deg); } }
+${look.artCss}
 
   /* Бегущая строка внизу */
   .ticker { position:fixed; left:0; right:0; bottom:0; height:44px; border-top:1px solid var(--line); background:var(--abyss); overflow:hidden; font:500 12px/44px var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--dim); white-space:nowrap; }
@@ -123,7 +192,7 @@ export function loginPage(next: string, error: string): string {
   h1 { margin:0 0 14px; font-size:clamp(40px,5.2vw,56px); line-height:.98; font-weight:700; letter-spacing:-.035em; }
   h1 span { display:block; }
   h1 em { font-style:normal; color:var(--red); }
-  .lead { margin:0 0 32px; max-width:34ch; color:var(--muted); text-wrap:pretty; }
+  .lead { margin:0 0 32px; max-width:36ch; color:var(--muted); text-wrap:pretty; }
   label { display:block; margin-bottom:10px; font:500 12px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
   .field { display:flex; }
   input[type=password] { flex:1; min-width:0; height:56px; padding:0 16px; background:transparent; color:var(--text); border:1px solid var(--line-strong); border-right:0; border-radius:0; font:16px var(--sans); letter-spacing:.12em; transition:border-color .2s; }
@@ -141,7 +210,6 @@ export function loginPage(next: string, error: string): string {
   .foot a:hover { color:var(--text); border-color:var(--text); }
 
   @media (max-width:820px) {
-    .mask { bottom:auto; top:16px; right:50%; transform:translateX(50%); height:min(30vh,300px); }
     main { align-items:flex-end; padding-inline:16px; }
     .card { padding:32px 24px 28px; }
   }
@@ -153,36 +221,14 @@ export function loginPage(next: string, error: string): string {
 <body>
 <div class="bg grid grid-base" aria-hidden="true"></div>
 <div class="bg grid grid-spot" id="spot" aria-hidden="true"></div>
-<div class="mask" id="mask" aria-hidden="true">
-  <svg viewBox="0 0 400 480">
-    <defs>
-      <clipPath id="head"><path d="M60 480V220a140 140 0 0 1 280 0v260z"/></clipPath>
-      <clipPath id="eyeL"><circle cx="140" cy="250" r="30"/></clipPath>
-      <clipPath id="eyeR"><rect x="230" y="220" width="60" height="60"/></clipPath>
-    </defs>
-    <circle class="halo" cx="200" cy="220" r="186" fill="none" stroke="#2a2620" stroke-dasharray="2 10"/>
-    <path d="M60 480V220a140 140 0 0 1 280 0v260z" fill="#1c1b1a"/>
-    <g clip-path="url(#head)">
-      <rect x="200" y="0" width="200" height="480" fill="#0a0908"/>
-      <path d="M60 220a140 140 0 0 1 140-140v140z" fill="#c8232f"/>
-      <rect x="0" y="440" width="400" height="40" fill="#c8232f"/>
-    </g>
-    <path d="M60 480V220a140 140 0 0 1 280 0v260" fill="none" stroke="#4a4438" stroke-width="1.5"/>
-    <circle cx="140" cy="250" r="30" fill="#f2ede0"/>
-    <rect x="230" y="220" width="60" height="60" fill="#f2ede0"/>
-    <g clip-path="url(#eyeL)"><circle class="pupil" cx="140" cy="250" r="12" fill="#100e0b"/><rect class="lid" x="108" y="218" width="64" height="64" fill="#1c1b1a"/></g>
-    <g clip-path="url(#eyeR)"><circle class="pupil" cx="260" cy="250" r="12" fill="#100e0b"/><rect class="lid" x="228" y="218" width="64" height="64" fill="#0a0908"/></g>
-    <path d="M200 280l26 76h-26z" fill="#f2ede0"/>
-    <rect x="150" y="390" width="100" height="10" fill="#c8232f"/>
-  </svg>
-</div>
+${look.art}
 <div class="ticker" aria-hidden="true"><span>Закрытый просмотр <b>●</b> прототип сайта <b>●</b> yaropolov.ru <b>●</b> сайты и реклама под заявки <b>●</b> Закрытый просмотр <b>●</b> прототип сайта <b>●</b> yaropolov.ru <b>●</b> сайты и реклама под заявки <b>●</b></span></div>
 
 <main>
   <div class="card">
-    <p class="eyebrow"><i></i>Прототип · yaropolov.ru</p>
-    <h1><span>Закрытый</span><span>просмотр<em>.</em></span></h1>
-    <p class="lead">Прототип открывается по паролю. Он&nbsp;в&nbsp;том же сообщении, что и&nbsp;ссылка.</p>
+    <p class="eyebrow"><i></i>${look.eyebrow}</p>
+    <h1><span>${look.title[0]}</span><span>${look.title[1]}<em>.</em></span></h1>
+    <p class="lead">${look.lead}</p>
     <form method="post" autocomplete="off">
       <label for="pw">Пароль</label>
       <div class="field">
@@ -197,46 +243,21 @@ export function loginPage(next: string, error: string): string {
 </main>
 <script>
   (function () {
-    var spot = document.getElementById('spot'), mask = document.getElementById('mask');
-    var pupils = mask ? mask.querySelectorAll('.pupil') : [];
-    var pw = document.getElementById('pw');
-    var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var tx = innerWidth * .5, ty = innerHeight * .5, x = tx, y = ty, t0 = Date.now(), last = 0;
+    var s = document.getElementById('spot');
+    if (!s || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var tx = innerWidth * .72, ty = innerHeight * .46, x = tx, y = ty, t0 = Date.now(), last = 0;
     if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
       addEventListener('mousemove', function (e) { tx = e.clientX; ty = e.clientY; last = Date.now(); }, { passive: true });
     }
-    // пока вводят пароль, маска закрывает глаза: «не подглядываю»
-    function shy() { mask && mask.classList.toggle('shy', document.activeElement === pw && pw.value.length > 0); }
-    if (pw) { pw.addEventListener('input', shy); pw.addEventListener('blur', shy); pw.addEventListener('focus', shy); }
-    // моргание раз в несколько секунд
-    (function blink() {
-      setTimeout(function () {
-        if (mask && !still) { mask.classList.add('blink'); setTimeout(function () { mask.classList.remove('blink'); }, 140); }
-        blink();
-      }, 3500 + Math.random() * 4000);
-    })();
-    function look(px, py) {
-      for (var i = 0; i < pupils.length; i++) {
-        var p = pupils[i], r = p.parentNode.getBoundingClientRect();
-        var k = r.width / 64, cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-        var dx = (px - cx) / k, dy = (py - cy) / k, d = Math.hypot(dx, dy) || 1, m = Math.min(14, d / 6);
-        p.setAttribute('transform', 'translate(' + (dx / d * m).toFixed(2) + ' ' + (dy / d * m).toFixed(2) + ')');
-      }
-    }
     (function loop() {
       if (Date.now() - last > 2500) {
-        if (pw && document.activeElement === pw) {
-          var b = pw.getBoundingClientRect(); tx = b.left + b.width * .6; ty = b.top + b.height / 2;
-        } else {
-          var k = (Date.now() - t0) / 1000;
-          tx = innerWidth * (.55 + .3 * Math.cos(k * .35));
-          ty = innerHeight * (.5 + .3 * Math.sin(k * .5));
-        }
+        var k = (Date.now() - t0) / 1000;
+        tx = innerWidth * (.7 + .14 * Math.cos(k * .35));
+        ty = innerHeight * (.48 + .2 * Math.sin(k * .5));
       }
-      x += (tx - x) * .12; y += (ty - y) * .12;
-      if (spot) { spot.style.setProperty('--x', x + 'px'); spot.style.setProperty('--y', y + 'px'); }
-      look(x, y);
-      if (!still) setTimeout(loop, 16);
+      x += (tx - x) * .08; y += (ty - y) * .08;
+      s.style.setProperty('--x', x + 'px'); s.style.setProperty('--y', y + 'px');
+      setTimeout(loop, 16);
     })();
   })();
 </script>
