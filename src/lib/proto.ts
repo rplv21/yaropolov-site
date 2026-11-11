@@ -71,67 +71,84 @@ const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 
 // Страница входа у каждого прототипа своя: обращение к клиенту и рисунок про его дело.
 // Прототипы без своей записи получают нейтральную страницу.
-type LoginLook = { eyebrow: string; title: [string, string]; lead: string; art: string; artCss: string };
+type LoginLook = { eyebrow: string; title: [string, string]; lead: string; ticker: string[]; art: string; artCss: string };
 
+// Чертёж собран скриптом из геометрии (масштаб 1 ед. = 30 мм): размеры, отметки, сетка проёмов и штамп
+// взаимно согласованы. Править через scripts/proto-login/sirotina-facade.py, а не руками.
 const HOUSE_ART = `<div class="art" aria-hidden="true">
-  <svg viewBox="0 0 640 440" fill="none">
-    <g class="sheet">
-      <text x="24" y="34" class="t">ФАСАД 1–4</text>
-      <text x="24" y="52" class="t dim">М 1:100 · ЛИСТ 01</text>
-      <path pathLength="1" class="ln" style="--d:.1s" d="M120 72h400"/>
-      <path pathLength="1" class="ln" style="--d:.15s" d="M120 64v16M520 64v16M116 76l8-8M516 76l8-8"/>
-      <text x="320" y="62" class="t c">14 400</text>
-      <path pathLength="1" class="ln" style="--d:.2s" d="M572 360V120"/>
-      <path pathLength="1" class="ln" style="--d:.25s" d="M564 360h16M564 120h16"/>
-      <text x="584" y="352" class="t">±0.000</text>
-      <text x="584" y="116" class="t">+7.200</text>
-    </g>
-    <path pathLength="1" class="ln strong" style="--d:.3s" d="M16 360h540"/>
-    <path pathLength="1" class="ln hatch" style="--d:.4s" d="M28 372l12-12M52 372l12-12M76 372l12-12M100 372l12-12M124 372l12-12M148 372l12-12M172 372l12-12M196 372l12-12M220 372l12-12M244 372l12-12M268 372l12-12M292 372l12-12M316 372l12-12M340 372l12-12M364 372l12-12M388 372l12-12M412 372l12-12M436 372l12-12M460 372l12-12M484 372l12-12M508 372l12-12M532 372l12-12"/>
-    <path pathLength="1" class="ln strong" style="--d:.5s" d="M120 360V210L300 120l120 60v180"/>
-    <path pathLength="1" class="ln strong" style="--d:.8s" d="M420 250h100v110"/>
-    <path pathLength="1" class="ln" style="--d:1s" d="M120 210l180-90 120 60"/>
-    <path pathLength="1" class="ln" style="--d:1.05s" d="M136 214l164-82 108 54" opacity=".5"/>
-    <rect pathLength="1" class="win" style="--d:1.2s;--w:0s" x="150" y="236" width="44" height="104"/>
-    <rect pathLength="1" class="win" style="--d:1.3s;--w:1.4s" x="222" y="196" width="72" height="92"/>
-    <path pathLength="1" class="win" style="--d:1.4s;--w:2.8s" d="M300 150l40 20v38h-40z"/>
-    <rect pathLength="1" class="win" style="--d:1.5s;--w:4.2s" x="350" y="226" width="46" height="62"/>
-    <rect pathLength="1" class="win red" style="--d:1.6s;--w:.7s" x="440" y="276" width="62" height="84"/>
-    <path pathLength="1" class="ln" style="--d:1.7s" d="M222 242h72M258 196v92M471 276v84"/>
-    <path pathLength="1" class="ln" style="--d:1.8s" d="M70 360v-56"/>
-    <circle pathLength="1" class="ln" style="--d:1.85s" cx="70" cy="268" r="42"/>
-    <circle pathLength="1" class="ln" style="--d:1.95s" cx="58" cy="258" r="20" opacity=".45"/>
-    <path pathLength="1" class="ln" style="--d:2s" d="M330 360v-40h40v40" opacity=".7"/>
-    <g class="sheet">
-      <path pathLength="1" class="ln" style="--d:2.1s" d="M412 396h212v32H412zM500 396v32"/>
-      <text x="424" y="417" class="t">Т. СИРОТИНА</text>
-      <text x="512" y="417" class="t dim">ПОРТФОЛИО</text>
-    </g>
+  <svg viewBox="0 0 668 440" fill="none">
+    <text x="24" y="34" class="t hi">ГЛАВНЫЙ ФАСАД</text>
+    <text x="24" y="52" class="t">М 1:100</text>
+    <path pathLength="1" class="ln strong" style="--d:0.10s" d="M24 360H560"/>
+    <path pathLength="1" class="ln hatch" style="--d:0.20s" d="M28 372l12-12M52 372l12-12M76 372l12-12M100 372l12-12M124 372l12-12M148 372l12-12M172 372l12-12M196 372l12-12M220 372l12-12M244 372l12-12M268 372l12-12M292 372l12-12M316 372l12-12M340 372l12-12M364 372l12-12M388 372l12-12M412 372l12-12M436 372l12-12M460 372l12-12M484 372l12-12M508 372l12-12M532 372l12-12"/>
+    <path pathLength="1" class="ln strong" style="--d:0.40s" d="M120 360V195L270 120L420 195V360"/>
+    <path pathLength="1" class="ln strong" style="--d:0.65s" d="M420 250H520V360"/>
+    <path pathLength="1" class="ln faint" style="--d:0.85s" d="M120 208.42L270.00 133.42L420 208.42"/>
+    <path pathLength="1" class="ln faint dash" style="--d:0.95s" d="M120 260H420"/>
+    <rect pathLength="1" class="win" style="--d:1.03s;--w:0s" x="150" y="280" width="48" height="80"/>
+    <path pathLength="1" class="ln" style="--d:1.06s" d="M174 280V360"/>
+    <rect pathLength="1" class="win" style="--d:1.14s;--w:1.6s" x="246" y="280" width="48" height="50"/>
+    <path pathLength="1" class="ln" style="--d:1.17s" d="M270 280V330"/>
+    <rect pathLength="1" class="win" style="--d:1.25s;--w:3.2s" x="342" y="280" width="48" height="50"/>
+    <path pathLength="1" class="ln" style="--d:1.28s" d="M366 280V330"/>
+    <rect pathLength="1" class="win" style="--d:1.36s;--w:4.8s" x="246" y="190" width="48" height="40"/>
+    <path pathLength="1" class="ln" style="--d:1.39s" d="M270 190V230"/>
+    <path pathLength="1" class="win" style="--d:1.47s;--w:4s" d="M246 154.36L270.00 142.36L294 154.36V176H246Z"/>
+    <rect pathLength="1" class="win red" style="--d:1.55s;--w:.8s" x="446" y="280" width="48" height="80"/>
+    <path pathLength="1" class="ln" style="--d:1.58s" d="M470 280V360"/>
+    <path pathLength="1" class="ln" style="--d:1.66s" d="M70 360V310"/>
+    <circle pathLength="1" class="ln" style="--d:1.71s" cx="70" cy="268" r="42"/>
+    <path pathLength="1" class="ln thin" style="--d:1.86s" d="M120 64V187M520 64V242"/>
+    <path pathLength="1" class="ln thin" style="--d:1.91s" d="M112 72H528"/>
+    <path pathLength="1" class="ln thin" style="--d:1.96s" d="M116 76l8-8M516 76l8-8"/>
+    <text x="320.72" y="66" class="t" text-anchor="middle">12000</text>
+    <path pathLength="1" class="ln thin" style="--d:2.01s" d="M568 360H586"/>
+    <path pathLength="1" class="ln thin" style="--d:2.06s" d="M580 354L586 360L592 354ZM586 354V344H644"/>
+    <text x="590" y="340" class="t">±0,000</text>
+    <path pathLength="1" class="ln thin" style="--d:2.11s" d="M528 250H586"/>
+    <path pathLength="1" class="ln thin" style="--d:2.16s" d="M580 244L586 250L592 244ZM586 244V234H644"/>
+    <text x="590" y="230" class="t">+3,300</text>
+    <path pathLength="1" class="ln thin" style="--d:2.21s" d="M278 120H586"/>
+    <path pathLength="1" class="ln thin" style="--d:2.26s" d="M580 114L586 120L592 114ZM586 114V104H644"/>
+    <text x="590" y="100" class="t">+7,200</text>
+    <path pathLength="1" class="ln thin" style="--d:2.36s" d="M386.3 392H644V424H386.3ZM503.9 392V424M604.2 392V424"/>
+    <text x="398.3" y="412" class="t hi">Т. СИРОТИНА</text>
+    <text x="515.9" y="412" class="t">ПОРТФОЛИО</text>
+    <text x="616.2" y="412" class="t">01</text>
   </svg>
 </div>`;
 
 const HOUSE_CSS = `
-  .art { position:fixed; top:50%; right:max(16px,calc(50vw - 640px)); width:min(54vw,720px); transform:translateY(-52%); pointer-events:none; }
-  .art svg { display:block; width:100%; height:auto; overflow:visible; }
-  .ln { stroke:var(--muted); stroke-width:1; stroke-linecap:square; stroke-dasharray:1; stroke-dashoffset:1; animation:draw 1.4s cubic-bezier(.65,0,.35,1) var(--d,0s) forwards; }
+  /* поля справа = полям слева у карточки: учитываем 24 ед. пустого поля внутри viewBox (668) */
+  .art { --aw:min(700px,calc((100vw - 2 * var(--pad) - 488px) * 668 / 644)); position:fixed; top:calc(50% - 22px); right:calc(var(--pad) - var(--aw) * 24 / 668); width:var(--aw); transform:translateY(-50%); pointer-events:none; }
+  .art svg { display:block; width:100%; height:auto; }
+  .ln { stroke:var(--muted); stroke-width:1; stroke-linecap:butt; stroke-linejoin:miter; stroke-dasharray:1; stroke-dashoffset:1; animation:draw 1.2s cubic-bezier(.65,0,.35,1) var(--d,0s) forwards; }
   .ln.strong { stroke:var(--text); stroke-width:1.6; }
+  .ln.thin { stroke:var(--dim); stroke-width:.75; }
+  .ln.faint { stroke:var(--dim); }
   .ln.hatch { stroke:var(--line-strong); }
-  .win { fill:var(--text); fill-opacity:0; stroke:var(--text); stroke-width:1; stroke-dasharray:1; stroke-dashoffset:1; animation:draw 1s ease var(--d,0s) forwards, glow 7s ease-in-out calc(var(--d,0s) + 1.6s + var(--w,0s)) infinite; }
+  .ln.dash { animation:fadeIn .8s ease var(--d,0s) forwards; stroke-dasharray:6 4; stroke-dashoffset:0; opacity:0; }
+  .win { fill:var(--text); fill-opacity:0; stroke:var(--text); stroke-width:1; stroke-dasharray:1; stroke-dashoffset:1; animation:draw 1s ease var(--d,0s) forwards, glow 7s ease-in-out calc(var(--d,0s) + 1.5s + var(--w,0s)) infinite; }
   .win.red { stroke:var(--red); fill:var(--red); }
-  .t { font:500 10px var(--mono); letter-spacing:.12em; fill:var(--muted); opacity:0; animation:fade .6s ease 2.2s forwards; }
-  .t.dim { fill:var(--dim); }
-  .t.c { text-anchor:middle; }
+  .t { font:500 12px var(--mono); letter-spacing:.12em; fill:var(--muted); opacity:0; animation:fadeIn .6s ease 2.4s forwards; }
+  .t.hi { fill:var(--text); }
   @keyframes draw { to { stroke-dashoffset:0; } }
   @keyframes glow { 0%,100% { fill-opacity:0; } 35%,70% { fill-opacity:.85; } }
-  @keyframes fade { to { opacity:1; } }
-  @media (max-width:820px) { .art { top:16px; right:50%; width:min(100vw - 24px,520px); transform:translateX(50%); } }
-  @media (prefers-reduced-motion:reduce) { .ln,.win { stroke-dashoffset:0; } .t { opacity:1; } }`;
+  @keyframes fadeIn { to { opacity:1; } }
+  /* до 1100px чертёж встаёт над формой, иначе подписи на нём мельче 8px */
+  @media (max-width:1100px) {
+    /* поле рисунка внутри viewBox (по 24 ед. с краёв) совпадает по ширине с карточкой */
+    .art { position:relative; top:auto; right:auto; transform:none; width:calc(min(440px, 100% - 32px) * 668 / 620); margin:24px auto 0; }
+    body main { min-height:0; justify-content:center; align-items:flex-start; padding:16px 16px 76px; }
+  }
+  @media (prefers-reduced-motion:reduce) { .ln,.win { stroke-dashoffset:0; } .ln.dash,.t { opacity:1; } }`;
 
 const LOOKS: Record<string, LoginLook> = {
   TASirotina: {
     eyebrow: 'Для Татьяны Сиротиной',
     title: ['Татьяна,', 'здравствуйте'],
-    lead: 'Здесь прототип вашего сайта‑портфолио: проекты, чертежи и&nbsp;галерея, на&nbsp;русском и&nbsp;английском. Пароль в&nbsp;моём сообщении.',
+    lead: 'Здесь прототип вашего сайта: проекты, чертежи и&nbsp;галерея на&nbsp;русском и&nbsp;английском. Пароль в&nbsp;моём сообщении.',
+    ticker: ['Татьяна Сиротина', 'архитектура и интерьеры', 'прототип сайта-портфолио', 'yaropolov.ru'],
     art: HOUSE_ART,
     artCss: HOUSE_CSS,
   },
@@ -141,6 +158,7 @@ const DEFAULT_LOOK: LoginLook = {
   eyebrow: 'Прототип · yaropolov.ru',
   title: ['Закрытый', 'просмотр'],
   lead: 'Прототип открывается по паролю. Он&nbsp;в&nbsp;том же сообщении, что и&nbsp;ссылка.',
+  ticker: ['Закрытый просмотр', 'прототип сайта', 'yaropolov.ru', 'сайты и реклама под заявки'],
   art: '',
   artCss: '',
 };
@@ -166,6 +184,8 @@ export function loginPage(next: string, error: string): string {
     --line:#2a2620; --line-strong:#4a4438; --grid:#4a4438; --red:#c8232f; --err:#e0715a;
     --sans:Onest,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
     --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+    /* боковые поля: растут до 112px, на очень широких экранах композиция держится в 1440px */
+    --pad:max(clamp(24px,7vw,112px),calc((100vw - 1440px) / 2 + 101px));
   }
   * { box-sizing:border-box; }
   body { margin:0; min-height:100dvh; background:var(--bg); color:var(--text); font:16px/1.5 var(--sans); overflow-x:hidden; }
@@ -184,7 +204,7 @@ ${look.artCss}
   @keyframes run { to { transform:translateX(-100%); } }
 
   /* Форма */
-  main { position:relative; z-index:1; min-height:100dvh; display:flex; align-items:center; padding:32px clamp(24px,7vw,112px) 76px; }
+  main { position:relative; z-index:1; min-height:100dvh; display:flex; align-items:center; padding:32px var(--pad) 76px; }
   .card { width:100%; max-width:440px; padding:40px 36px 32px; background:rgba(16,14,11,.82); border:1px solid var(--line); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
   .eyebrow { display:flex; align-items:center; gap:10px; margin:0 0 28px; font:500 12px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
   .eyebrow i { width:8px; height:8px; background:var(--red); animation:blink 1.6s steps(2) infinite; }
@@ -192,7 +212,7 @@ ${look.artCss}
   h1 { margin:0 0 14px; font-size:clamp(40px,5.2vw,56px); line-height:.98; font-weight:700; letter-spacing:-.035em; }
   h1 span { display:block; }
   h1 em { font-style:normal; color:var(--red); }
-  .lead { margin:0 0 32px; max-width:36ch; color:var(--muted); text-wrap:pretty; }
+  .lead { margin:0 0 32px; max-width:36ch; color:var(--muted); text-wrap:balance; }
   label { display:block; margin-bottom:10px; font:500 12px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
   .field { display:flex; }
   input[type=password] { flex:1; min-width:0; height:56px; padding:0 16px; background:transparent; color:var(--text); border:1px solid var(--line-strong); border-right:0; border-radius:0; font:16px var(--sans); letter-spacing:.12em; transition:border-color .2s; }
@@ -210,7 +230,7 @@ ${look.artCss}
   .foot a:hover { color:var(--text); border-color:var(--text); }
 
   @media (max-width:820px) {
-    main { align-items:flex-end; padding-inline:16px; }
+    main { min-height:0; align-items:flex-start; padding:16px 16px 76px; }
     .card { padding:32px 24px 28px; }
   }
   @media (prefers-reduced-motion:reduce) {
@@ -222,7 +242,7 @@ ${look.artCss}
 <div class="bg grid grid-base" aria-hidden="true"></div>
 <div class="bg grid grid-spot" id="spot" aria-hidden="true"></div>
 ${look.art}
-<div class="ticker" aria-hidden="true"><span>Закрытый просмотр <b>●</b> прототип сайта <b>●</b> yaropolov.ru <b>●</b> сайты и реклама под заявки <b>●</b> Закрытый просмотр <b>●</b> прототип сайта <b>●</b> yaropolov.ru <b>●</b> сайты и реклама под заявки <b>●</b></span></div>
+<div class="ticker" aria-hidden="true"><span>${[...look.ticker, ...look.ticker].map((s) => `${s} <b>●</b>`).join(' ')}</span></div>
 
 <main>
   <div class="card">
@@ -232,7 +252,7 @@ ${look.art}
     <form method="post" autocomplete="off">
       <label for="pw">Пароль</label>
       <div class="field">
-        <input id="pw" name="password" type="password" required autofocus autocomplete="current-password"${error ? ' aria-invalid="true" aria-describedby="err"' : ''}>
+        <input id="pw" name="password" type="password" required autocomplete="current-password"${error ? ' aria-invalid="true" aria-describedby="err"' : ''}>
         <button type="submit" aria-label="Открыть"><svg viewBox="0 0 16 16" width="18" height="18" fill="none" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/></svg></button>
       </div>
       <input type="hidden" name="next" value="${esc(next)}">
@@ -242,6 +262,8 @@ ${look.art}
   </div>
 </main>
 <script>
+  // фокус в поле без прокрутки: на узких экранах рисунок над формой должен остаться на виду
+  try { document.getElementById('pw').focus({ preventScroll: true }); } catch (e) {}
   (function () {
     var s = document.getElementById('spot');
     if (!s || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
