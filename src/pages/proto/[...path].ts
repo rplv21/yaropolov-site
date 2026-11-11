@@ -56,11 +56,11 @@ export const POST: APIRoute = async ({ request, url }) => {
   const form = await request.formData().catch(() => null);
   const site = siteOf(url.pathname);
   const next = safeNext(form?.get('next'), site, url.pathname);
-  if (tooManyTries(ip)) return page(loginPage(next, 'Слишком много попыток. Подождите несколько минут.'), 429);
+  if (tooManyTries(ip)) return page(loginPage(next, 'Слишком много попыток. Подождите 10 минут.'), 429);
   const pw = String(form?.get('password') ?? '');
   if (!site || !checkPassword(site, pw)) {
     noteFail(ip);
-    return page(loginPage(next, 'Пароль не подошёл. Проверьте раскладку и попробуйте ещё раз.'), 401);
+    return page(loginPage(next, 'Пароль не подошёл. Проверьте раскладку.'), 401);
   }
   const secure = url.protocol === 'https:' || request.headers.get('x-forwarded-proto') === 'https';
   return new Response(null, { status: 303, headers: { ...BASE_HEADERS, Location: next, 'Set-Cookie': issueCookie(site, secure) } });
