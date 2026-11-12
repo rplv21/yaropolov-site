@@ -321,6 +321,8 @@ const faqSchema = article.faq?.length
   }
 
   .next-title {
+    min-width: 0;
+    overflow-wrap: break-word;
     max-width: 22ch;
     font-weight: 200;
     font-size: clamp(30px, 5.2vw, 96px);
@@ -344,6 +346,14 @@ const faqSchema = article.faq?.length
   .next-arrow svg {
     width: 45%;
     height: 45%;
+  }
+
+  /* на узких экранах длинное слово в заголовке не помещается рядом со стрелкой: стрелка уходит под заголовок */
+  @media (max-width: 479px) {
+    .next-link {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
 
   @media (hover: hover) and (pointer: fine) {

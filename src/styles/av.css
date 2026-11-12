@@ -685,7 +685,9 @@ html.still *::after {
 .menu-tg,
 .foot a,
 .privacy-open,
-.svc-go {
+.svc-go,
+.st-link,
+.crumbs a {
   position: relative;
 }
 
@@ -693,7 +695,9 @@ html.still *::after {
 .menu-tg::after,
 .foot a::after,
 .privacy-open::after,
-.svc-go::after {
+.svc-go::after,
+.st-link::after,
+.crumbs a::after {
   content: '';
   position: absolute;
   inset: -6px -4px;
