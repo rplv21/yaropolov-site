@@ -198,8 +198,15 @@ const faqSchema = article.faq?.length
     gap: 14px;
     align-self: start;
     color: #6b6556;
-    position: sticky;
-    top: calc(var(--mast) + 24px);
+  }
+
+  /* метка «Статья» прилипает только в двухколоночной раскладке, где у неё своя колонка;
+     на узких экранах она наезжала на текст статьи */
+  @media (min-width: 1000px) {
+    .abody-side {
+      position: sticky;
+      top: calc(var(--mast) + 24px);
+    }
   }
 
   .abody-mark {
