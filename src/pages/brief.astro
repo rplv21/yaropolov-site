@@ -199,6 +199,7 @@ const hintLines = (h: string) => {
   /* ───────── Основная часть: светлая, чтобы длинную форму читать было удобно ───────── */
   .bmain {
     background: var(--paper);
+    --dim: #6b6555;
     color: var(--ink);
     padding-block: clamp(40px, 6vw, 96px) clamp(72px, 9vw, 150px);
   }
@@ -478,6 +479,7 @@ const hintLines = (h: string) => {
 
   .opt input:checked + span {
     background: var(--ink);
+    --dim: #8a8370;
     color: var(--paper);
   }
 
@@ -575,6 +577,7 @@ const hintLines = (h: string) => {
     justify-content: center;
     padding: 17px 32px;
     background: var(--ink);
+    --dim: #8a8370;
     color: var(--paper);
     border: 1px solid var(--ink);
     font-family: inherit;
@@ -619,6 +622,7 @@ const hintLines = (h: string) => {
 
     .b-btn--red:not(:disabled):hover {
       background: var(--ink);
+      --dim: #8a8370;
       border-color: var(--ink);
     }
   }

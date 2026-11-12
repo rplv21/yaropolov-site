@@ -35,12 +35,14 @@
 
 html {
   background: var(--ink);
+  --dim: #8a8370;
   -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
   background: var(--ink);
+  --dim: #8a8370;
   color: var(--paper);
   font-family: var(--f);
   font-size: 17px;
@@ -436,6 +438,7 @@ button {
   display: none;
   overflow-y: auto;
   background: var(--ink);
+  --dim: #8a8370;
   color: var(--paper);
   visibility: hidden;
 }
@@ -555,6 +558,7 @@ html.menu-open {
 /* ───────── Подвал ───────── */
 .foot {
   background: var(--ink);
+  --dim: #8a8370;
   padding: 56px var(--pad) 40px;
   border-top: 1px solid var(--line);
 }
@@ -604,6 +608,7 @@ html.menu-open {
   padding: 0;
   border: 1px solid var(--ink);
   background: var(--paper);
+  --dim: #6b6555;
   color: var(--ink);
 }
 
@@ -619,6 +624,7 @@ html.menu-open {
   justify-content: space-between;
   padding: 14px 20px;
   background: var(--ink);
+  --dim: #8a8370;
   color: var(--paper);
 }
 
@@ -660,4 +666,15 @@ html.menu-open {
   .btn::before {
     transition: none;
   }
+}
+
+/* ?still — режим проверки вёрстки (см. AvLayout): CSS-анимации и переходы сразу в конечном состоянии */
+html.still *,
+html.still *::before,
+html.still *::after {
+  animation-duration: 0.001ms !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  transition-delay: 0s !important;
 }

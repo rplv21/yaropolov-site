@@ -175,6 +175,7 @@ const faqSchema = article.faq?.length
   /* Тело статьи на бумаге: длинный текст читается лучше светлым */
   .abody {
     background: var(--paper);
+    --dim: #6b6555;
     color: var(--ink);
     padding-block: clamp(56px, 8vw, 128px);
   }
@@ -346,6 +347,7 @@ const faqSchema = article.faq?.length
     .next-link:hover .next-arrow {
       transform: rotate(45deg);
       background: var(--ink);
+      --dim: #8a8370;
       color: var(--red);
     }
   }

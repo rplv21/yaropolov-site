@@ -65,6 +65,21 @@ const links = [
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      // ?still — режим проверки вёрстки: скрипты видят «меньше движения» и сразу показывают финальное состояние.
+      // Посетителей не касается: без параметра ничего не меняется.
+      (function () {
+        if (location.search.indexOf('still') < 0) return;
+        var mm = window.matchMedia.bind(window);
+        window.matchMedia = function (q) {
+          if (/prefers-reduced-motion:\s*reduce/.test(q)) {
+            return { matches: true, media: q, onchange: null, addListener: function () {}, removeListener: function () {}, addEventListener: function () {}, removeEventListener: function () {}, dispatchEvent: function () { return false; } };
+          }
+          return mm(q);
+        };
+        document.documentElement.classList.add('still');
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonicalURL} />
     <title>{title}</title>
