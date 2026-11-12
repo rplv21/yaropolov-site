@@ -133,6 +133,7 @@ if (reduce) {
   document.querySelectorAll('.svc').forEach((s, i) => s.classList.toggle('is-open', i === 0));
   initFaq();
   initStages(false);
+  initCasesTrack(false);
   initHall(); // при «уменьшении движения» схема зала сразу в конечном виде
 } else {
   boot();
@@ -354,69 +355,26 @@ function initCases() {
   const mm = gsap.matchMedia();
 
   mm.add('(min-width: 1000px)', () => {
-    const pin = document.querySelector<HTMLElement>('.hz-pin');
     const track = document.querySelector<HTMLElement>('.hz-track');
-    if (!pin || !track) return;
-    const dist = () => Math.max(0, track.scrollWidth - pin.clientWidth);
-
-    // «Упор» на обоих краях: слайдер стоит на месте ещё ~1,5-2 щелчка колеса (180-260 px), прежде чем
-    // страница тронется дальше. Так понятно, что листать в сторону больше некуда.
-    // Весь путь закрепления = упор + движение + упор, а положение дорожки считаем сами.
-    const hold = () => Math.round(Math.min(260, Math.max(180, window.innerHeight * 0.18)));
-    // Плавный сход: после правого упора содержимое начинает уезжать вверх, разгоняясь
-    // от нуля до скорости обычной прокрутки (y = -exit * e^2 / 2). Когда блок отпускает
-    // страницу, скорости уже равны, поэтому нет рывка «стоял и сорвался».
-    const exitPx = () => Math.round(window.innerHeight * 0.5);
-    const total = () => dist() + hold() * 2 + exitPx();
+    if (!track) return;
     const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
-    // Прогресс закрепления -> сдвиг дорожки: упор, линейное движение, упор
-    const xAt = (progress: number) => {
-      const px = progress * total();
-      return -dist() * clamp01((px - hold()) / dist());
-    };
-    // Прогресс закрепления -> вертикальный сдвиг на фазе схода (остаётся -exit/2 после неё)
-    const yAt = (progress: number) => {
-      const px = progress * total() - (dist() + hold() * 2);
-      const e = clamp01(px / exitPx());
-      return (-exitPx() * e * e) / 2;
-    };
-
     const panels = $$('.panel');
     const lines = panels.map((p) => $$('.t-line', p));
     lines.flat().forEach((l) => (l.style.strokeDashoffset = '1'));
     const fired = new Set<HTMLElement>();
-
-    // Геометрию читаем только при пересчёте, а не на каждом кадре прокрутки:
-    // чтение offsetLeft в кадре заставляет браузер заново считать раскладку.
-    let offsets: number[] = [];
-    let viewW = 0;
-    const measure = () => {
-      offsets = panels.map((p) => p.offsetLeft);
-      viewW = pin.clientWidth;
-    };
-    measure();
-
-    // Дорожка живёт на своём слое (will-change в CSS) и повторяет прокрутку один в один.
-    // Лишнего сглаживания нет: браузерная прокрутка уже плавная, а догоняющая анимация
-    // давала ощущение запаздывания и рывков.
-    const setX = gsap.quickSetter(track, 'x', 'px');
-    const setY = gsap.quickSetter(track, 'y', 'px');
     const lastDraw = lines.map(() => -1);
 
-    const apply = (progress: number) => {
-      const x = xAt(progress);
-      setX(x);
-      setY(yAt(progress));
-
+    // Кейс въезжает в кадр ленты: запускаем счётчики и зал, линию роста дорисовываем по мере въезда
+    const apply = () => {
+      const tr = track.getBoundingClientRect();
+      const viewW = track.clientWidth;
       panels.forEach((panel, i) => {
-        // Положение панели на экране с учётом сдвига дорожки
-        const left = offsets[i] + x;
-        if (!fired.has(panel) && left < viewW * 0.75) {
+        const left = panel.getBoundingClientRect().left - tr.left;
+        if (!fired.has(panel) && left < viewW * 0.75 && tr.top < innerHeight * 0.8 && tr.bottom > 0) {
           fired.add(panel);
           $$('[data-count]', panel).forEach((n) => countUp(n));
           hallIn(panel);
         }
-        // Линию роста перерисовываем, только если она заметно изменилась
         const draw = clamp01((viewW * 0.7 - left) / (viewW * 0.55));
         if (Math.abs(draw - lastDraw[i]) > 0.004) {
           lastDraw[i] = draw;
@@ -425,19 +383,14 @@ function initCases() {
         }
       });
     };
-
-    ScrollTrigger.create({
-      trigger: pin,
-      pin: true,
-      start: 'top top',
-      end: () => '+=' + total(),
-      invalidateOnRefresh: true,
-      onRefresh: (self) => {
-        measure();
-        apply(self.progress);
-      },
-      onUpdate: (self) => apply(self.progress),
-    });
+    track.addEventListener('scroll', apply, { passive: true });
+    ScrollTrigger.create({ trigger: track, start: 'top 80%', onEnter: apply, onRefresh: apply });
+    apply();
+    const stop = initCasesTrack(true);
+    return () => {
+      track.removeEventListener('scroll', apply);
+      stop?.();
+    };
   });
 
   mm.add('(max-width: 999px)', () => {
@@ -464,6 +417,84 @@ function initCases() {
       );
     });
   });
+}
+
+/* ───────── Правило ЯПА: горизонтальная лента без закрепления блока ─────────
+   Колесо листает ленту вбок, пока курсор в полосе карточек (включая промежутки между ними).
+   Выше и ниже полосы, а также на краях ленты страница прокручивается как обычно.
+   Горизонтальный жест тачпада листает ленту сам. Под лентой: счётчик, линия прогресса и стрелки.
+   То же правило работает в ленте «Кадры» прототипа Сиротиной. */
+function initCasesTrack(animated: boolean): (() => void) | undefined {
+  const track = document.querySelector<HTMLElement>('.hz-track');
+  const ctl = document.querySelector<HTMLElement>('[data-hz-ctl]');
+  if (!track || !ctl || !matchMedia('(min-width: 1000px)').matches) return;
+  const panels = $$('.panel', track);
+  const count = ctl.querySelector<HTMLElement>('[data-hz-count]');
+  const bar = ctl.querySelector<HTMLElement>('[data-hz-bar]');
+  const prev = ctl.querySelector<HTMLButtonElement>('[data-hz-prev]');
+  const next = ctl.querySelector<HTMLButtonElement>('[data-hz-next]');
+  const total = String(panels.length).padStart(2, '0');
+  const pad = () => parseFloat(getComputedStyle(track).paddingLeft) || 0;
+  const max = () => track.scrollWidth - track.clientWidth;
+
+  // текущий кейс: первый, чей левый край не ушёл за левое поле ленты
+  const current = () => {
+    const edge = track.getBoundingClientRect().left + pad() - 2;
+    const i = panels.findIndex((p) => p.getBoundingClientRect().left >= edge);
+    return i === -1 ? panels.length - 1 : i;
+  };
+  const update = () => {
+    const m = max();
+    const atEnd = track.scrollLeft >= m - 2;
+    const i = atEnd ? panels.length - 1 : current();
+    if (count) count.textContent = `${String(i + 1).padStart(2, '0')} / ${total}`;
+    if (bar) bar.style.transform = `scaleX(${Math.max(0.05, m > 0 ? track.scrollLeft / m : 1)})`;
+    if (prev) prev.disabled = track.scrollLeft <= 2;
+    if (next) next.disabled = atEnd;
+  };
+
+  let target = track.scrollLeft;
+  const to = (x: number) => {
+    target = Math.min(max(), Math.max(0, x));
+    if (!animated) track.scrollLeft = target;
+    else gsap.to(track, { scrollLeft: target, duration: 0.8, ease: 'power3.out', overwrite: true });
+  };
+  const go = (dir: 1 | -1) => {
+    const j = Math.min(panels.length - 1, Math.max(0, current() + dir));
+    to(track.scrollLeft + panels[j].getBoundingClientRect().left - track.getBoundingClientRect().left - pad());
+  };
+
+  const onWheel = (e: WheelEvent) => {
+    if (e.ctrlKey) return;
+    const band = panels[0].getBoundingClientRect();
+    if (e.clientY < band.top || e.clientY > band.bottom) return;
+    // горизонтальный жест тачпада и так листает ленту сам
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    const from = gsap.isTweening(track) ? target : track.scrollLeft;
+    const nextX = Math.min(max(), Math.max(0, from + e.deltaY));
+    if (nextX === from) return; // край ленты: дальше идёт прокрутка страницы
+    e.preventDefault();
+    target = nextX;
+    if (!animated) track.scrollLeft = nextX;
+    else gsap.to(track, { scrollLeft: nextX, duration: 0.6, ease: 'power3.out', overwrite: true });
+  };
+
+  const onPrev = () => go(-1);
+  const onNext = () => go(1);
+  track.setAttribute('data-lenis-prevent', '');
+  if (fine) track.addEventListener('wheel', onWheel, { passive: false });
+  prev?.addEventListener('click', onPrev);
+  next?.addEventListener('click', onNext);
+  track.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+  return () => {
+    track.removeEventListener('wheel', onWheel);
+    prev?.removeEventListener('click', onPrev);
+    next?.removeEventListener('click', onNext);
+    track.removeEventListener('scroll', update);
+    window.removeEventListener('resize', update);
+  };
 }
 
 // Услуги: колонки раскрываются по наведению / фокусу / нажатию.
@@ -519,6 +550,7 @@ function initServices() {
   };
 
   const data = new Map<HTMLElement, { name: HTMLElement[]; vert: HTMLElement[]; vertEl: HTMLElement | null }>();
+  const scrambles = new Map<HTMLElement, number>();
   items.forEach((s) => {
     const nameEl = s.querySelector<HTMLElement>('.svc-name');
     const vertEl = s.querySelector<HTMLElement>('.svc-vert');
@@ -547,18 +579,17 @@ function initServices() {
     items.forEach((s) => s.classList.toggle('is-open', s === el));
 
     if (!moves || !d) return;
+    // Буквы перелетают из вертикальной подписи на место, а текст проявляется
+    // так же, как в скремблере шапки: волной слева направо, шаг 28 мс,
+    // ещё не открытые буквы перебираются случайными.
+    const letters = d.name.map((c) => /\p{L}/u.test(c.dataset.ch || ''));
     d.name.forEach((c, i) => {
       const m = moves![i];
-      const ch = c.dataset.ch || '';
-      const isLetter = /\p{L}/u.test(ch);
-      if (isLetter) {
+      if (letters[i]) {
         c.style.width = m.w + 'px';
         c.style.textAlign = 'center';
       }
       gsap.killTweensOf(c);
-      // Буква меняется не каждый кадр, а раз в ~90 мс (как в скремблере шапки),
-      // и возвращается к настоящей, когда долетела примерно на две трети пути
-      let swappedAt = 0;
       gsap.fromTo(
         c,
         { x: m.dx, y: m.dy, rotate: -90 },
@@ -566,29 +597,35 @@ function initServices() {
           x: 0,
           y: 0,
           rotate: 0,
-          duration: 0.85,
-          ease: 'power4.out',
-          delay: i * 0.025,
-          onUpdate: function () {
-            if (!isLetter) return;
-            if (this.time() >= 0.75) {
-              if (c.textContent !== ch) c.textContent = ch;
-              return;
-            }
-            const now = performance.now();
-            if (now - swappedAt > 90) {
-              swappedAt = now;
-              c.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
-            }
-          },
-          onComplete: () => {
-            c.textContent = ch;
-            c.style.width = '';
-            c.style.textAlign = '';
-          },
+          duration: 0.95,
+          ease: 'power3.out',
+          delay: i * 0.02,
         }
       );
     });
+    const prev = scrambles.get(el);
+    if (prev) clearInterval(prev);
+    // в пределах длительности перелёта волна успевает пройти даже по длинному названию
+    const step = Math.min(28, Math.round(1100 / (d.name.length * 2)));
+    let frame = 0;
+    const total = d.name.length * 2;
+    const tick = window.setInterval(() => {
+      d.name.forEach((c, i) => {
+        const ch = c.dataset.ch || '';
+        c.textContent = !letters[i] || i < frame / 2 ? ch : glyphs[Math.floor(Math.random() * glyphs.length)];
+      });
+      if (++frame > total) {
+        clearInterval(tick);
+        scrambles.delete(el);
+        // ширина буквы держится до конца перебора, иначе строка дёргается от разной ширины знаков
+        d.name.forEach((c) => {
+          c.textContent = c.dataset.ch || '';
+          c.style.width = '';
+          c.style.textAlign = '';
+        });
+      }
+    }, step);
+    scrambles.set(el, tick);
   };
 
   open(items[0], false);

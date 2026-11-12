@@ -678,3 +678,23 @@ html.still *::after {
   transition-duration: 0.001ms !important;
   transition-delay: 0s !important;
 }
+
+/* Мелкие одиночные ссылки: область нажатия не меньше 24 px по высоте (WCAG 2.5.8).
+   Расширяем невидимым слоем, поэтому вёрстка и подчёркивания не сдвигаются. */
+.mast-logo,
+.menu-tg,
+.foot a,
+.privacy-open,
+.svc-go {
+  position: relative;
+}
+
+.mast-logo::after,
+.menu-tg::after,
+.foot a::after,
+.privacy-open::after,
+.svc-go::after {
+  content: '';
+  position: absolute;
+  inset: -6px -4px;
+}

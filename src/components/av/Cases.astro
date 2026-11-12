@@ -100,7 +100,7 @@ const climb = 'M4,92 C60,90 100,86 150,76 S230,40 296,6';
           <ul class="panel-acts">
             {case3.actions.map((a) => <li>{a}</li>)}
           </ul>
-          <p class="panel-avail mono">Сайт работает в период фестиваля</p>
+          <p class="panel-avail mono">Сайт работал в период фестиваля</p>
         </div>
 
         <div class="panel-fig">
@@ -136,7 +136,7 @@ const climb = 'M4,92 C60,90 100,86 150,76 S230,40 296,6';
                       <span>{hall.total} мест, бронь открыта</span>
                     ) : (
                       <span>
-                        <b>{pct(d.booked)}%</b> занято, {d.booked} из {hall.total}
+                        <b>{pct(d.booked)}%</b> занято, <span class="nw">{d.booked} из {hall.total}</span>
                       </span>
                     )}
                   </p>
@@ -147,10 +147,23 @@ const climb = 'M4,92 C60,90 100,86 150,76 S230,40 296,6';
         </div>
       </article>
     </div>
+    <!-- Правило ЯПА: под горизонтальной лентой — счётчик, линия прогресса и стрелки -->
+    <div class="hz-ctl" data-hz-ctl>
+      <span class="hz-count mono" data-hz-count>01 / 03</span>
+      <div class="hz-bar" aria-hidden="true"><i data-hz-bar></i></div>
+      <div class="hz-arrows">
+        <button type="button" data-hz-prev aria-label="Предыдущий кейс"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true" style="transform:rotate(180deg)"><path d="M1 8h13M9 3l5 5-5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="square" /></svg></button>
+        <button type="button" data-hz-next aria-label="Следующий кейс"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="square" /></svg></button>
+      </div>
+    </div>
   </div>
 </section>
 
 <style>
+  .nw {
+    white-space: nowrap;
+  }
+
   .cases {
     background: var(--ink-2);
     --dim: #8a8370;
@@ -168,14 +181,82 @@ const climb = 'M4,92 C60,90 100,86 150,76 S230,40 296,6';
     padding-bottom: clamp(40px, 6vw, 96px);
   }
 
+  .hz-ctl {
+    display: none;
+  }
+
+  /* Правило ЯПА (как лента «Кадры» у прототипа Сиротиной): без закрепления блока.
+     Лента сама прокручивается вбок; колесо листает её, пока курсор над полосой кейсов,
+     а выше/ниже полосы и на краях ленты страница едет как обычно (см. initCases в av.ts). */
   @media (min-width: 1000px) {
     .hz-pin {
-      min-height: 100vh;
-      display: flex;
+      padding-bottom: clamp(56px, 7vw, 120px);
+    }
+
+    .hz-ctl {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
       align-items: center;
+      gap: 24px;
+      margin-top: 32px;
+      padding-inline: var(--pad);
+      color: var(--paper);
+    }
+
+    .hz-count {
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      color: var(--dim);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .hz-bar {
+      position: relative;
+      height: 1px;
+      background: var(--line);
       overflow: hidden;
-      margin-top: 0;
-      padding-bottom: 0;
+    }
+
+    .hz-bar i {
+      position: absolute;
+      inset: 0;
+      background: var(--red);
+      transform-origin: left center;
+      transform: scaleX(0.05);
+      transition: transform 0.35s var(--ease);
+    }
+
+    .hz-arrows {
+      display: flex;
+      gap: 8px;
+    }
+
+    .hz-arrows button {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      color: var(--paper);
+      background: transparent;
+      cursor: pointer;
+      transition: border-color 0.25s ease, background-color 0.25s ease, opacity 0.25s ease;
+    }
+
+    .hz-arrows button:hover:not(:disabled) {
+      border-color: var(--paper);
+      background: rgba(246, 240, 220, 0.06);
+    }
+
+    .hz-arrows button:focus-visible {
+      outline: 1px solid var(--paper);
+      outline-offset: 3px;
+    }
+
+    .hz-arrows button:disabled {
+      opacity: 0.3;
+      cursor: default;
     }
   }
 
@@ -190,10 +271,39 @@ const climb = 'M4,92 C60,90 100,86 150,76 S230,40 296,6';
 
   @media (min-width: 1000px) {
     .hz-track {
+      will-change: auto;
       flex-direction: row;
+      align-items: stretch;
       gap: 40px;
-      width: max-content;
       padding-inline: var(--pad);
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-padding-inline: var(--pad);
+      scrollbar-width: none;
+    }
+
+    .hz-track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .hz-track > .panel {
+      flex: none;
+    }
+  }
+
+  @media (min-width: 1000px) and (hover: none) {
+    .hz-track {
+      scroll-snap-type: x mandatory;
+    }
+
+    .hz-track > .panel {
+      scroll-snap-align: start;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hz-bar i {
+      transition: none;
     }
   }
 

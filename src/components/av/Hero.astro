@@ -110,6 +110,18 @@ const items = [
     gap: 12px;
   }
 
+  /* на телефоне кнопки стоят столбиком — одной ширины */
+  @media (max-width: 599px) {
+    .hero-cta {
+      flex-direction: column;
+    }
+
+    .hero-cta :global(.btn) {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
   .js .hero-fade {
     opacity: 0;
     visibility: hidden;
