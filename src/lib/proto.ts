@@ -1,5 +1,5 @@
-// Закрытые прототипы для клиентов: /proto/<имя>/ отдаёт статический сайт из папки proto-sites/<имя>/
-// только тому, кто ввёл пароль именно этого прототипа. У каждого прототипа свой пароль.
+// Закрытые разделы для клиентов: /proto/<имя>/ (прототипы) и /data/<имя>/ (отчёты) отдают статический сайт
+// из proto-vault/<имя>.enc только тому, кто ввёл пароль именно этого раздела. У каждого раздела свой пароль.
 import { createHmac, scryptSync, timingSafeEqual } from 'node:crypto';
 import credentials from './protoCredentials.json';
 import { secret } from './protoVault';
@@ -10,9 +10,9 @@ const CREDS = credentials as Record<string, Cred>;
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 дней
 const NAME = /^[A-Za-z0-9_-]+$/;
 
-/** Имя прототипа из адреса: /proto/TASirotina/en/ -> TASirotina */
+/** Имя раздела из адреса: /proto/TASirotina/en/ -> TASirotina, /data/PsyStudResurs/ -> PsyStudResurs */
 export function siteOf(pathname: string): string {
-  const first = pathname.replace(/^\/proto\/?/, '').split('/')[0];
+  const first = pathname.replace(/^\/(proto|data)\/?/, '').split('/')[0];
   return NAME.test(first) ? first : '';
 }
 
@@ -38,9 +38,9 @@ export function checkPassword(site: string, input: string): boolean {
 // Ключ подписи зависит от имени и хеша пароля: смена пароля сразу отзывает выданные доступы.
 const sign = (site: string, v: string) => createHmac('sha256', `proto:${site}:${CREDS[site]?.hash ?? ''}:${secret()}`).update(v).digest('hex');
 
-export function issueCookie(site: string, secure: boolean): string {
+export function issueCookie(site: string, secure: boolean, section: 'proto' | 'data' = 'proto'): string {
   const exp = String(Math.floor(Date.now() / 1000) + MAX_AGE);
-  return `${cookieName(site)}=${exp}.${sign(site, exp)}; Path=/proto/${site}; Max-Age=${MAX_AGE}; HttpOnly; SameSite=Lax${secure ? '; Secure' : ''}`;
+  return `${cookieName(site)}=${exp}.${sign(site, exp)}; Path=/${section}/${site}; Max-Age=${MAX_AGE}; HttpOnly; SameSite=Lax${secure ? '; Secure' : ''}`;
 }
 
 export function hasAccess(site: string, cookieHeader: string | null): boolean {
@@ -143,6 +143,60 @@ const HOUSE_CSS = `
   }
   @media (prefers-reduced-motion:reduce) { .ln,.win { stroke-dashoffset:0; } .ln.dash,.t { opacity:1; } }`;
 
+// График спроса собран скриптом из выгрузки Вордстата: scripts/proto-login/psy-chart.py <dynamics.csv>.
+// Классы и viewBox те же, что у фасада, поэтому стили HOUSE_CSS подходят без изменений.
+const PSY_ART = `<div class="art" aria-hidden="true">
+  <svg viewBox="0 0 668 440" fill="none">
+    <text x="24" y="34" class="t hi">СПРОС · КУРСОВАЯ ПО ПСИХОЛОГИИ</text>
+    <text x="644" y="34" class="t" text-anchor="end">ЗАПРОСОВ В МЕСЯЦ</text>
+    <path pathLength="1" class="ln" style="--d:0.20s" d="M72 360.0H644"/>
+    <text x="24" y="364.0" class="t">0</text>
+    <path pathLength="1" class="ln thin" style="--d:0.28s" d="M72 265.3H644"/>
+    <text x="24" y="269.3" class="t">2 ТЫС</text>
+    <path pathLength="1" class="ln thin" style="--d:0.36s" d="M72 170.7H644"/>
+    <text x="24" y="174.7" class="t">4 ТЫС</text>
+    <path pathLength="1" class="ln thin" style="--d:0.44s" d="M72 76.0H644"/>
+    <text x="24" y="80.0" class="t">6 ТЫС</text>
+    <path pathLength="1" class="ln hatch" style="--d:0.52s" d="M72.0 360V157.2"/>
+    <path pathLength="1" class="ln hatch" style="--d:0.55s" d="M98.0 360V172.1"/>
+    <path pathLength="1" class="ln hatch" style="--d:0.57s" d="M124.0 360V212.6"/>
+    <path pathLength="1" class="ln hatch" style="--d:0.60s" d="M150.0 360V177.6"/>
+    <path pathLength="1" class="ln hatch" style="--d:0.62s" d="M176.0 360V185.0"/>
+    <path pathLength="1" class="ln hatch" style="--d:0.65s" d="M202.0 360V207.2"/>
+    <path pathLength="1" class="ln hatch" style="--d:0.67s" d="M228.0 360V202.3"/>
+    <path pathLength="1" class="ln hatch" style="--d:0.70s" d="M254.0 360V239.8"/>
+    <path pathLength="1" class="ln hatch" style="--d:0.72s" d="M280.0 360V325.0"/>
+    <path pathLength="1" class="ln hatch" style="--d:0.75s" d="M306.0 360V328.0"/>
+    <path pathLength="1" class="ln hatch" style="--d:0.77s" d="M332.0 360V97.3"/>
+    <path pathLength="1" class="ln hatch" style="--d:0.80s" d="M358.0 360V142.6"/>
+    <path pathLength="1" class="ln hatch" style="--d:0.82s" d="M384.0 360V198.3"/>
+    <path pathLength="1" class="ln hatch" style="--d:0.85s" d="M410.0 360V220.3"/>
+    <path pathLength="1" class="ln hatch" style="--d:0.87s" d="M436.0 360V260.3"/>
+    <path pathLength="1" class="ln hatch" style="--d:0.90s" d="M462.0 360V233.5"/>
+    <path pathLength="1" class="ln hatch" style="--d:0.92s" d="M488.0 360V230.7"/>
+    <path pathLength="1" class="ln hatch" style="--d:0.95s" d="M514.0 360V238.3"/>
+    <path pathLength="1" class="ln hatch" style="--d:0.97s" d="M540.0 360V236.2"/>
+    <path pathLength="1" class="ln hatch" style="--d:1.00s" d="M566.0 360V276.6"/>
+    <path pathLength="1" class="ln hatch" style="--d:1.02s" d="M592.0 360V339.1"/>
+    <path pathLength="1" class="ln hatch" style="--d:1.05s" d="M618.0 360V339.3"/>
+    <path pathLength="1" class="ln hatch" style="--d:1.07s" d="M644.0 360V211.3"/>
+    <path pathLength="1" class="ln strong" style="--d:1.10s" d="M72.0 157.2L98.0 172.1L124.0 212.6L150.0 177.6L176.0 185.0L202.0 207.2L228.0 202.3L254.0 239.8L280.0 325.0L306.0 328.0L332.0 97.3L358.0 142.6L384.0 198.3L410.0 220.3L436.0 260.3L462.0 233.5L488.0 230.7L514.0 238.3L540.0 236.2L566.0 276.6L592.0 339.1L618.0 339.3L644.0 211.3"/>
+    <rect pathLength="1" class="win red" style="--d:2.10s;--w:0s" x="327.0" y="92.3" width="10" height="10"/>
+    <rect pathLength="1" class="win" style="--d:2.20s;--w:2.4s" x="639.0" y="206.3" width="10" height="10"/>
+    <path pathLength="1" class="ln thin" style="--d:2.30s" d="M341.0 97.3H372.0"/>
+    <text x="378.0" y="101.3" class="t hi">СЕН 2025 · 5 550</text>
+    <path pathLength="1" class="ln thin" style="--d:2.35s" d="M635.0 211.3H614.0"/>
+    <text x="608.0" y="215.3" class="t" text-anchor="end">СЕН 2026 · 3 142</text>
+    <text x="124.0" y="382" class="t" text-anchor="middle">ЯНВ 25</text>
+    <text x="436.0" y="382" class="t" text-anchor="middle">ЯНВ 26</text>
+    <text x="644.0" y="382" class="t" text-anchor="end">СЕН 26</text>
+    <path pathLength="1" class="ln thin" style="--d:2.40s" d="M340 396H644V428H340ZM480 396V428M590 396V428"/>
+    <text x="352" y="416" class="t hi">ПСИСТУДРЕСУРС</text>
+    <text x="492" y="416" class="t">ВОРДСТАТ</text>
+    <text x="602" y="416" class="t">РФ</text>
+  </svg>
+</div>`;
+
 const LOOKS: Record<string, LoginLook> = {
   TASirotina: {
     eyebrow: 'Для Татьяны Сиротиной',
@@ -150,6 +204,14 @@ const LOOKS: Record<string, LoginLook> = {
     lead: 'Здесь прототип вашего сайта: проекты, чертежи и&nbsp;галерея на&nbsp;русском и&nbsp;английском. Пароль в&nbsp;моём сообщении.',
     ticker: ['Татьяна Сиротина', 'архитектура и интерьеры', 'прототип сайта-портфолио', 'yaropolov.ru'],
     art: HOUSE_ART,
+    artCss: HOUSE_CSS,
+  },
+  PsyStudResurs: {
+    eyebrow: 'Для Светланы · ПсиСтудРесурс',
+    title: ['Светлана,', 'здравствуйте'],
+    lead: 'Здесь анализ ниши: сколько студентов-психологов ищут помощь в&nbsp;Яндексе, когда пик спроса и&nbsp;как запустить рекламу. Пароль в&nbsp;моём сообщении.',
+    ticker: ['ПсиСтудРесурс', 'анализ ниши', 'спрос в Яндексе', 'план рекламы', 'yaropolov.ru'],
+    art: PSY_ART,
     artCss: HOUSE_CSS,
   },
 };

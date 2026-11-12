@@ -6,8 +6,8 @@ import { typo } from './lib/typo';
 // и другие короткие слова не остаются в конце строки).
 export const onRequest = defineMiddleware(async (context, next) => {
   const response = await next();
-  // закрытые прототипы отдаём как есть, без правки текста
-  if (context.url.pathname.startsWith('/proto/')) return response;
+  // закрытые прототипы и отчёты отдаём как есть, без правки текста
+  if (/^\/(proto|data)\//.test(context.url.pathname)) return response;
   const type = response.headers.get('content-type') || '';
   if (!type.includes('text/html')) return response;
 
