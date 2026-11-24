@@ -1,6 +1,5 @@
 import type { APIRoute } from 'astro';
-import { randomBytes } from 'node:crypto';
-import { db, hasDb, purgeOld } from '../../lib/db';
+import { hasMail, notifyTelegram, sendLeadMail } from '../../lib/mail';
 
 export const prerender = false;
 
@@ -109,37 +108,29 @@ export const POST: APIRoute = async ({ request }) => {
   if (niche) lines.push(`Ниша: ${escapeForTelegram(niche)}`);
   if (comment) lines.push(`Комментарий: ${escapeForTelegram(comment)}`);
 
-  let text = lines.join('\n');
+  const text = lines.join('\n');
 
-  // С базой в РФ: заявка записывается в базу, а в Telegram уходит только уведомление
-  // со ссылкой (имя и контакты за рубеж не передаём, 152-ФЗ ст. 12 и 18 ч. 5).
-  if (hasDb()) {
-    const token = randomBytes(16).toString('base64url');
+  // С почтой на Яндексе: полная заявка — письмом (данные остаются в РФ),
+  // в Telegram — только уведомление без имени и контактов.
+  if (hasMail()) {
+    const plain = text.replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+    const label = source && SOURCE_LABELS[source] ? ` (${SOURCE_LABELS[source]})` : '';
     try {
-      const s = await db();
-      const data = {
-        createdAt: new Date().toISOString(),
-        source: SOURCE_LABELS[source] ?? '',
-        suspicious,
-        ab: { ms: abMs, n: abN },
-        fields: { name, method: METHOD_LABELS[method], contact, extraPhone, email, site, niche, comment },
-      };
-      await s`insert into leads (token, data) values (${token}, ${s.json(data as never)})`;
-      purgeOld(s).catch((e) => console.error('Очистка старых записей:', e));
+      await sendLeadMail(`${suspicious ? '[бот?] ' : ''}Заявка с yaropolov.ru${label}`, plain, email || (method === 'email' ? contact : ''));
     } catch (err) {
-      console.error('Не удалось сохранить заявку в базу:', err);
-      return new Response(JSON.stringify({ error: 'storage_failed' }), { status: 500 });
+      console.error('Почта не приняла заявку:', err);
+      await notifyTelegram('⚠️ <b>Заявка с сайта не дошла до почты</b>. Посмотри логи приложения на TimeWeb.');
+      return new Response(JSON.stringify({ error: 'mail_failed' }), { status: 502 });
     }
-    const siteUrl = (process.env.SITE_URL || 'https://yaropolov.ru').replace(/\/$/, '');
-    text = [
-      ...(suspicious ? [`⚠️ <b>Похоже на бота</b>: ${Math.round(abMs / 1000)} с на странице, нажатий/касаний: ${abN}`] : []),
-      source && SOURCE_LABELS[source]
-        ? `<b>Новая заявка с yaropolov.ru</b> (${escapeForTelegram(SOURCE_LABELS[source])})`
-        : '<b>Новая заявка с yaropolov.ru</b>',
-      `Способ связи: ${escapeForTelegram(METHOD_LABELS[method])}`,
-      '',
-      `${siteUrl}/lead/${token}`,
-    ].join('\n');
+    await notifyTelegram(
+      [
+        ...(suspicious ? ['⚠️ Похоже на бота'] : []),
+        `<b>Новая заявка с yaropolov.ru</b>${escapeForTelegram(label)}`,
+        `Способ связи: ${escapeForTelegram(METHOD_LABELS[method])}`,
+        'Подробности — в почте.',
+      ].join('\n'),
+    );
+    return new Response(JSON.stringify({ ok: true }), { status: 200 });
   }
 
   try {

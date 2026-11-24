@@ -4,7 +4,6 @@ import { randomBytes } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { BriefItem, BriefSection } from '../data/brief';
-import { db, hasDb, purgeOld } from './db';
 
 export interface BriefAnswers {
   values: Record<string, string | string[]>;
@@ -41,7 +40,7 @@ export function countAnswered(sections: BriefSection[], a: BriefAnswers) {
   return { answered, total };
 }
 
-// Если DATABASE_URL не задан (старый режим): Cloudflare KV через тот же воркер, что шлёт сообщения в Telegram.
+// Основное хранилище: Cloudflare KV через тот же воркер, что шлёт сообщения в Telegram.
 // Файлы на диске остаются запасным вариантом: для локальной разработки и на случай,
 // если воркер ещё не обновлён или KV недоступен.
 function relay() {
@@ -76,15 +75,6 @@ export async function saveBrief(answers: BriefAnswers): Promise<string> {
   const token = randomBytes(16).toString('base64url');
   const data: StoredBrief = { createdAt: new Date().toISOString(), answers };
 
-  // Основной путь: база на TimeWeb (персданные остаются в РФ). Ошибка базы — это ошибка
-  // сохранения, в зарубежное KV при настроенной базе не откатываемся.
-  if (hasDb()) {
-    const s = await db();
-    await s`insert into briefs (token, data) values (${token}, ${s.json(data as never)})`;
-    purgeOld(s).catch((e) => console.error('Очистка старых записей:', e));
-    return token;
-  }
-
   const res = await relayCall({ action: 'brief_put', token, data });
   if (res?.ok) return token;
   if (res) console.error('KV не принял бриф, пишу в файл:', res.status, await res.text().catch(() => ''));
@@ -95,16 +85,6 @@ export async function saveBrief(answers: BriefAnswers): Promise<string> {
 
 export async function loadBrief(token: string): Promise<StoredBrief | null> {
   if (!TOKEN_RE.test(token)) return null;
-
-  if (hasDb()) {
-    try {
-      const s = await db();
-      const rows = await s<{ data: StoredBrief }[]>`select data from briefs where token = ${token}`;
-      if (rows[0]) return rows[0].data;
-    } catch (e) {
-      console.error('База брифов недоступна:', e);
-    }
-  }
 
   const res = await relayCall({ action: 'brief_get', token });
   if (res?.ok) {

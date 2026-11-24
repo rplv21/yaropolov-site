@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { briefSections, briefItemById, BRIEF_KEYS, BRIEF_LIMITS } from '../../data/brief';
-import { countAnswered, saveBrief, type BriefAnswers } from '../../lib/briefStore';
-import { hasDb } from '../../lib/db';
+import { answerParts, countAnswered, saveBrief, type BriefAnswers } from '../../lib/briefStore';
+import { hasMail, notifyTelegram, sendLeadMail } from '../../lib/mail';
 
 export const prerender = false;
 
@@ -90,6 +90,31 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     return json({ error: 'validation_failed' }, 400);
   }
 
+  // С почтой на Яндексе: весь бриф — письмом (данные остаются в РФ), ничего не храним
+  // в Cloudflare, в Telegram — только уведомление без имени и контактов.
+  if (hasMail()) {
+    const { answered, total } = countAnswered(briefSections, answers);
+    const out: string[] = [`Бриф с yaropolov.ru — заполнено ${answered} из ${total}`, ''];
+    for (const sec of briefSections) {
+      const rows: string[] = [];
+      for (const it of sec.items) {
+        const { list, extra } = answerParts(it, answers);
+        if (!list.length && !extra) continue;
+        rows.push(`${it.n} ${it.q}: ${list.join(', ')}${extra ? `${list.length ? '. ' : ''}Уточнение: ${extra}` : ''}`);
+      }
+      if (rows.length) out.push(`${sec.n} ${sec.title}`.toUpperCase(), ...rows, '');
+    }
+    try {
+      await sendLeadMail(`Бриф с yaropolov.ru: ${company}`, out.join('\n'), String(answers.values[BRIEF_KEYS.email] ?? ''));
+    } catch (err) {
+      console.error('Почта не приняла бриф:', err);
+      await notifyTelegram('⚠️ <b>Бриф с сайта не дошёл до почты</b>. Посмотри логи приложения на TimeWeb.');
+      return json({ error: 'mail_failed' }, 502);
+    }
+    await notifyTelegram(`<b>Новый бриф с yaropolov.ru</b>\nЗаполнено: ${answered} из ${total}\nПодробности — в почте.`);
+    return json({ ok: true });
+  }
+
   const relayUrl = process.env.TELEGRAM_RELAY_URL ?? import.meta.env.TELEGRAM_RELAY_URL;
   const relaySecret = process.env.TELEGRAM_RELAY_SECRET ?? import.meta.env.TELEGRAM_RELAY_SECRET;
   if (!relayUrl || !relaySecret) {
@@ -109,11 +134,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
   const siteUrl = (process.env.SITE_URL || 'https://yaropolov.ru').replace(/\/$/, '');
   const email = String(answers.values[BRIEF_KEYS.email] ?? '');
-  // С базой в РФ в Telegram уходит только уведомление и ссылка: персданные (имя, телефон,
-  // почта) за рубеж не передаём. Без базы — старый формат, чтобы не потерять заявку.
-  const text = hasDb()
-    ? ['<b>Новый бриф с yaropolov.ru</b>', `Заполнено: ${answered} из ${total}`, '', `${siteUrl}/brief/${token}`].join('\n')
-    : [
+  const text = [
     '<b>Новый бриф с yaropolov.ru</b>',
     `Компания: ${esc(company)}`,
     `Контакт: ${esc(name)}`,
