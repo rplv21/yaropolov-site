@@ -26,8 +26,8 @@ export async function sendLeadMail(subject: string, text: string, replyTo?: stri
       port: Number(env('SMTP_PORT') || 465),
       secure: Number(env('SMTP_PORT') || 465) === 465,
       auth: { user: env('SMTP_USER'), pass: env('SMTP_PASS') },
-      connectionTimeout: 10_000,
-      greetingTimeout: 10_000,
+      connectionTimeout: 3_000,
+      greetingTimeout: 5_000,
       socketTimeout: 15_000,
     });
   }
