@@ -1,5 +1,7 @@
 import type { APIRoute } from 'astro';
+import { randomBytes } from 'node:crypto';
 import { hasMail, mailError, notifyTelegram, sendLeadMail } from '../../lib/mail';
+import { hasS3, s3Error, s3Put } from '../../lib/s3store';
 
 export const prerender = false;
 
@@ -108,7 +110,26 @@ export const POST: APIRoute = async ({ request }) => {
   if (niche) lines.push(`Ниша: ${escapeForTelegram(niche)}`);
   if (comment) lines.push(`Комментарий: ${escapeForTelegram(comment)}`);
 
-  const text = lines.join('\n');
+  let text = lines.join('\n');
+
+  // Сначала записываем заявку в хранилище TimeWeb в РФ (152-ФЗ, ст. 18 ч. 5), потом — в Telegram.
+  // Если хранилище не ответило, заявку не теряем: отправляем в Telegram с пометкой.
+  if (hasS3()) {
+    const now = new Date();
+    const key = `leads/${now.toISOString().slice(0, 7)}/${now.toISOString().replace(/[:.]/g, '-')}_${randomBytes(6).toString('hex')}.json`;
+    try {
+      await s3Put(key, {
+        createdAt: now.toISOString(),
+        source: SOURCE_LABELS[source] ?? source,
+        suspicious,
+        ab: { ms: abMs, n: abN },
+        fields: { name, method: METHOD_LABELS[method], contact, extraPhone, email, site, niche, comment },
+      });
+    } catch (err) {
+      console.error('Хранилище не приняло заявку:', err);
+      text = `⚠️ Заявка не сохранилась в хранилище (${escapeForTelegram(s3Error(err))})\n\n${text}`;
+    }
+  }
 
   // С почтой на Яндексе: полная заявка — письмом (данные остаются в РФ),
   // в Telegram — только уведомление без имени и контактов.

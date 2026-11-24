@@ -4,6 +4,7 @@ import { randomBytes } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { BriefItem, BriefSection } from '../data/brief';
+import { hasS3, s3Get, s3Put } from './s3store';
 
 export interface BriefAnswers {
   values: Record<string, string | string[]>;
@@ -75,6 +76,16 @@ export async function saveBrief(answers: BriefAnswers): Promise<string> {
   const token = randomBytes(16).toString('base64url');
   const data: StoredBrief = { createdAt: new Date().toISOString(), answers };
 
+  // Основной путь — хранилище TimeWeb в РФ. Если оно недоступно, бриф не теряем: старый путь (KV/файл).
+  if (hasS3()) {
+    try {
+      await s3Put(`briefs/${token}.json`, data);
+      return token;
+    } catch (e) {
+      console.error('Хранилище не приняло бриф, пишу старым способом:', e);
+    }
+  }
+
   const res = await relayCall({ action: 'brief_put', token, data });
   if (res?.ok) return token;
   if (res) console.error('KV не принял бриф, пишу в файл:', res.status, await res.text().catch(() => ''));
@@ -85,6 +96,11 @@ export async function saveBrief(answers: BriefAnswers): Promise<string> {
 
 export async function loadBrief(token: string): Promise<StoredBrief | null> {
   if (!TOKEN_RE.test(token)) return null;
+
+  if (hasS3()) {
+    const fromS3 = await s3Get<StoredBrief>(`briefs/${token}.json`);
+    if (fromS3) return fromS3;
+  }
 
   const res = await relayCall({ action: 'brief_get', token });
   if (res?.ok) {
