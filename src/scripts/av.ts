@@ -142,7 +142,6 @@ if (reduce) {
 function boot() {
   initCursor();
   initMagnetic();
-  initScramble();
   initIntro();
 }
 
@@ -156,7 +155,7 @@ function initIntro() {
 
   const h1 = document.querySelector<HTMLElement>('.hero-h');
   const heroChars = h1 ? splitChars(h1) : [];
-  gsap.set(heroChars, { yPercent: 115, rotate: 7 });
+  gsap.set(heroChars, { yPercent: 110 });
   gsap.set(h1, { autoAlpha: 1 });
   gsap.set('.hero-fade', { autoAlpha: 0, y: 24 });
   gsap.set('.hero-canvas', { autoAlpha: 0 });
@@ -164,7 +163,7 @@ function initIntro() {
   gsap
     .timeline({ defaults: { ease: 'expo.out' } })
     .to('.hero-canvas', { autoAlpha: 1, duration: 1.6 }, 0)
-    .to(heroChars, { yPercent: 0, rotate: 0, duration: 1.3, stagger: 0.022 }, 0.05)
+    .to(heroChars, { yPercent: 0, duration: 1.2, stagger: 0.016 }, 0.05)
     .to('.hero-fade', { autoAlpha: 1, y: 0, duration: 1, stagger: 0.12 }, 0.6);
 
   initScroll();
@@ -200,13 +199,13 @@ function initScroll() {
 function initHeadlines() {
   $$('[data-split]:not(.hero-h)').forEach((el) => {
     const chars = splitChars(el);
-    gsap.set(chars, { yPercent: 115, rotate: 5 });
+    gsap.set(chars, { yPercent: 110 });
     ScrollTrigger.create({
       trigger: el,
       start: 'top 88%',
       once: true,
       onEnter: () =>
-        gsap.to(chars, { yPercent: 0, rotate: 0, duration: 1.1, ease: 'expo.out', stagger: 0.018 }),
+        gsap.to(chars, { yPercent: 0, duration: 1, ease: 'expo.out', stagger: 0.012 }),
     });
   });
 }
@@ -579,53 +578,15 @@ function initServices() {
     items.forEach((s) => s.classList.toggle('is-open', s === el));
 
     if (!moves || !d) return;
-    // Буквы перелетают из вертикальной подписи на место, а текст проявляется
-    // так же, как в скремблере шапки: волной слева направо, шаг 28 мс,
-    // ещё не открытые буквы перебираются случайными.
-    const letters = d.name.map((c) => /\p{L}/u.test(c.dataset.ch || ''));
-    d.name.forEach((c, i) => {
-      const m = moves![i];
-      if (letters[i]) {
-        c.style.width = m.w + 'px';
-        c.style.textAlign = 'center';
-      }
-      gsap.killTweensOf(c);
-      gsap.fromTo(
-        c,
-        { x: m.dx, y: m.dy, rotate: -90 },
-        {
-          x: 0,
-          y: 0,
-          rotate: 0,
-          duration: 0.95,
-          ease: 'power3.out',
-          delay: i * 0.02,
-        }
-      );
-    });
-    const prev = scrambles.get(el);
-    if (prev) clearInterval(prev);
-    // в пределах длительности перелёта волна успевает пройти даже по длинному названию
-    const step = Math.min(28, Math.round(1100 / (d.name.length * 2)));
-    let frame = 0;
-    const total = d.name.length * 2;
-    const tick = window.setInterval(() => {
-      d.name.forEach((c, i) => {
-        const ch = c.dataset.ch || '';
-        c.textContent = !letters[i] || i < frame / 2 ? ch : glyphs[Math.floor(Math.random() * glyphs.length)];
-      });
-      if (++frame > total) {
-        clearInterval(tick);
-        scrambles.delete(el);
-        // ширина буквы держится до конца перебора, иначе строка дёргается от разной ширины знаков
-        d.name.forEach((c) => {
-          c.textContent = c.dataset.ch || '';
-          c.style.width = '';
-          c.style.textAlign = '';
-        });
-      }
-    }, step);
-    scrambles.set(el, tick);
+    // Название проявляется спокойно: буквы чуть поднимаются и набирают непрозрачность
+    // мягкой волной слева направо. Без перелёта из вертикальной подписи, поворота
+    // и перебора случайных символов — они делали раскрытие резким.
+    gsap.killTweensOf(d.name);
+    gsap.fromTo(
+      d.name,
+      { opacity: 0, y: '0.28em' },
+      { opacity: 1, y: 0, duration: 0.7, ease: 'expo.out', stagger: { each: 0.014 }, delay: 0.2, clearProps: 'transform,opacity' }
+    );
   };
 
   open(items[0], false);
@@ -845,7 +806,7 @@ function initParticles() {
     ctx.clearRect(0, 0, w, h);
 
     // Воронка: кольцо, в которое стекаются «показы» и превращаются в «обращения»
-    const pulse = 1 + Math.sin(t * 2) * 0.06;
+    const pulse = 1 + Math.sin(t * 1.2) * 0.03;
     ctx.strokeStyle = 'rgba(208,34,46,0.9)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
@@ -886,7 +847,7 @@ function initParticles() {
       const hot = d < w * 0.2;
       ctx.fillStyle = hot
         ? `rgba(208,34,46,${0.55 + prox * 0.45})`
-        : `rgba(18, 17, 16,${0.3 + prox * 0.6})`;
+        : `rgba(18, 17, 16,${0.1 + prox * 0.35})`;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r * (hot ? 1.5 : 1), 0, Math.PI * 2);
       ctx.fill();
@@ -951,8 +912,8 @@ function initMagnetic() {
     const y = gsap.quickTo(el, 'y', { duration: 0.5, ease: 'power3' });
     el.addEventListener('pointermove', (e) => {
       const r = el.getBoundingClientRect();
-      x((e.clientX - (r.left + r.width / 2)) * 0.28);
-      y((e.clientY - (r.top + r.height / 2)) * 0.4);
+      x((e.clientX - (r.left + r.width / 2)) * 0.1);
+      y((e.clientY - (r.top + r.height / 2)) * 0.14);
     });
     el.addEventListener('pointerleave', () => {
       x(0);

@@ -175,7 +175,8 @@ const faqSchema = article.faq?.length
   /* Тело статьи на бумаге: длинный текст читается лучше светлым */
   .abody {
     background: var(--paper);
-    --dim: #6b6555;
+    --red: #f0525c;
+    --dim: #8b8580;
     color: var(--ink);
     padding-block: clamp(56px, 8vw, 128px);
   }
@@ -197,7 +198,7 @@ const faqSchema = article.faq?.length
     align-items: center;
     gap: 14px;
     align-self: start;
-    color: #6b6556;
+    color: #8b8580;
   }
 
   /* метка «Статья» прилипает только в двухколоночной раскладке, где у неё своя колонка;
@@ -278,7 +279,7 @@ const faqSchema = article.faq?.length
   .abody-text .author-tag {
     font-size: 12px;
     line-height: 1.4;
-    color: #6b6556;
+    color: #8b8580;
   }
 
   .abody-text .author-name {
@@ -364,7 +365,7 @@ const faqSchema = article.faq?.length
     .next-link:hover .next-arrow {
       transform: rotate(45deg);
       background: var(--ink);
-      --dim: #8a8370;
+      --dim: #6b655b;
       color: var(--red);
     }
   }

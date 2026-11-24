@@ -39,14 +39,15 @@ const { title, description } = Astro.props;
   .lg-nav a { color: #45413d; border-bottom: 1px solid transparent; padding-bottom: 2px; }
   .lg-nav a[aria-current='page'] { color: var(--paper); border-color: var(--red); }
   .lg-b {
-    background: var(--paper);
-    --dim: #8b8580;
-    color: var(--ink);
+    background: #e8e2d6;
+    --dim: #6b655b;
+    color: var(--paper);
+    border-top: 1px solid rgba(18, 17, 16, 0.18);
     padding-block: clamp(40px, 6vw, 96px) clamp(64px, 8vw, 140px);
   }
   .lg-in { max-width: 820px; }
   .lg-in :global(.legal-body) { display: grid; gap: 14px; }
-  .lg-in :global(.legal-date) { font-family: var(--mono); font-size: 13px; color: #8b8580; }
+  .lg-in :global(.legal-date) { font-family: var(--mono); font-size: 13px; color: #5e5850; }
   .lg-in :global(h2) {
     margin-top: 28px;
     padding-bottom: 10px;
@@ -58,6 +59,6 @@ const { title, description } = Astro.props;
   }
   .lg-in :global(h3) { margin-top: 12px; font-weight: 600; font-size: 17px; }
   .lg-in :global(p) { font-size: 16px; line-height: 1.6; }
-  .lg-in :global(a) { color: var(--red); border-bottom: 1px solid currentColor; overflow-wrap: anywhere; }
+  .lg-in :global(a) { color: #b81d28; border-bottom: 1px solid currentColor; overflow-wrap: anywhere; }
   .lg-in :global(code) { font-family: var(--mono); font-size: 0.9em; }
 </style>
