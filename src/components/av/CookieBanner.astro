@@ -1,0 +1,103 @@
+---
+// Уведомление о cookie. Яндекс Метрика загружается только после «Принять»
+// (window.ypLoadMetrika в AvLayout). Выбор хранится в localStorage под ключом yp-cookie:
+// 'all' — можно Метрику, 'necessary' — только необходимое. «Настройки cookie» в подвале
+// снова показывают уведомление.
+---
+
+<section class="ck" id="ck" aria-label="Уведомление о cookie" hidden>
+  <p class="ck-t">
+    Сайт использует cookie. Необходимые нужны для работы сайта, а Яндекс Метрика с Вебвизором помогает понять,
+    удобен ли сайт, — её включу, только если вы согласны.{' '}<a href="/privacy#cookie">Подробнее</a>
+  </p>
+  <div class="ck-b">
+    <button type="button" class="btn btn--red ck-yes">Принять</button>
+    <button type="button" class="ck-no mono">Только необходимые</button>
+  </div>
+</section>
+
+<script is:inline>
+  (function () {
+    var box = document.getElementById('ck');
+    if (!box) return;
+    var get = function () { try { return localStorage.getItem('yp-cookie'); } catch (e) { return null; } };
+    var set = function (v) { try { localStorage.setItem('yp-cookie', v); } catch (e) {} };
+    var show = function () { box.hidden = false; };
+    var hide = function () { box.hidden = true; };
+    if (!get()) show();
+    box.querySelector('.ck-yes').addEventListener('click', function () {
+      set('all');
+      hide();
+      if (window.ypLoadMetrika) window.ypLoadMetrika();
+    });
+    box.querySelector('.ck-no').addEventListener('click', function () {
+      var was = get();
+      set('necessary');
+      hide();
+      // Если Метрика уже работала, а человек передумал — перезагрузка выгружает её,
+      // а cookie _ym* удаляем, насколько это возможно со стороны сайта.
+      if (was === 'all' && window.ym) {
+        document.cookie.split(';').forEach(function (c) {
+          var n = c.split('=')[0].trim();
+          if (n.indexOf('_ym') === 0) {
+            document.cookie = n + '=; Max-Age=0; path=/';
+            document.cookie = n + '=; Max-Age=0; path=/; domain=.' + location.hostname.replace(/^www\./, '');
+          }
+        });
+        location.reload();
+      }
+    });
+    document.querySelectorAll('.ck-open').forEach(function (b) {
+      b.addEventListener('click', show);
+    });
+  })();
+</script>
+
+<style>
+  .ck {
+    position: fixed;
+    left: clamp(12px, 2vw, 28px);
+    bottom: clamp(12px, 2vw, 28px);
+    z-index: 160;
+    width: min(440px, calc(100vw - 24px));
+    padding: 20px 22px;
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--ink);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  }
+  .ck[hidden] {
+    display: none;
+  }
+  .ck-t {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .ck-t a {
+    color: var(--red);
+    border-bottom: 1px solid currentColor;
+  }
+  .ck-b {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+    margin-top: 16px;
+  }
+  .ck .btn {
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+  .ck-no {
+    padding: 10px 0;
+    background: none;
+    border: 0;
+    border-bottom: 1px solid currentColor;
+    color: var(--ink);
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .ck-no:hover {
+    color: var(--red);
+  }
+</style>

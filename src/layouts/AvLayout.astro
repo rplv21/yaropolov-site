@@ -1,6 +1,6 @@
 ---
 import '../styles/av.css';
-import PrivacyContent from '../components/PrivacyContent.astro';
+import CookieBanner from '../components/av/CookieBanner.astro';
 import AdPopup from '../components/av/AdPopup.astro';
 import ChatPopup from '../components/av/ChatPopup.astro';
 import { contacts, brand } from '../data/brand';
@@ -123,10 +123,12 @@ const links = [
     <script is:inline type="application/ld+json" set:html={JSON.stringify(serviceSchema)} />
     <script is:inline type="application/ld+json" set:html={JSON.stringify(localBusinessSchema)} />
 
-    <!-- Яндекс.Метрика: согласие на cookie подразумевается использованием сайта -->
-    <!-- Счётчик грузится только на боевом домене: localhost и превью не засоряют статистику -->
+    <!-- Яндекс.Метрика грузится только после «Принять» в уведомлении о cookie (window.ypLoadMetrika).
+         Счётчик работает только на боевом домене: localhost и превью не засоряют статистику. -->
     <script is:inline>
-      if (location.hostname === 'yaropolov.ru' || location.hostname === 'www.yaropolov.ru') {
+      window.ypLoadMetrika = function () {
+        if (window.ym) return;
+        if (location.hostname !== 'yaropolov.ru' && location.hostname !== 'www.yaropolov.ru') return;
         (function(m,e,t,r,i,k,a){
           m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
           m[i].l=1*new Date();
@@ -135,18 +137,16 @@ const links = [
         })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=112339088', 'ym');
 
         ym(112339088, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
-
-        // Единая цель «Заявка» для Директа: каждая форма заявки после успешной отправки
-        // шлёт событие lead-form-submitted (форма контактов, чат, попап для гостей из рекламы)
-        window.addEventListener('lead-form-submitted', function () {
-          if (window.ypAb && !window.ypAb().ok) return;
-          ym(112339088, 'reachGoal', 'lead');
-        });
-      }
+      };
+      // Единая цель «Заявка» для Директа: каждая форма заявки после успешной отправки
+      // шлёт событие lead-form-submitted (форма контактов, чат, попап для гостей из рекламы)
+      window.addEventListener('lead-form-submitted', function () {
+        if (!window.ym) return;
+        if (window.ypAb && !window.ypAb().ok) return;
+        ym(112339088, 'reachGoal', 'lead');
+      });
+      try { if (localStorage.getItem('yp-cookie') === 'all') window.ypLoadMetrika(); } catch (e) {}
     </script>
-    {(Astro.url.hostname === 'yaropolov.ru' || Astro.url.hostname === 'www.yaropolov.ru') && (
-      <noscript><div><img src="https://mc.yandex.ru/watch/112339088" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-    )}
   </head>
   <body data-no-chat={noChat ? "" : undefined}>
     <div class="prog" aria-hidden="true"></div>
@@ -207,26 +207,18 @@ const links = [
         <p class="mono dim">{contacts.status}, ИНН {contacts.inn}</p>
         <nav class="foot-links mono" aria-label="Служебные ссылки">
           <a href="/articles">Статьи</a>
-          <a href="#" class="privacy-open">Политика конфиденциальности</a>
+          <a href="/privacy">Политика обработки данных</a>
+          <a href="/soglasie">Согласие на обработку</a>
+          <button type="button" class="ck-open">Настройки cookie</button>
           <a href="#main">Наверх</a>
         </nav>
       </div>
-      <p class="foot-note">
-        Используя сайт, вы даёте согласие на обработку файлов cookie и пользовательских данных.
-        Если вы не хотите, чтобы ваши данные обрабатывались, пожалуйста, покиньте сайт.
-      </p>
     </footer>
 
     <AdPopup />
     <ChatPopup />
 
-    <dialog id="privacy" class="privacy">
-      <div class="privacy-bar">
-        <h2>Политика конфиденциальности</h2>
-        <button type="button" class="privacy-close" aria-label="Закрыть">×</button>
-      </div>
-      <div class="privacy-body"><PrivacyContent /></div>
-    </dialog>
+    <CookieBanner />
 
     <script>
       import '../scripts/av.ts';

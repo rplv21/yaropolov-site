@@ -594,6 +594,27 @@ html.menu-open {
   gap: 24px;
 }
 
+.foot-in:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.foot .ck-open {
+  padding: 0;
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.foot .ck-open:hover {
+  color: var(--red);
+}
+
 .foot-note {
   margin-top: 22px;
   max-width: 72ch;

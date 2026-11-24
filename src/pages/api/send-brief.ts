@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { briefSections, briefItemById, BRIEF_KEYS, BRIEF_LIMITS } from '../../data/brief';
 import { countAnswered, saveBrief, type BriefAnswers } from '../../lib/briefStore';
+import { hasDb } from '../../lib/db';
 
 export const prerender = false;
 
@@ -108,7 +109,11 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
   const siteUrl = (process.env.SITE_URL || 'https://yaropolov.ru').replace(/\/$/, '');
   const email = String(answers.values[BRIEF_KEYS.email] ?? '');
-  const text = [
+  // С базой в РФ в Telegram уходит только уведомление и ссылка: персданные (имя, телефон,
+  // почта) за рубеж не передаём. Без базы — старый формат, чтобы не потерять заявку.
+  const text = hasDb()
+    ? ['<b>Новый бриф с yaropolov.ru</b>', `Заполнено: ${answered} из ${total}`, '', `${siteUrl}/brief/${token}`].join('\n')
+    : [
     '<b>Новый бриф с yaropolov.ru</b>',
     `Компания: ${esc(company)}`,
     `Контакт: ${esc(name)}`,

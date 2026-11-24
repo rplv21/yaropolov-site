@@ -1,4 +1,6 @@
 import type { APIRoute } from 'astro';
+import { randomBytes } from 'node:crypto';
+import { db, hasDb, purgeOld } from '../../lib/db';
 
 export const prerender = false;
 
@@ -107,7 +109,38 @@ export const POST: APIRoute = async ({ request }) => {
   if (niche) lines.push(`Ниша: ${escapeForTelegram(niche)}`);
   if (comment) lines.push(`Комментарий: ${escapeForTelegram(comment)}`);
 
-  const text = lines.join('\n');
+  let text = lines.join('\n');
+
+  // С базой в РФ: заявка записывается в базу, а в Telegram уходит только уведомление
+  // со ссылкой (имя и контакты за рубеж не передаём, 152-ФЗ ст. 12 и 18 ч. 5).
+  if (hasDb()) {
+    const token = randomBytes(16).toString('base64url');
+    try {
+      const s = await db();
+      const data = {
+        createdAt: new Date().toISOString(),
+        source: SOURCE_LABELS[source] ?? '',
+        suspicious,
+        ab: { ms: abMs, n: abN },
+        fields: { name, method: METHOD_LABELS[method], contact, extraPhone, email, site, niche, comment },
+      };
+      await s`insert into leads (token, data) values (${token}, ${s.json(data as never)})`;
+      purgeOld(s).catch((e) => console.error('Очистка старых записей:', e));
+    } catch (err) {
+      console.error('Не удалось сохранить заявку в базу:', err);
+      return new Response(JSON.stringify({ error: 'storage_failed' }), { status: 500 });
+    }
+    const siteUrl = (process.env.SITE_URL || 'https://yaropolov.ru').replace(/\/$/, '');
+    text = [
+      ...(suspicious ? [`⚠️ <b>Похоже на бота</b>: ${Math.round(abMs / 1000)} с на странице, нажатий/касаний: ${abN}`] : []),
+      source && SOURCE_LABELS[source]
+        ? `<b>Новая заявка с yaropolov.ru</b> (${escapeForTelegram(SOURCE_LABELS[source])})`
+        : '<b>Новая заявка с yaropolov.ru</b>',
+      `Способ связи: ${escapeForTelegram(METHOD_LABELS[method])}`,
+      '',
+      `${siteUrl}/lead/${token}`,
+    ].join('\n');
+  }
 
   try {
     const tgRes = await fetch(relayUrl, {
