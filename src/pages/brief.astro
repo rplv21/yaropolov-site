@@ -192,13 +192,13 @@ const hintLines = (h: string) => {
     font-weight: 300;
     font-size: clamp(18px, 1.7vw, 26px);
     line-height: 1.4;
-    color: #cfc8b4;
+    color: #45413d;
   }
 
   /* ───────── Основная часть: светлая, чтобы длинную форму читать было удобно ───────── */
   .bmain {
     background: var(--paper);
-    --dim: #6b6555;
+    --dim: #8b8580;
     color: var(--ink);
     padding-block: clamp(40px, 6vw, 96px) clamp(72px, 9vw, 150px);
   }
@@ -230,12 +230,12 @@ const hintLines = (h: string) => {
   }
 
   .bside-count {
-    color: #6b6556;
+    color: #8b8580;
   }
 
   .bbar {
     height: 3px;
-    background: rgba(15, 13, 10, 0.14);
+    background: rgba(242, 237, 228, 0.14);
     overflow: hidden;
   }
 
@@ -274,8 +274,8 @@ const hintLines = (h: string) => {
     padding: 11px 0;
     background: none;
     border: 0;
-    border-bottom: 1px solid rgba(15, 13, 10, 0.18);
-    color: #6b6556;
+    border-bottom: 1px solid rgba(242, 237, 228, 0.18);
+    color: #8b8580;
     text-align: left;
     font-size: 15px;
     cursor: pointer;
@@ -301,7 +301,7 @@ const hintLines = (h: string) => {
   .bs-mark {
     width: 10px;
     height: 10px;
-    border: 1px solid #a09882;
+    border: 1px solid #6b655b;
     transition: background 0.2s ease, border-color 0.2s ease;
   }
 
@@ -314,7 +314,7 @@ const hintLines = (h: string) => {
     display: none;
     font-size: 13px;
     line-height: 1.5;
-    color: #6b6556;
+    color: #8b8580;
   }
 
   @media (min-width: 1000px) {
@@ -366,7 +366,7 @@ const hintLines = (h: string) => {
   }
 
   .bstep-no {
-    color: #6b6556;
+    color: #8b8580;
   }
 
   .bstep-t {
@@ -406,7 +406,7 @@ const hintLines = (h: string) => {
     display: grid;
     font-size: 14px;
     line-height: 1.5;
-    color: #6b6556;
+    color: #8b8580;
     max-width: 62ch;
   }
 
@@ -478,7 +478,7 @@ const hintLines = (h: string) => {
 
   .opt input:checked + span {
     background: var(--ink);
-    --dim: #8a8370;
+    --dim: #6b655b;
     color: var(--paper);
   }
 
@@ -507,7 +507,7 @@ const hintLines = (h: string) => {
   }
 
   .bq .bq-x::placeholder {
-    color: #a09882;
+    color: #6b655b;
   }
 
   /* ───────── Финальный шаг ───────── */
@@ -516,7 +516,7 @@ const hintLines = (h: string) => {
     margin-bottom: 28px;
     font-size: clamp(16px, 1.3vw, 19px);
     line-height: 1.55;
-    color: #3a352c;
+    color: #cdc6bb;
   }
 
   .b-hp {
@@ -533,7 +533,7 @@ const hintLines = (h: string) => {
     gap: 12px;
     align-items: flex-start;
     padding-block: 20px;
-    border-block: 1px solid rgba(15, 13, 10, 0.16);
+    border-block: 1px solid rgba(242, 237, 228, 0.16);
     font-size: 15px;
     line-height: 1.5;
     cursor: pointer;
@@ -576,7 +576,7 @@ const hintLines = (h: string) => {
     justify-content: center;
     padding: 17px 32px;
     background: var(--ink);
-    --dim: #8a8370;
+    --dim: #6b655b;
     color: var(--paper);
     border: 1px solid var(--ink);
     font-family: inherit;
@@ -607,8 +607,8 @@ const hintLines = (h: string) => {
 
   .b-btn:disabled {
     background: transparent;
-    border-color: #a09882;
-    color: #a09882;
+    border-color: #6b655b;
+    color: #6b655b;
     cursor: not-allowed;
   }
 
@@ -621,7 +621,7 @@ const hintLines = (h: string) => {
 
     .b-btn--red:not(:disabled):hover {
       background: var(--ink);
-      --dim: #8a8370;
+      --dim: #6b655b;
       border-color: var(--ink);
     }
   }

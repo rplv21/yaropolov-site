@@ -300,7 +300,7 @@ function drawHall(cv: HTMLCanvasElement, progress: number) {
     const y = Math.floor(i / cols) * cell + gap / 2;
     ctx.rect(x + 0.5, y + 0.5, size - 1, size - 1);
   }
-  ctx.strokeStyle = 'rgba(15, 13, 10, 0.55)';
+  ctx.strokeStyle = 'rgba(242, 237, 228, 0.55)';
   ctx.lineWidth = 1;
   ctx.stroke();
 
@@ -886,7 +886,7 @@ function initParticles() {
       const hot = d < w * 0.2;
       ctx.fillStyle = hot
         ? `rgba(208,34,46,${0.55 + prox * 0.45})`
-        : `rgba(246,240,220,${0.3 + prox * 0.6})`;
+        : `rgba(18, 17, 16,${0.3 + prox * 0.6})`;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r * (hot ? 1.5 : 1), 0, Math.PI * 2);
       ctx.fill();

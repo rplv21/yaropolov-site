@@ -64,8 +64,9 @@ const channels = [
 <style>
   .contact {
     position: relative;
+    color: var(--ink);
     background: var(--ink);
-    --dim: #8a8370;
+    --dim: #6b655b;
     padding-block: clamp(72px, 10vw, 160px);
     overflow: clip;
   }
@@ -74,7 +75,7 @@ const channels = [
   .wipe {
     position: absolute;
     inset: 0;
-    background: var(--red);
+    background: var(--paper);
   }
 
   .js .wipe {
@@ -86,11 +87,11 @@ const channels = [
   }
 
   .contact .tag {
-    color: var(--paper);
+    color: var(--ink);
   }
 
   .contact .tag::before {
-    background: var(--paper);
+    background: var(--red);
   }
 
   .contact-h {
@@ -99,7 +100,7 @@ const channels = [
   }
 
   .contact-h :global(em) {
-    color: var(--ink);
+    color: var(--red);
   }
 
   .contact-sub {
@@ -136,7 +137,7 @@ const channels = [
   }
 
   .channels {
-    border-top: 1px solid rgba(246, 240, 220, 0.6);
+    border-top: 1px solid rgba(18, 17, 16, 0.6);
   }
 
   .channels li {
@@ -145,7 +146,7 @@ const channels = [
     align-items: baseline;
     gap: 16px;
     padding: 16px 0;
-    border-bottom: 1px solid rgba(246, 240, 220, 0.4);
+    border-bottom: 1px solid rgba(18, 17, 16, 0.4);
   }
 
   .channels a {
@@ -164,7 +165,7 @@ const channels = [
   .form-card {
     padding: clamp(24px, 3vw, 48px);
     background: var(--paper);
-    --dim: #6b6555;
+    --dim: #8b8580;
     color: var(--ink);
     border: 1px solid var(--ink);
   }
@@ -182,7 +183,7 @@ const channels = [
   }
 
   .f .mono {
-    color: #6b6556;
+    color: #8b8580;
   }
 
   .f {
@@ -239,7 +240,7 @@ const channels = [
   .send {
     justify-self: start;
     background: var(--ink);
-    --dim: #8a8370;
+    --dim: #6b655b;
     border-color: var(--ink);
     color: var(--paper);
   }
@@ -259,8 +260,8 @@ const channels = [
   /* Пока нет согласия: контурная кнопка, понятно что неактивна и без грязно-серой заливки */
   .send:disabled {
     background: transparent;
-    border-color: #6b6556;
-    color: #6b6556;
+    border-color: #8b8580;
+    color: #8b8580;
     cursor: not-allowed;
   }
 
