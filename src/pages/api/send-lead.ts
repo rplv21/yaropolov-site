@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { hasMail, notifyTelegram, sendLeadMail } from '../../lib/mail';
+import { hasMail, mailError, notifyTelegram, sendLeadMail } from '../../lib/mail';
 
 export const prerender = false;
 
@@ -118,9 +118,10 @@ export const POST: APIRoute = async ({ request }) => {
     try {
       await sendLeadMail(`${suspicious ? '[бот?] ' : ''}Заявка с yaropolov.ru${label}`, plain, email || (method === 'email' ? contact : ''));
     } catch (err) {
+      // Заявку не теряем: шлём её целиком в Telegram, как раньше, и пишем причину сбоя почты.
       console.error('Почта не приняла заявку:', err);
-      await notifyTelegram('⚠️ <b>Заявка с сайта не дошла до почты</b>. Посмотри логи приложения на TimeWeb.');
-      return new Response(JSON.stringify({ error: 'mail_failed' }), { status: 502 });
+      await notifyTelegram(`⚠️ <b>Почта не приняла заявку</b> (${escapeForTelegram(mailError(err))}), отправляю сюда целиком.\n\n${text}`);
+      return new Response(JSON.stringify({ ok: true }), { status: 200 });
     }
     await notifyTelegram(
       [

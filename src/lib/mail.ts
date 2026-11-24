@@ -41,6 +41,12 @@ export async function sendLeadMail(subject: string, text: string, replyTo?: stri
   });
 }
 
+/** Короткая причина сбоя почты для уведомления: код и ответ сервера, без паролей. */
+export function mailError(err: unknown): string {
+  const e = err as { code?: string; responseCode?: number; response?: string; message?: string };
+  return [e.code, e.responseCode, (e.response || e.message || '').slice(0, 160)].filter(Boolean).join(' · ') || 'неизвестная ошибка';
+}
+
 /** Письмо Павлу в Telegram через воркер — только служебный текст без персданных. */
 export async function notifyTelegram(text: string) {
   const url = env('TELEGRAM_RELAY_URL');

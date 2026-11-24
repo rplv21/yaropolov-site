@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { briefSections, briefItemById, BRIEF_KEYS, BRIEF_LIMITS } from '../../data/brief';
 import { answerParts, countAnswered, saveBrief, type BriefAnswers } from '../../lib/briefStore';
-import { hasMail, notifyTelegram, sendLeadMail } from '../../lib/mail';
+import { hasMail, mailError, notifyTelegram, sendLeadMail } from '../../lib/mail';
 
 export const prerender = false;
 
@@ -104,15 +104,19 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       }
       if (rows.length) out.push(`${sec.n} ${sec.title}`.toUpperCase(), ...rows, '');
     }
+    let sent = true;
     try {
       await sendLeadMail(`Бриф с yaropolov.ru: ${company}`, out.join('\n'), String(answers.values[BRIEF_KEYS.email] ?? ''));
     } catch (err) {
+      // Бриф не теряем: ниже он уходит старым путём (KV + Telegram), а сюда — причина сбоя почты.
+      sent = false;
       console.error('Почта не приняла бриф:', err);
-      await notifyTelegram('⚠️ <b>Бриф с сайта не дошёл до почты</b>. Посмотри логи приложения на TimeWeb.');
-      return json({ error: 'mail_failed' }, 502);
+      await notifyTelegram(`⚠️ <b>Почта не приняла бриф</b> (${esc(mailError(err))}), отправляю старым способом.`);
     }
-    await notifyTelegram(`<b>Новый бриф с yaropolov.ru</b>\nЗаполнено: ${answered} из ${total}\nПодробности — в почте.`);
-    return json({ ok: true });
+    if (sent) {
+      await notifyTelegram(`<b>Новый бриф с yaropolov.ru</b>\nЗаполнено: ${answered} из ${total}\nПодробности — в почте.`);
+      return json({ ok: true });
+    }
   }
 
   const relayUrl = process.env.TELEGRAM_RELAY_URL ?? import.meta.env.TELEGRAM_RELAY_URL;
