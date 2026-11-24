@@ -30,7 +30,8 @@ import { services } from '../../data/brand';
 <style>
   .svcs {
     background: var(--paper);
-    --red: #f0525c;
+    --red: #ff2b36;
+    --line: rgba(242, 237, 228, 0.2);
     --dim: #8b8580;
     color: var(--ink);
     padding-block: clamp(72px, 10vw, 160px);
@@ -68,7 +69,8 @@ import { services } from '../../data/brand';
     overflow: hidden;
     padding: clamp(22px, 2.4vw, 40px);
     background: var(--paper);
-    --red: #f0525c;
+    --red: #ff2b36;
+    --line: rgba(242, 237, 228, 0.2);
     --dim: #8b8580;
     color: var(--ink);
     border: 1px solid var(--ink);
@@ -99,9 +101,15 @@ import { services } from '../../data/brand';
   .svc.svc--feat,
   .svc.svc--feat.is-open {
     background: var(--paper);
-    --red: #f0525c;
+    --red: #ff2b36;
+    --line: rgba(242, 237, 228, 0.2);
     color: var(--ink);
-    border-color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  /* «Абсолют» отличается красной вертикальной подписью, а не заливкой */
+  .svc--feat:not(.is-open) .svc-vert {
+    color: var(--red);
   }
 
   /* Вертикальная подпись закрытой колонки */

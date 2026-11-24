@@ -152,6 +152,15 @@ const links = [
 
     <a href="#main" class="sr-only">Перейти к содержимому</a>
 
+    <div class="mast-bg" aria-hidden="true"></div>
+    <script is:inline>
+      (function () {
+        var r = document.documentElement;
+        var on = function () { r.classList.toggle('is-scrolled', window.scrollY > 24); };
+        on();
+        window.addEventListener('scroll', on, { passive: true });
+      })();
+    </script>
     <header class="mast">
       <a href="/" class="mast-logo" aria-label="Ярополов, на главную" data-scr>ЯРОПОЛОВ</a>
       <nav class="mast-nav mono" aria-label="Разделы">

@@ -1,11 +1,13 @@
-@import '@fontsource/onest/cyrillic-200.css';
-@import '@fontsource/onest/cyrillic-400.css';
-@import '@fontsource/onest/cyrillic-600.css';
-@import '@fontsource/onest/cyrillic-800.css';
+@import '@fontsource/jost/cyrillic-200.css';
+@import '@fontsource/jost/latin-200.css';
+@import '@fontsource/jost/cyrillic-300.css';
+@import '@fontsource/jost/latin-300.css';
 @import '@fontsource/jost/cyrillic-400.css';
-@import '@fontsource/jost/cyrillic-500.css';
 @import '@fontsource/jost/latin-400.css';
+@import '@fontsource/jost/cyrillic-500.css';
 @import '@fontsource/jost/latin-500.css';
+@import '@fontsource/jost/cyrillic-600.css';
+@import '@fontsource/jost/latin-600.css';
 
 /* ───────────────────────────────────────────────
    Авангард: кинетическая типографика на чёрном и бумаге.
@@ -21,7 +23,7 @@
   --line: rgba(18, 17, 16, 0.18);
   --line-ink: rgba(242, 237, 228, 0.2);
 
-  --f: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --f: 'Jost', 'Futura', system-ui, sans-serif;
   --mono: 'Jost', 'Futura', sans-serif;
 
   --pad: clamp(20px, 4vw, 72px);
@@ -641,3 +643,33 @@ html.still *::after {
 .btn--red:hover {
   --red: #d0222e;
 }
+
+/* Подложка шапки: появляется после прокрутки, чтобы текст страницы не проезжал под логотипом
+   и навигацией. Отдельный слой под шапкой — у самой шапки mix-blend-mode, фон ей ставить нельзя. */
+.mast-bg {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 59;
+  height: var(--mast);
+  background: rgba(242, 237, 228, 0.92);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(18, 17, 16, 0.12);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.45s var(--ease);
+}
+
+html.is-scrolled .mast-bg {
+  opacity: 1;
+}
+
+@media (max-width: 899px) {
+  html.mast-away .mast-bg {
+    transform: translateY(-120%);
+  }
+}
+
+/* «Абсолют»: светлая рамка и красная вертикальная подпись вместо красной заливки */
+.svc.svc--feat { border-color: var(--ink) !important; }
+.svc.svc--feat:not(.is-open) .svc-vert { color: #ff2b36 !important; }
