@@ -4,7 +4,6 @@ import CookieBanner from '../components/av/CookieBanner.astro';
 import AdPopup from '../components/av/AdPopup.astro';
 import ChatPopup from '../components/av/ChatPopup.astro';
 import { contacts, brand } from '../data/brand';
-import { directStatus } from '../data/status';
 
 interface Props {
   title?: string;
@@ -164,24 +163,8 @@ const links = [
       </button>
     </header>
 
-    <!-- Временный индикатор статуса Яндекс.Директа (src/data/status.ts).
-         Вынесен из .mast: там mix-blend-mode искажает цвета огонька. -->
-    <a
-      href={directStatus.href}
-      class="dstatus mono"
-      data-state={directStatus.state}
-      title={directStatus.text[directStatus.state]}
-      data-text-down={directStatus.text.down}
-      data-text-up={directStatus.text.up}
-      aria-label={`Статус Яндекс.Директа: ${directStatus.text[directStatus.state]}`}
-    >
-      <span class="dstatus-dot" aria-hidden="true"></span>
-      <span class="dstatus-t">Статус Яндекс.Директа</span>
-    </a>
-
     <div class="menu" id="menu" aria-hidden="true">
       <div class="menu-in">
-        <div class="menu-status-slot" aria-hidden="true"></div>
         <nav class="menu-nav" aria-label="Меню сайта">
           {links.map((l, i) => (
             <a href={l.href} class="menu-link">
@@ -222,25 +205,6 @@ const links = [
 
     <script>
       import '../scripts/av.ts';
-    </script>
-  <script>
-      // Актуальный статус Директа (меняется в Cloudflare KV без деплоя)
-      (function () {
-        var el = document.querySelector('.dstatus') as HTMLElement | null;
-        if (!el) return;
-        fetch('/api/status')
-          .then(function (r) {
-            return r.ok ? r.json() : null;
-          })
-          .then(function (d) {
-            if (!d || (d.state !== 'up' && d.state !== 'down')) return;
-            var text = (d.state === 'up' ? el!.dataset.textUp : el!.dataset.textDown) || '';
-            el!.dataset.state = d.state;
-            el!.title = text;
-            el!.setAttribute('aria-label', 'Статус Яндекс.Директа: ' + text);
-          })
-          .catch(function () {});
-      })();
     </script>
   </body>
 </html>
