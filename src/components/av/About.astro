@@ -10,9 +10,9 @@ import { approach } from '../../data/brand';
           <path id="circ" d="M100,100 m-82,0 a82,82 0 1,1 164,0 a82,82 0 1,1 -164,0" />
         </defs>
         <text class="badge-t">
-          <textPath href="#circ" startOffset="0">
-            Работаю самостоятельно · без агентства · без наценок ·
-          </textPath>
+          <!-- textLength = длина окружности (2π·82): текст растягивается ровно на круг,
+               и шов «наценок · Работаю» выглядит так же, как остальные разделители -->
+          <textPath href="#circ" startOffset="0" textLength="515.2" lengthAdjust="spacing">Работаю самостоятельно · без агентства · без наценок ·&#160;</textPath>
         </text>
       </svg>
       <p class="badge-c">5<small>лет</small></p>
@@ -95,7 +95,7 @@ import { approach } from '../../data/brand';
     display: grid;
     place-content: center;
     text-align: center;
-    font-weight: 200;
+    font-family: var(--f-display);    font-weight: var(--display-w);
     font-size: clamp(72px, 9vw, 140px);
     line-height: 0.85;
     letter-spacing: -0.06em;
@@ -146,7 +146,7 @@ import { approach } from '../../data/brand';
   }
 
   .about-lead {
-    font-weight: 600;
+    font-weight: 500;
     font-size: clamp(18px, 1.6vw, 26px);
     line-height: 1.35;
   }

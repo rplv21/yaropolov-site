@@ -133,7 +133,6 @@ if (reduce) {
   document.querySelectorAll('.svc').forEach((s, i) => s.classList.toggle('is-open', i === 0));
   initFaq();
   initStages(false);
-  initCasesTrack(false);
   initHall(); // при «уменьшении движения» схема зала сразу в конечном виде
 } else {
   boot();
@@ -142,6 +141,7 @@ if (reduce) {
 function boot() {
   initCursor();
   initMagnetic();
+  initScramble();
   initIntro();
 }
 
@@ -191,8 +191,34 @@ function initScroll() {
   initFaq();
   initWipe();
   initHeadlines();
+  initLedger();
 
   document.fonts?.ready.then(() => ScrollTrigger.refresh());
+}
+
+// Принцип: недели-столбцы вырастают по мере прокрутки, счётчик доходит до 100 %
+function initLedger() {
+  const root = document.querySelector<HTMLElement>('.ledger');
+  if (!root) return;
+  const bars = $$('.ledger-bar i', root);
+  const pct = root.querySelector<HTMLElement>('[data-mani-pct]');
+  const o = { v: 0 };
+  gsap.set(bars, { scaleY: 0 });
+  const tl = gsap.timeline({
+    scrollTrigger: { trigger: root, start: 'top 88%', end: 'bottom 55%', scrub: 0.8 },
+  });
+  tl.to(bars, { scaleY: 1, ease: 'power2.out', stagger: 0.08, duration: 0.5 }, 0).to(
+    o,
+    {
+      v: 100,
+      ease: 'none',
+      duration: tl.duration() || 1.4,
+      onUpdate: () => {
+        if (pct) pct.textContent = String(Math.round(o.v));
+      },
+    },
+    0
+  );
 }
 
 // Заголовки секций: буквы вылетают при появлении
@@ -299,9 +325,12 @@ function drawHall(cv: HTMLCanvasElement, progress: number) {
     const y = Math.floor(i / cols) * cell + gap / 2;
     ctx.rect(x + 0.5, y + 0.5, size - 1, size - 1);
   }
-  ctx.strokeStyle = 'rgba(242, 237, 228, 0.55)';
+  // цвет контура мест берётся из CSS (color у canvas): тёмный на светлом кейсе, светлый на тёмном
+  ctx.strokeStyle = getComputedStyle(cv).color;
+  ctx.globalAlpha = 0.45;
   ctx.lineWidth = 1;
   ctx.stroke();
+  ctx.globalAlpha = 1;
 
   // Закрашенные (забронированные) места: тоже один путь
   if (shown > 0) {
@@ -311,7 +340,7 @@ function drawHall(cv: HTMLCanvasElement, progress: number) {
       const y = Math.floor(i / cols) * cell + gap / 2;
       ctx.rect(x, y, size, size);
     }
-    ctx.fillStyle = '#d0222e';
+    ctx.fillStyle = getComputedStyle(cv).getPropertyValue('--red').trim() || '#d0222e';
     ctx.fill();
   }
 }
@@ -348,72 +377,25 @@ function hallIn(panel: HTMLElement) {
   });
 }
 
-// Кейсы: горизонтальная прокрутка на широких экранах
+// Кейсы: три блока друг под другом. При появлении блока — счётчики, линия роста,
+// полосы сравнения и схема зала. Всё один раз, мягко.
 function initCases() {
   initHall();
-  const mm = gsap.matchMedia();
-
-  mm.add('(min-width: 1000px)', () => {
-    const track = document.querySelector<HTMLElement>('.hz-track');
-    if (!track) return;
-    const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
-    const panels = $$('.panel');
-    const lines = panels.map((p) => $$('.t-line', p));
-    lines.flat().forEach((l) => (l.style.strokeDashoffset = '1'));
-    const fired = new Set<HTMLElement>();
-    const lastDraw = lines.map(() => -1);
-
-    // Кейс въезжает в кадр ленты: запускаем счётчики и зал, линию роста дорисовываем по мере въезда
-    const apply = () => {
-      const tr = track.getBoundingClientRect();
-      const viewW = track.clientWidth;
-      panels.forEach((panel, i) => {
-        const left = panel.getBoundingClientRect().left - tr.left;
-        if (!fired.has(panel) && left < viewW * 0.75 && tr.top < innerHeight * 0.8 && tr.bottom > 0) {
-          fired.add(panel);
-          $$('[data-count]', panel).forEach((n) => countUp(n));
-          hallIn(panel);
-        }
-        const draw = clamp01((viewW * 0.7 - left) / (viewW * 0.55));
-        if (Math.abs(draw - lastDraw[i]) > 0.004) {
-          lastDraw[i] = draw;
-          const v = String(1 - draw);
-          lines[i].forEach((l) => (l.style.strokeDashoffset = v));
-        }
-      });
-    };
-    track.addEventListener('scroll', apply, { passive: true });
-    ScrollTrigger.create({ trigger: track, start: 'top 80%', onEnter: apply, onRefresh: apply });
-    apply();
-    const stop = initCasesTrack(true);
-    return () => {
-      track.removeEventListener('scroll', apply);
-      stop?.();
-    };
-  });
-
-  mm.add('(max-width: 999px)', () => {
-    $$('.panel').forEach((panel) => {
-      ScrollTrigger.create({
-        trigger: panel,
-        start: 'top 80%',
-        once: true,
-        onEnter: () => {
-          $$('[data-count]', panel).forEach((n) => countUp(n));
-          hallIn(panel);
-        },
-      });
-      $$('.t-line', panel).forEach((p) =>
-        gsap.fromTo(
-          p,
-          { strokeDashoffset: 1 },
-          {
-            strokeDashoffset: 0,
-            ease: 'none',
-            scrollTrigger: { trigger: panel, start: 'top 75%', end: 'center 40%', scrub: true },
-          }
-        )
-      );
+  $$('.case').forEach((c) => {
+    const lines = Array.from(c.querySelectorAll<SVGPathElement>('.t-line'));
+    const bars = $$('.cmp-bar i', c);
+    lines.forEach((l) => (l.style.strokeDashoffset = '1'));
+    bars.forEach((b) => (b.style.transform = 'scaleX(0)'));
+    ScrollTrigger.create({
+      trigger: c,
+      start: 'top 72%',
+      once: true,
+      onEnter: () => {
+        $$('[data-count]', c).forEach((n) => countUp(n, 1.8));
+        if (lines.length) gsap.to(lines, { strokeDashoffset: 0, duration: 1.8, ease: 'power2.inOut' });
+        if (bars.length) gsap.to(bars, { scaleX: 1, duration: 1.4, ease: 'expo.out', stagger: 0.25, delay: 0.2 });
+        hallIn(c);
+      },
     });
   });
 }
@@ -584,8 +566,8 @@ function initServices() {
     gsap.killTweensOf(d.name);
     gsap.fromTo(
       d.name,
-      { opacity: 0, y: '0.28em' },
-      { opacity: 1, y: 0, duration: 0.7, ease: 'expo.out', stagger: { each: 0.014 }, delay: 0.2, clearProps: 'transform,opacity' }
+      { opacity: 0, y: '0.12em' },
+      { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out', stagger: { each: 0.012 }, delay: 0.5, clearProps: 'transform,opacity' }
     );
   };
 
@@ -926,7 +908,7 @@ function initMagnetic() {
 function initScramble() {
   if (!fine) return;
   const glyphs = 'АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЭЮЯ0123456789';
-  $$('[data-scr]').forEach((el) => {
+  $$('.mast-logo[data-scr]').forEach((el) => {
     const original = el.textContent || '';
     let timer = 0;
     el.addEventListener('pointerenter', () => {

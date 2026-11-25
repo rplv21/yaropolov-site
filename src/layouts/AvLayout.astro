@@ -156,7 +156,26 @@ const links = [
     <script is:inline>
       (function () {
         var r = document.documentElement;
-        var on = function () { r.classList.toggle('is-scrolled', window.scrollY > 24); };
+        // Подложка шапки берёт цвет секции под ней: на бумаге — бумажная, на чёрном — чёрная.
+        // Так шапка не выглядит отдельной плашкой, но текст страницы под логотипом не проезжает.
+        var bg = null, last = '';
+        var paint = function () {
+          bg = bg || document.querySelector('.mast-bg');
+          if (!bg) return;
+          var y = 40, x = Math.round(window.innerWidth / 2);
+          var el = document.elementFromPoint(x, y + 30);
+          var c = '';
+          for (var a = el; a && a !== document.documentElement; a = a.parentElement) {
+            var b = getComputedStyle(a).backgroundColor;
+            var m = b.match(/[\d.]+/g);
+            if (m && (m.length < 4 || +m[3] > 0.5)) { c = 'rgba(' + m[0] + ',' + m[1] + ',' + m[2] + ',0.86)'; break; }
+          }
+          if (c && c !== last) { last = c; bg.style.backgroundColor = c; }
+        };
+        var on = function () {
+          r.classList.toggle('is-scrolled', window.scrollY > 24);
+          if (window.scrollY > 24) paint();
+        };
         on();
         window.addEventListener('scroll', on, { passive: true });
       })();

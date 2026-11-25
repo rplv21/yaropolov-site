@@ -1,5 +1,7 @@
 ---
 import { report } from '../../data/brand';
+// Иллюстративный ритм недель: неровный, как живая статистика, без значений
+const heights = [0.42, 0.55, 0.5, 0.63, 0.58, 0.7, 0.66, 0.78, 0.74, 0.86, 0.82, 1];
 ---
 
 <section class="mani" aria-label="Принцип работы">
@@ -8,11 +10,92 @@ import { report } from '../../data/brand';
     <p class="giant mani-big" data-lit>
       {report.bold} Ни один рубль бюджета не проходит мимо отчёта.
     </p>
-    <p class="mani-note">{report.text}</p>
+    <!-- Инфографика принципа: 12 недель, каждая неделя — отчёт; растёт при прокрутке.
+         Высоты столбцов иллюстративные, цифр в них нет. -->
+    <div class="ledger" aria-hidden="true">
+      <div class="ledger-bars">
+        {heights.map((h, i) => (
+          <span class="ledger-bar" style={`--h:${h}`}><i></i><b class="mono">{String(i + 1).padStart(2, '0')}</b></span>
+        ))}
+      </div>
+      <div class="ledger-side">
+        <p class="ledger-n"><span data-mani-pct>100</span>%</p>
+        <p class="mono ledger-l">бюджета — в&nbsp;еженедельном отчёте</p>
+      </div>
+    </div>
   </div>
 </section>
 
 <style>
+  .ledger {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: clamp(24px, 4vw, 72px);
+    align-items: end;
+    margin-top: clamp(48px, 7vw, 112px);
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+
+  .ledger-bars {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(6px, 1vw, 16px);
+    align-items: end;
+    height: clamp(140px, 18vw, 260px);
+  }
+
+  .ledger-bar {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 100%;
+  }
+
+  .ledger-bar i {
+    display: block;
+    height: calc(var(--h) * 100%);
+    background: rgba(242, 237, 228, 0.22);
+    transform-origin: 50% 100%;
+  }
+
+  .ledger-bar:last-child i {
+    background: var(--red);
+  }
+
+  .ledger-bar b {
+    margin-top: 10px;
+    font-weight: 400;
+    color: var(--dim);
+  }
+
+  .ledger-n {
+    font-family: var(--f-display);
+    font-weight: var(--display-w);
+    font-size: clamp(64px, 9vw, 150px);
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    color: var(--red);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ledger-l {
+    margin-top: 12px;
+    max-width: 18ch;
+    color: var(--ink);
+  }
+
+  @media (max-width: 699px) {
+    .ledger {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .ledger-bar b {
+      font-size: 9px;
+    }
+  }
+
   .mani {
     background: var(--paper);
     --red: #ff2b36;

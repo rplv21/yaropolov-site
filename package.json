@@ -19,6 +19,7 @@
     "@fontsource/jost": "^5.3.0",
     "@fontsource/onest": "^5.3.1",
     "@fontsource/oswald": "^5.3.0",
+    "@fontsource/prata": "^5.3.0",
     "@fontsource/unbounded": "^5.3.0",
     "astro": "^7.2.4",
     "aws4fetch": "^1.0.20",

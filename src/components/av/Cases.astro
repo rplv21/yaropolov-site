@@ -1,19 +1,19 @@
 ---
 import { case1, case2, case3, hall } from '../../data/brand';
 
-// Процент с одним знаком и запятой (604 из 726 = 83,2); полный зал показываем как «100»
-// Схема зала рисуется на canvas: одна сетка 33 места в ряд
+// Кейсы: три блока друг под другом, светлый — тёмный — светлый.
+// В каждом только главное: что за проект, одна строка контекста и крупная инфографика
+// с двумя-тремя самыми красноречивыми цифрами. Полные списки работ остались в data/site.ts.
 const hallCols = 33;
 const hallRows = Math.ceil(hall.total / hallCols);
-const pct = (b: number) => (b >= hall.total ? '100' : ((b / hall.total) * 100).toFixed(1).replace('.', ','));
+const fullDays = hall.days.filter((d) => d.booked !== null && d.booked >= hall.total).length;
 
+const budget = case2.statsRow1.find((s) => /бюджет/i.test(s.label))?.num ?? 100000;
+const revenue = case2.statsRow2.find((s) => /выручк/i.test(s.label))?.num ?? 170000;
+const fmt = (n: number) => n.toLocaleString('ru-RU').replace(/\s/g, ' ');
 
-const fmt = (n: number) => n.toLocaleString('ru-RU').replace(/ /g, ' ');
-const lines = (s: string) => s.replace(/\n/g, ' ');
-
-// Иллюстративные формы кривых: без осей и значений, цифры стоят рядом.
-const rise = 'M4,84 C50,86 90,60 140,50 S230,30 296,6';
-const climb = 'M4,92 C60,90 100,86 150,76 S230,40 296,6';
+// Иллюстративная форма кривой роста: без осей и значений, цифра стоит рядом
+const rise = 'M4,170 C120,172 220,140 330,112 S520,52 696,10';
 ---
 
 <section class="cases" id="cases" aria-labelledby="cases-title">
@@ -22,536 +22,295 @@ const climb = 'M4,92 C60,90 100,86 150,76 S230,40 296,6';
     <h2 id="cases-title" class="giant cases-h" data-split>Три проекта, <em>разобранных</em> подробно</h2>
   </div>
 
-  <div class="hz-pin">
-    <div class="hz-track">
-      <!-- Кейс 1. NDA: имя заказчика и число обращений не раскрываются. -->
-      <article class="panel" aria-labelledby="case1-title">
-        <div class="panel-text">
-          <p class="mono dim">{case1.label} · {case1.period}</p>
-          <h3 id="case1-title" class="panel-title">{case1.title}</h3>
-          <p class="panel-ctx">{lines(case1.context)}</p>
-          <ul class="panel-acts">
-            {case1.actions.map((a) => <li>{lines(a)}</li>)}
-          </ul>
-        </div>
-
-        <div class="panel-fig">
-          <p class="panel-big red" data-count>+{case1.growth.value}%</p>
-          <p class="panel-big-l">{case1.growth.label}</p>
-          <p class="mono dim">{case1.growth.description}</p>
-          <svg class="trend red" viewBox="0 0 300 100" aria-hidden="true" focusable="false">
-            <line class="t-base" x1="0" y1="96" x2="300" y2="96" />
-            <path class="t-line" d={rise} pathLength="1" />
-            <circle class="t-dot" cx="296" cy="6" r="5" />
-          </svg>
-          <dl class="stats">
-            {[...case1.statsRow1, ...case1.statsRow2].map((s) => (
-              <div>
-                <dt class="mono dim">{s.label}</dt>
-                <dd data-count>{fmt(s.num)}{s.suffix}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      </article>
-
-      <article class="panel panel--red" aria-labelledby="case2-title">
-        <div class="panel-text">
-          <p class="mono">{case2.label} · {case2.period}</p>
-          <h3 id="case2-title" class="panel-title">{case2.title}</h3>
-          <p class="panel-ctx">{case2.context}</p>
-          <ul class="panel-acts">
-            {case2.actions.map((a) => <li>{a}</li>)}
-          </ul>
-        </div>
-
-        <div class="panel-fig">
-          <div class="duo">
-            <div>
-              <p class="panel-big" data-count>{case2.headline[0].num}</p>
-              <p class="panel-big-l">{case2.headline[0].label}</p>
-            </div>
-            <div>
-              <p class="panel-big" data-count>{case2.headline[1].num}%</p>
-              <p class="panel-big-l">{case2.headline[1].label}</p>
-            </div>
-          </div>
-          <svg class="trend" viewBox="0 0 300 100" aria-hidden="true" focusable="false">
-            <line class="t-base" x1="0" y1="96" x2="300" y2="96" />
-            <path class="t-line" d={climb} pathLength="1" />
-            <circle class="t-dot" cx="296" cy="6" r="5" />
-          </svg>
-          <dl class="stats">
-            {[...case2.statsRow1, ...case2.statsRow2].map((s) => (
-              <div>
-                <dt class="mono">{s.label}</dt>
-                <dd data-count>{fmt(s.num)}{s.suffix}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      </article>
-
-      <article class="panel panel--paper" aria-labelledby="case3-title">
-        <div class="panel-text">
-          <p class="mono">{case3.label} · {case3.period}</p>
-          <h3 id="case3-title" class="panel-title">{case3.title}</h3>
-          <p class="panel-ctx">{case3.context}</p>
-          <ul class="panel-acts">
-            {case3.actions.map((a) => <li>{a}</li>)}
-          </ul>
-          <p class="panel-avail mono">Сайт работал в период фестиваля</p>
-        </div>
-
-        <div class="panel-fig">
-          <p class="panel-big red" data-count>{case3.big}</p>
-          <p class="panel-big-l">{case3.bigLabel}</p>
-
-          <dl class="stats">
-            {case3.stats.map((s) => (
-              <div>
-                <dt class="mono">{s.label}</dt>
-                <dd data-count={s.count ? '' : undefined}>{s.value}</dd>
-              </div>
-            ))}
-          </dl>
-
-          <div class="occ">
-            <p class="mono occ-h">Занятость мест в зале</p>
-            <div class="occ-grid">
-              {hall.days.map((d) => (
-                <div class="occ-day">
-                  <canvas
-                    class="occ-canvas"
-                    data-total={hall.total}
-                    data-booked={d.booked ?? 0}
-                    data-cols={hallCols}
-                    style={`aspect-ratio: ${hallCols} / ${hallRows}`}
-                    role="img"
-                    aria-label={`Схема зала на ${d.label}: занято ${d.booked ?? 0} из ${hall.total} мест`}
-                  ></canvas>
-                  <p class="occ-d">{d.label}</p>
-                  <p class="occ-v">
-                    {d.booked === null ? (
-                      <span>{hall.total} мест, бронь открыта</span>
-                    ) : (
-                      <span>
-                        <b>{pct(d.booked)}%</b> занято, <span class="nw">{d.booked} из {hall.total}</span>
-                      </span>
-                    )}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </article>
-    </div>
-    <!-- Правило ЯПА: под горизонтальной лентой — счётчик, линия прогресса и стрелки -->
-    <div class="hz-ctl" data-hz-ctl>
-      <span class="hz-count mono" data-hz-count>01 / 03</span>
-      <div class="hz-bar" aria-hidden="true"><i data-hz-bar></i></div>
-      <div class="hz-arrows">
-        <button type="button" data-hz-prev aria-label="Предыдущий кейс"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true" style="transform:rotate(180deg)"><path d="M1 8h13M9 3l5 5-5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="square" /></svg></button>
-        <button type="button" data-hz-next aria-label="Следующий кейс"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true"><path d="M1 8h13M9 3l5 5-5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="square" /></svg></button>
+  <div class="wrap case-list">
+    <!-- Кейс 1. NDA: имя заказчика и число обращений не раскрываются -->
+    <article class="case case--light" aria-labelledby="case1-title">
+      <div class="case-text">
+        <p class="mono case-meta">{case1.label} · {case1.period}</p>
+        <h3 id="case1-title" class="case-title">{case1.title}</h3>
+        <p class="case-ctx">Поиск и РСЯ по пяти товарным направлениям, реклама на 50+ регионов.</p>
       </div>
-    </div>
+      <figure class="case-fig">
+        <p class="case-big red" data-count>+{case1.growth.value}%</p>
+        <figcaption class="case-big-l">рост обращений с сентября 2025</figcaption>
+        <svg class="trend" viewBox="0 0 700 180" aria-hidden="true" focusable="false">
+          <line class="t-base" x1="0" y1="176" x2="700" y2="176" />
+          <path class="t-line" d={rise} pathLength="1" />
+          <circle class="t-dot" cx="696" cy="10" r="7" />
+        </svg>
+        <dl class="case-kpi">
+          <div><dt class="mono">Бюджет в месяц</dt><dd data-count>1 000 000 ₽</dd></div>
+          <div><dt class="mono">Регионов</dt><dd>50+</dd></div>
+        </dl>
+      </figure>
+    </article>
+
+    <article class="case case--dark" aria-labelledby="case2-title">
+      <div class="case-text">
+        <p class="mono case-meta">{case2.label} · {case2.period}</p>
+        <h3 id="case2-title" class="case-title">{case2.title}</h3>
+        <p class="case-ctx">Платной рекламы не было вообще. Запустил Директ с нуля и настроил учёт покупок билетов.</p>
+      </div>
+      <figure class="case-fig">
+        <p class="case-big red" data-count>{case2.headline[1].num}%</p>
+        <figcaption class="case-big-l">окупаемость рекламы: на каждый вложенный рубль — 1,7 рубля выручки</figcaption>
+        <div class="cmp" aria-label={`Вложено ${fmt(budget)} ₽, выручка ${fmt(revenue)} ₽`}>
+          <div class="cmp-row">
+            <span class="mono cmp-l">Вложено в рекламу</span>
+            <span class="cmp-bar"><i style={`width:${(budget / revenue) * 100}%`}></i></span>
+            <span class="cmp-v">{fmt(budget)} ₽</span>
+          </div>
+          <div class="cmp-row cmp-row--hot">
+            <span class="mono cmp-l">Выручка</span>
+            <span class="cmp-bar"><i style="width:100%"></i></span>
+            <span class="cmp-v">{fmt(revenue)} ₽</span>
+          </div>
+        </div>
+        <dl class="case-kpi">
+          <div><dt class="mono">{case2.headline[0].label}</dt><dd data-count>{case2.headline[0].num}</dd></div>
+        </dl>
+      </figure>
+    </article>
+
+    <article class="case case--light" aria-labelledby="case3-title">
+      <div class="case-text">
+        <p class="mono case-meta">{case3.label} · {case3.period}</p>
+        <h3 id="case3-title" class="case-title">Сайт фестиваля «Русский костюм» с&nbsp;собственной билетной системой</h3>
+        <p class="case-ctx">Бронь по схеме зала, PDF-билет, панель администратора и реклама в Директе.</p>
+      </div>
+      <figure class="case-fig">
+        <p class="case-big red" data-count>{case3.big}</p>
+        <figcaption class="case-big-l">визитов на сайт за три недели рекламы</figcaption>
+        <div class="occ">
+          <canvas
+            class="occ-canvas"
+            data-total={hall.total}
+            data-booked={hall.days[0].booked ?? 0}
+            data-cols={hallCols}
+            style={`aspect-ratio: ${hallCols} / ${hallRows}`}
+            role="img"
+            aria-label={`Схема зала: занято ${hall.days[0].booked ?? 0} из ${hall.total} мест`}
+          ></canvas>
+          <p class="mono occ-l">{fullDays === hall.days.length ? `Оба дня — полный зал, ${hall.total} из ${hall.total} мест` : `${hall.total} мест в зале`}</p>
+        </div>
+      </figure>
+    </article>
   </div>
 </section>
 
 <style>
-  .nw {
-    white-space: nowrap;
-  }
-
   .cases {
     background: var(--ink-2);
+    color: var(--paper);
     --dim: #6b655b;
-    padding-top: clamp(72px, 10vw, 160px);
+    padding-block: clamp(72px, 10vw, 160px);
   }
 
   .cases-h {
     margin-top: clamp(20px, 3vw, 40px);
     max-width: 14ch;
-    font-size: clamp(44px, 8.4vw, 160px);
   }
 
-  .hz-pin {
-    margin-top: clamp(40px, 6vw, 96px);
-    padding-bottom: clamp(40px, 6vw, 96px);
+  .cases-h :global(em) {
+    color: var(--red);
   }
 
-  .hz-ctl {
-    display: none;
-  }
-
-  /* Правило ЯПА (как лента «Кадры» у прототипа Сиротиной): без закрепления блока.
-     Лента сама прокручивается вбок; колесо листает её, пока курсор над полосой кейсов,
-     а выше/ниже полосы и на краях ленты страница едет как обычно (см. initCases в av.ts). */
-  @media (min-width: 1000px) {
-    .hz-pin {
-      padding-bottom: clamp(56px, 7vw, 120px);
-    }
-
-    .hz-ctl {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      align-items: center;
-      gap: 24px;
-      margin-top: 32px;
-      padding-inline: var(--pad);
-      color: var(--paper);
-    }
-
-    .hz-count {
-      font-size: 12px;
-      letter-spacing: 0.14em;
-      color: var(--dim);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .hz-bar {
-      position: relative;
-      height: 1px;
-      background: var(--line);
-      overflow: hidden;
-    }
-
-    .hz-bar i {
-      position: absolute;
-      inset: 0;
-      background: var(--red);
-      transform-origin: left center;
-      transform: scaleX(0.05);
-      transition: transform 0.35s var(--ease);
-    }
-
-    .hz-arrows {
-      display: flex;
-      gap: 8px;
-    }
-
-    .hz-arrows button {
-      display: grid;
-      place-items: center;
-      width: 48px;
-      height: 48px;
-      border: 1px solid var(--line);
-      border-radius: 50%;
-      color: var(--paper);
-      background: transparent;
-      cursor: pointer;
-      transition: border-color 0.25s ease, background-color 0.25s ease, opacity 0.25s ease;
-    }
-
-    .hz-arrows button:hover:not(:disabled) {
-      border-color: var(--paper);
-      background: rgba(18, 17, 16, 0.06);
-    }
-
-    .hz-arrows button:focus-visible {
-      outline: 1px solid var(--paper);
-      outline-offset: 3px;
-    }
-
-    .hz-arrows button:disabled {
-      opacity: 0.3;
-      cursor: default;
-    }
-  }
-
-  .hz-track {
-    /* Своя композитная сетка: сдвиг дорожки не перерисовывает панели */
-    will-change: transform;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    padding-inline: var(--pad);
-  }
-
-  @media (min-width: 1000px) {
-    .hz-track {
-      will-change: auto;
-      flex-direction: row;
-      align-items: stretch;
-      gap: 40px;
-      padding-inline: var(--pad);
-      overflow-x: auto;
-      overscroll-behavior-x: contain;
-      scroll-padding-inline: var(--pad);
-      scrollbar-width: none;
-    }
-
-    .hz-track::-webkit-scrollbar {
-      display: none;
-    }
-
-    .hz-track > .panel {
-      flex: none;
-    }
-  }
-
-  @media (min-width: 1000px) and (hover: none) {
-    .hz-track {
-      scroll-snap-type: x mandatory;
-    }
-
-    .hz-track > .panel {
-      scroll-snap-align: start;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .hz-bar i {
-      transition: none;
-    }
-  }
-
-  .panel {
+  .case-list {
     display: grid;
-    gap: 40px;
-    padding: clamp(24px, 3.4vw, 56px);
-    border: 1px solid var(--line);
+    gap: 0;
+    margin-top: clamp(40px, 6vw, 88px);
+  }
+
+  .case {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(32px, 5vw, 96px);
+    align-items: center;
+    padding: clamp(32px, 5vw, 80px);
+  }
+
+  .case--light {
     background: var(--ink);
+    color: var(--paper);
     --dim: #6b655b;
   }
 
-  .panel--red {
+  .case--dark {
     background: var(--paper);
-    --red: #ff2b36;
-    --line: rgba(242, 237, 228, 0.2);
     color: var(--ink);
-    border-color: var(--paper);
     --dim: #a49d8a;
-  }
-
-  .panel--paper .dim {
-    color: #8b8580;
-  }
-
-  .panel--paper {
-    background: var(--paper);
     --red: #ff2b36;
     --line: rgba(242, 237, 228, 0.2);
-    --dim: #8b8580;
-    color: var(--ink);
-    border-color: var(--paper);
   }
 
-  .panel-note {
+  .case-meta {
+    color: var(--dim);
+  }
+
+  .case-title {
     margin-top: 16px;
-    text-transform: none;
-    letter-spacing: 0.02em;
-    font-size: 11px;
+    font-family: var(--f-display);
+    font-weight: var(--display-w);
+    font-size: clamp(26px, 2.6vw, 42px);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
   }
 
-  .occ {
-    margin-top: 22px;
-    padding-top: 16px;
-    border-top: 1px solid var(--ink);
-  }
-
-  .occ-grid {
-    margin-top: 12px;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-  }
-
-  /* Схема зала: один canvas на день, 726 мест рисуются разом (красные забронированы) */
-  .occ-canvas {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  .occ-d {
-    margin-top: 10px;
-    font-weight: 600;
-  }
-
-  .occ-v {
-    font-size: 14px;
-    line-height: 1.35;
-  }
-
-  .occ-v b {
-    font-weight: 600;
-    color: var(--red);
-    font-size: 1.15em;
-  }
-
-  .panel--paper .panel-acts li::before {
-    background: var(--red);
-  }
-
-  /* Мини-схема зала: точки-места, красные заняты */
-  .hall {
-    display: grid;
-    gap: 7px;
-    justify-items: center;
-    margin-top: 28px;
-  }
-
-  .hall-row {
-    display: flex;
-    gap: 7px;
-  }
-
-  .seat {
-    width: clamp(10px, 1.1vw, 16px);
-    height: clamp(10px, 1.1vw, 16px);
-    border: 1px solid var(--ink);
-    border-radius: 3px 3px 5px 5px;
-  }
-
-  .seat--taken {
-    background: var(--red);
-    border-color: var(--red);
-  }
-
-  @media (min-width: 1000px) {
-    .panel {
-      width: min(1180px, 82vw);
-      grid-template-columns: 5fr 6fr;
-      gap: clamp(32px, 4vw, 72px);
-      min-height: min(74vh, 700px);
-    }
-  }
-
-  .panel-title {
+  .case-ctx {
     margin-top: 18px;
-    font-weight: 200;
-    font-size: clamp(26px, 3vw, 52px);
-    line-height: 1.04;
-    letter-spacing: -0.045em;
+    max-width: 40ch;
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--dim);
   }
 
-  .panel-ctx {
-    margin-top: 16px;
-    max-width: 44ch;
-    opacity: 0.85;
+  .case-fig {
+    margin: 0;
+    min-width: 0;
   }
 
-  .panel-acts {
-    margin-top: 24px;
-    max-width: 48ch;
-  }
-
-  .panel-acts li {
-    position: relative;
-    padding: 12px 0 12px 26px;
-    border-top: 1px solid currentColor;
-    border-top-color: color-mix(in srgb, currentColor 30%, transparent);
-    font-size: 15px;
-  }
-
-  .panel-acts li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 21px;
-    width: 8px;
-    height: 8px;
-    background: var(--red);
-  }
-
-  .panel--red .panel-acts li::before {
-    background: var(--ink);
-  }
-
-  .panel-big {
-    font-weight: 200;
-    font-size: clamp(72px, 11vw, 190px);
+  .case-big {
+    font-family: var(--f-display);
+    font-weight: var(--display-w);
+    font-size: clamp(72px, 10vw, 168px);
     line-height: 0.9;
-    letter-spacing: -0.07em;
+    letter-spacing: -0.04em;
     font-variant-numeric: tabular-nums;
   }
 
-  .panel-big-l {
-    margin-top: 10px;
-    font-weight: 600;
-    font-size: 17px;
+  .case-big.red {
+    color: var(--red);
   }
 
-  .duo {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 24px;
-  }
-
-  .duo .panel-big {
-    font-size: clamp(54px, 7.4vw, 128px);
+  .case-big-l {
+    margin-top: 14px;
+    max-width: 36ch;
+    font-size: 16px;
+    line-height: 1.45;
   }
 
   .trend {
     display: block;
     width: 100%;
     height: auto;
-    margin-top: 20px;
+    margin-top: clamp(24px, 3vw, 40px);
     overflow: visible;
   }
 
   .t-base {
     stroke: currentColor;
-    stroke-opacity: 0.3;
+    stroke-opacity: 0.25;
   }
 
   .t-line {
     fill: none;
-    stroke: currentColor;
-    stroke-width: 3.5;
-    stroke-linecap: square;
+    stroke: var(--red);
+    stroke-width: 3;
     stroke-dasharray: 1;
+    stroke-linecap: round;
   }
 
   .t-dot {
-    fill: currentColor;
+    fill: var(--red);
   }
 
-  .stats {
-    margin: 24px 0 0;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    border-top: 1px solid currentColor;
-    border-top-color: color-mix(in srgb, currentColor 40%, transparent);
+  .case-kpi {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px clamp(28px, 4vw, 64px);
+    margin: clamp(24px, 3vw, 36px) 0 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
   }
 
-  @media (min-width: 640px) {
-    .stats {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
+  .case-kpi dt {
+    color: var(--dim);
   }
 
-  /* Узкие экраны: длинные подписи («Яндекс.Директа») не должны налезать на соседнюю колонку */
-  .stats dt {
-    overflow-wrap: anywhere;
-    hyphens: auto;
-  }
-
-  @media (max-width: 639px) {
-    .stats dt {
-      font-size: 11px;
-      letter-spacing: 0.08em;
-    }
-  }
-
-  .stats div {
-    padding: 14px 12px 14px 0;
-    border-bottom: 1px solid currentColor;
-    border-bottom-color: color-mix(in srgb, currentColor 20%, transparent);
-  }
-
-  .stats dd {
-    margin: 4px 0 0;
-    font-weight: 200;
-    font-size: clamp(22px, 2vw, 34px);
-    letter-spacing: -0.04em;
-    white-space: nowrap;
+  .case-kpi dd {
+    margin: 6px 0 0;
+    font-family: var(--f-display);
+    font-weight: var(--display-w);
+    font-size: clamp(24px, 2.4vw, 36px);
+    line-height: 1;
     font-variant-numeric: tabular-nums;
   }
 
-  .panel-avail {
-    margin-top: clamp(20px, 2.4vw, 32px);
+  /* Сравнение «вложено / выручка» */
+  .cmp {
+    display: grid;
+    gap: 14px;
+    margin-top: clamp(24px, 3vw, 40px);
+  }
+
+  .cmp-row {
+    display: grid;
+    grid-template-columns: 9.5em minmax(0, 1fr) 7.5em;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .cmp-l {
+    color: var(--dim);
+  }
+
+  .cmp-bar {
+    position: relative;
+    height: 18px;
+  }
+
+  .cmp-bar i {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: currentColor;
+    opacity: 0.35;
+    transform-origin: left center;
+  }
+
+  .cmp-row--hot .cmp-bar i {
+    background: var(--red);
+    opacity: 1;
+  }
+
+  .cmp-v {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* Схема зала */
+  .occ {
+    margin-top: clamp(24px, 3vw, 40px);
+  }
+
+  .occ-canvas {
+    display: block;
+    width: 100%;
+    color: var(--paper);
+  }
+
+  .case--dark .occ-canvas {
+    color: var(--ink);
+  }
+
+  .occ-l {
+    margin-top: 12px;
+    color: var(--dim);
+  }
+
+  @media (max-width: 899px) {
+    .case {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .cmp-row {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .cmp-bar {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
   }
 </style>
