@@ -174,11 +174,9 @@ const faqSchema = article.faq?.length
 
   /* Тело статьи на бумаге: длинный текст читается лучше светлым */
   .abody {
-    background: var(--paper);
-    --red: #ff2b36;
-    --line: rgba(242, 237, 228, 0.2);
-    --dim: #8b8580;
-    color: var(--ink);
+    background: var(--ink);
+    --dim: #6b655b;
+    color: var(--paper);
     padding-block: clamp(56px, 8vw, 128px);
   }
 
@@ -199,7 +197,7 @@ const faqSchema = article.faq?.length
     align-items: center;
     gap: 14px;
     align-self: start;
-    color: #8b8580;
+    color: var(--dim);
   }
 
   /* метка «Статья» прилипает только в двухколоночной раскладке, где у неё своя колонка;
@@ -218,7 +216,8 @@ const faqSchema = article.faq?.length
   }
 
   .abody-text {
-    max-width: 70ch;
+    /* Montserrat Alternates широкий: 60ch ≈ 70 знаков в строке */
+    max-width: 60ch;
     display: grid;
     gap: 22px;
   }
@@ -249,14 +248,14 @@ const faqSchema = article.faq?.length
   }
 
   .faq-item h3 {
-    font-weight: 600;
+    font-weight: 500;
     font-size: clamp(18px, 1.5vw, 22px);
     line-height: 1.3;
   }
 
   .abody-text :global(strong) {
-    font-weight: 600;
-    color: var(--ink);
+    font-weight: 500;
+    color: var(--paper);
   }
 
   .abody-text :global(a) {
@@ -271,7 +270,7 @@ const faqSchema = article.faq?.length
   .author {
     margin-top: clamp(32px, 5vw, 72px);
     padding-top: 24px;
-    border-top: 1px solid var(--ink);
+    border-top: 1px solid var(--paper);
     display: grid;
     gap: 10px;
   }
@@ -280,7 +279,7 @@ const faqSchema = article.faq?.length
   .abody-text .author-tag {
     font-size: 12px;
     line-height: 1.4;
-    color: #8b8580;
+    color: var(--dim);
   }
 
   .abody-text .author-name {
@@ -288,7 +287,7 @@ const faqSchema = article.faq?.length
     font-size: clamp(30px, 3.6vw, 56px);
     letter-spacing: -0.05em;
     line-height: 1;
-    color: var(--ink);
+    color: var(--paper);
   }
 
   .abody-text .author-text {
@@ -304,7 +303,7 @@ const faqSchema = article.faq?.length
   }
 
   .abody-text .author-link {
-    font-weight: 600;
+    font-weight: 500;
     font-size: 15px;
   }
 

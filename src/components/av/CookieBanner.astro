@@ -59,10 +59,12 @@
     left: clamp(12px, 2vw, 28px);
     bottom: clamp(12px, 2vw, 28px);
     z-index: 160;
-    width: min(440px, calc(100vw - 24px));
+    /* % у fixed считается от окна без полосы прокрутки, 100vw — с ней */
+    width: min(440px, calc(100% - 24px));
     padding: 20px 22px;
     background: var(--paper);
     color: var(--ink);
+    --red: #ff2b36;
     border: 1px solid var(--ink);
     box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
   }

@@ -352,6 +352,22 @@ const pad = (n: number) => String(n).padStart(2, '0');
     white-space: pre-line;
   }
 
+  /* На телефоне колонка узкая: ручные переносы строк из десктопа дают рваный край
+     и выталкивают длинные неразрывные пары за экран — там текст переносится сам */
+  @media (max-width: 699px) {
+    .st-x {
+      white-space: normal;
+      overflow-wrap: break-word;
+    }
+  }
+
+  @media (max-width: 479px) {
+    .st-step {
+      grid-template-columns: 28px minmax(0, 1fr);
+      column-gap: 10px;
+    }
+  }
+
   .st-meta {
     display: flex;
     flex-wrap: wrap;

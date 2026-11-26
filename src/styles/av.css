@@ -145,6 +145,12 @@ button {
   color: var(--red);
 }
 
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
 .giant {
   font-family: var(--f-display);
   font-weight: var(--display-w);
@@ -629,6 +635,7 @@ html.still *::after {
 .mast-logo,
 .menu-tg,
 .foot a,
+.foot .ck-open,
 .privacy-open,
 .svc-go,
 .st-link,
@@ -639,6 +646,7 @@ html.still *::after {
 .mast-logo::after,
 .menu-tg::after,
 .foot a::after,
+.foot .ck-open::after,
 .privacy-open::after,
 .svc-go::after,
 .st-link::after,

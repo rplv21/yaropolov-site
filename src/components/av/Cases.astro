@@ -102,13 +102,15 @@ const rise = 'M4,170 C120,172 220,140 330,112 S520,52 696,10';
   .cases {
     background: var(--ink-2);
     color: var(--paper);
-    --dim: #6b655b;
+    /* на #e8e2d6 нужен чуть темнее, чтобы мелкие подписи прошли AA */
+    --dim: #5f5950;
     padding-block: clamp(72px, 10vw, 160px);
   }
 
   .cases-h {
     margin-top: clamp(20px, 3vw, 40px);
     max-width: 14ch;
+    font-size: clamp(44px, 8.4vw, 160px);
   }
 
   .cases-h :global(em) {

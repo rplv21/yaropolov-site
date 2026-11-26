@@ -91,8 +91,13 @@ const heights = [0.42, 0.55, 0.5, 0.63, 0.58, 0.7, 0.66, 0.78, 0.74, 0.86, 0.82,
       grid-template-columns: minmax(0, 1fr);
     }
 
+    /* на телефоне подписываем только первую и последнюю неделю — 12 подписей не помещаются */
     .ledger-bar b {
-      font-size: 9px;
+      font-size: 11px;
+    }
+
+    .ledger-bar:not(:first-child):not(:last-child) b {
+      visibility: hidden;
     }
   }
 
