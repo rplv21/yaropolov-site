@@ -101,14 +101,19 @@ function splitWords(el: HTMLElement): HTMLElement[] {
 }
 
 // Число «набегает» от нуля. Формат берём из исходной строки: «+85%», «1 000 000 ₽».
+// Итоговый текст запоминается один раз в data-атрибуте: повторный запуск (второй триггер,
+// быстрый скролл туда-обратно) берёт исходное число, а не промежуточное «417+»,
+// и заменяет предыдущий счёт, а не идёт параллельно с ним.
+const counting = new WeakMap<HTMLElement, gsap.core.Tween>();
 function countUp(el: HTMLElement, duration = 1.6) {
-  const full = el.textContent || '';
+  const full = (el.dataset.full ??= el.textContent || '');
   const m = full.match(/^(\D*)([\d\s ]*\d)(.*)$/);
   if (!m) return;
   const [, pre, numStr, suf] = m;
   const to = parseInt(numStr.replace(/\D/g, ''), 10);
   const o = { v: 0 };
-  gsap.to(o, {
+  counting.get(el)?.kill();
+  const tw = gsap.to(o, {
     v: to,
     duration,
     ease: 'power3.out',
@@ -119,6 +124,7 @@ function countUp(el: HTMLElement, duration = 1.6) {
       el.textContent = full;
     },
   });
+  counting.set(el, tw);
 }
 
 /* ───────── Форма: ничего не прячем, работает всегда ───────── */
@@ -241,7 +247,7 @@ function initHeadlines() {
 // Счётчики
 function initCounters() {
   $$('[data-count]').forEach((el) => {
-    if (el.closest('.panel')) return; // кейсы считают сами, см. initCases
+    if (el.closest('.case, .panel')) return; // кейсы считают сами, см. initCases
     ScrollTrigger.create({ trigger: el, start: 'top 90%', once: true, onEnter: () => countUp(el) });
   });
 }
