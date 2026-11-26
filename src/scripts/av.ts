@@ -204,8 +204,10 @@ function initLedger() {
   const pct = root.querySelector<HTMLElement>('[data-mani-pct]');
   const o = { v: 0 };
   gsap.set(bars, { scaleY: 0 });
+  // в HTML стоит 100 (для режима без анимации); с анимацией счёт начинается с нуля
+  if (pct) pct.textContent = '0';
   const tl = gsap.timeline({
-    scrollTrigger: { trigger: root, start: 'top 88%', end: 'bottom 55%', scrub: 0.8 },
+    scrollTrigger: { trigger: root, start: 'top 88%', end: 'top 33%', scrub: 0.4 },
   });
   tl.to(bars, { scaleY: 1, ease: 'power2.out', stagger: 0.08, duration: 0.5 }, 0).to(
     o,
