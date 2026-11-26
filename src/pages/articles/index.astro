@@ -119,6 +119,8 @@ const sorted = [...articles].sort(
   .ahead-h {
     margin-top: clamp(20px, 3vw, 40px);
     font-size: clamp(40px, 8.2vw, 156px);
+    /* «р» в «рекламу» стоит над «б/й» второй строки */
+    line-height: 1.08;
   }
 
   .alist {
@@ -156,7 +158,7 @@ const sorted = [...articles].sort(
   .arow-title {
     font-family: var(--f-display);    font-weight: var(--display-w);
     font-size: clamp(26px, 3.4vw, 58px);
-    line-height: 1.05;
+    line-height: 1.1;
     letter-spacing: -0.045em;
     max-width: 22ch;
     text-wrap: balance;

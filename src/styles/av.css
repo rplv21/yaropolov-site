@@ -155,8 +155,7 @@ h3 {
   font-family: var(--f-display);
   font-weight: var(--display-w);
   letter-spacing: var(--display-ls);
-  /* 1.08: при меньшем хвост «р/у/д» верхней строки касается «б/й/ё» нижней (Jost) */
-  line-height: 1.08;
+  line-height: 0.94;
 }
 
 .giant em,
