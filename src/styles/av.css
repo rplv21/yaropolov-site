@@ -2,8 +2,10 @@
 @import '@fontsource/jost/cyrillic-500.css';
 @import '@fontsource/jost/latin-400.css';
 @import '@fontsource/jost/latin-500.css';
-@import '@fontsource/prata/cyrillic-400.css';
-@import '@fontsource/prata/latin-400.css';
+@import '@fontsource/montserrat-alternates/cyrillic-400.css';
+@import '@fontsource/montserrat-alternates/cyrillic-500.css';
+@import '@fontsource/montserrat-alternates/latin-400.css';
+@import '@fontsource/montserrat-alternates/latin-500.css';
 
 /* ───────────────────────────────────────────────
    Авангард: кинетическая типографика на чёрном и бумаге.
@@ -19,11 +21,12 @@
   --line: rgba(18, 17, 16, 0.18);
   --line-ink: rgba(242, 237, 228, 0.2);
 
-  --f: 'Jost', 'Futura', system-ui, sans-serif;
-  --f-display: 'Prata', Georgia, serif;
+  /* Заголовки — Jost, весь остальной текст и подписи — Montserrat Alternates */
+  --f: 'Montserrat Alternates', 'Montserrat', system-ui, sans-serif;
+  --f-display: 'Jost', 'Futura', system-ui, sans-serif;
   --display-w: 400;
-  --display-ls: -0.025em;
-  --mono: 'Jost', 'Futura', sans-serif;
+  --display-ls: -0.03em;
+  --mono: 'Montserrat Alternates', 'Montserrat', sans-serif;
 
   --pad: clamp(20px, 4vw, 72px);
   --mast: 64px;
