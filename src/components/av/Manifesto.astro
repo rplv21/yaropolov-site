@@ -33,7 +33,9 @@ const heights = [0.42, 0.55, 0.5, 0.63, 0.58, 0.7, 0.66, 0.78, 0.74, 0.86, 0.82,
     gap: clamp(24px, 4vw, 72px);
     align-items: end;
     margin-top: clamp(48px, 7vw, 112px);
-    padding-top: 24px;
+    /* Отступ от линии сверху равен верхнему отступу следующей секции «Типовые ситуации»:
+       блок стоит ровно посередине между линией и полоской её метки */
+    padding-top: calc(clamp(72px, 10vw, 160px) + 7px); /* +7 px: полоска метки идёт по её середине */
     border-top: 1px solid var(--line);
   }
 
@@ -107,7 +109,7 @@ const heights = [0.42, 0.55, 0.5, 0.63, 0.58, 0.7, 0.66, 0.78, 0.74, 0.86, 0.82,
     --line: rgba(242, 237, 228, 0.2);
     --dim: #a49d8a;
     color: var(--ink);
-    padding-block: clamp(72px, 11vw, 190px);
+    padding-block: clamp(72px, 11vw, 190px) 0;
   }
 
   .mani .tag {
